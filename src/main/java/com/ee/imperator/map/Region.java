@@ -1,21 +1,21 @@
 package com.ee.imperator.map;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.ee.imperator.user.User;
 
-public class Region {
+public class Region implements Comparable<Region> {
 	private final String id;
 	private final String name;
 	private final int units;
-	private final List<Territory> territories;
+	private final Set<Territory> territories;
 
 	public Region(String id, String name, int units) {
 		this.id = id;
 		this.name = name;
 		this.units = units;
-		this.territories = new ArrayList<>();
+		this.territories = new HashSet<>();
 	}
 
 	public String getId() {
@@ -30,7 +30,7 @@ public class Region {
 		return units;
 	}
 
-	public List<Territory> getTerritories() {
+	public Set<Territory> getTerritories() {
 		return territories;
 	}
 
@@ -41,5 +41,10 @@ public class Region {
 			}
 		}
 		return true;
+	}
+
+	@Override
+	public int compareTo(Region o) {
+		return id.compareTo(o.id);
 	}
 }

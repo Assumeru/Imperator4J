@@ -29,6 +29,11 @@ public abstract class AbstractMission implements Mission {
 		return language.translate(description).toString();
 	}
 
+	@Override
+	public String getDescription(Language language) {
+		return getDescription(language, null);
+	}
+
 	protected String getDescription() {
 		return description;
 	}

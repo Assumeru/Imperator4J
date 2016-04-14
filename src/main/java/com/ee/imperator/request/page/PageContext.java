@@ -8,6 +8,9 @@ import java.util.List;
 import org.ee.i18n.Language;
 import org.ee.web.request.page.WebPage;
 
+import com.ee.imperator.map.Map;
+import com.ee.imperator.map.Region;
+import com.ee.imperator.map.Territory;
 import com.ee.imperator.user.Member;
 
 public interface PageContext {
@@ -37,6 +40,14 @@ public interface PageContext {
 	String javascript(String file);
 
 	String image(String file);
+
+	String regionFlag(Region region);
+
+	String territoryFlag(Territory territory);
+
+	String map(Map map);
+
+	String getPath();
 
 	default void setVariable(Variable<?> variable) {
 		setVariable(variable.getName(), variable.getDefaultValue(this));

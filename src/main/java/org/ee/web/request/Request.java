@@ -7,13 +7,12 @@ public class Request {
 	private final ServletContext servletContext;
 	private final HttpServletRequest request;
 	private final String path;
-	private final Object context;
+	private Object context;
 
-	public Request(ServletContext servletContext, HttpServletRequest request, String path, Object context) {
+	public Request(ServletContext servletContext, HttpServletRequest request, String path) {
 		this.servletContext = servletContext;
 		this.request = request;
 		this.path = path;
-		this.context = context;
 	}
 
 	public ServletContext getServletContext() {
@@ -30,5 +29,9 @@ public class Request {
 
 	public Object getContext() {
 		return context;
+	}
+
+	void setContext(Object context) {
+		this.context = context;
 	}
 }

@@ -60,7 +60,9 @@ public abstract class AbstractRequestResolver {
 	}
 
 	private Response handleRequest(RequestHandler handler, String path) {
-		Request request = new Request(servletContext, this.request, path, createContext());
+		Request request = new Request(servletContext, this.request, path);
+		Object context = createContext(request);
+		request.setContext(context);
 		try {
 			return handler.getResponse(request);
 		} catch (Exception e) {
@@ -73,7 +75,7 @@ public abstract class AbstractRequestResolver {
 
 	protected abstract RequestHandler getDefaultHandler();
 
-	protected abstract Object createContext();
+	protected abstract Object createContext(Request request);
 
 	private String getPath() {
 		try {

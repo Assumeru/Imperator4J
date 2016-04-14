@@ -11,6 +11,8 @@ public interface Mission {
 
 	public String getDescription(Language language, PlayerMission mission);
 
+	public String getDescription(Language language);
+
 	public boolean containsEliminate();
 
 	public Integer getFallback();

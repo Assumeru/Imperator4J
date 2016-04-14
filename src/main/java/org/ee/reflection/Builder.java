@@ -11,6 +11,9 @@ public class Builder {
 	private Object[] values;
 
 	public Builder(Class<?>[] types, Object[] values) {
+		if(types.length != values.length) {
+			throw new IllegalArgumentException("types.length != values.length");
+		}
 		this.types = types;
 		this.values = values;
 	}
@@ -22,7 +25,7 @@ public class Builder {
 	public <T> T newInstance(Class<T> type) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
 		try {
 			return newInstance(type.getConstructor(types));
-		} catch(NoSuchMethodException e) {
+		} catch (NoSuchMethodException e) {
 			return newInstance(getConstructor(type));
 		}
 	}
@@ -40,23 +43,21 @@ public class Builder {
 	private boolean isAppropriateConstructor(Constructor<?> constructor) {
 		int i = 0;
 		for(Parameter param : constructor.getParameters()) {
-			if(param.getType() != types[i]) {
+			if(i >= types.length || param.getType() != types[i]) {
 				if(param.isVarArgs()) {
 					int end = i;
 					while(i < types.length && param.getType().getComponentType() == types[i]) {
 						i++;
 					}
 					if(i == types.length) {
-						if(end != i) {
-							Object varArgs = Array.newInstance(param.getType().getComponentType(), i - end);
-							for(int n = i; n < end; i++) {
-								Array.set(varArgs, n, values[n]);
-							}
-							Object[] values = new Object[end + 1];
-							System.arraycopy(this.values, 0, values, 0, end);
-							values[end] = varArgs;
-							this.values = values;
+						Object varArgs = Array.newInstance(param.getType().getComponentType(), i - end);
+						for(int n = end; n < i; n++) {
+							Array.set(varArgs, n - end, values[n]);
 						}
+						Object[] values = new Object[end + 1];
+						System.arraycopy(this.values, 0, values, 0, end);
+						values[end] = varArgs;
+						this.values = values;
 						return true;
 					}
 				}

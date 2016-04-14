@@ -10,11 +10,11 @@
 	<script th:src="@{${ctx.javascript('bootstrap.min.js')}}"></script>
 	<link th:href="@{${ctx.css('bootstrap.min.css')}}" type="text/css" rel="stylesheet" />
 	<link th:href="@{${ctx.css('style.css')}}" type="text/css" rel="stylesheet" />
-	<script th:each="file : ${javascript}" th:src="@{${ctx.javascript(file)}}"></script>
-	<link th:each="file : ${css}" th:href="@{${ctx.css(file)}}" type="text/css" rel="stylesheet" />
 	<script th:inline="javascript">//<![CDATA[
 	var Imperator = [[${javascriptSettings}]];
 	//]]></script>
+	<script th:each="file : ${javascript}" th:src="@{${ctx.javascript(file)}}"></script>
+	<link th:each="file : ${css}" th:href="@{${ctx.css(file)}}" type="text/css" rel="stylesheet" />
 </head>
 <body>
 <header class="container-fluid">

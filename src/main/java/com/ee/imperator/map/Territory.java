@@ -1,15 +1,17 @@
 package com.ee.imperator.map;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.ee.imperator.user.Player;
 
-public class Territory {
+public class Territory implements Comparable<Territory> {
 	private final String id;
 	private final String name;
 	private final List<Region> regions;
-	private final List<Territory> borders;
+	private final Set<Territory> borders;
 	private Player owner;
 	private int units;
 
@@ -17,7 +19,7 @@ public class Territory {
 		this.id = id;
 		this.name = name;
 		regions = new ArrayList<>();
-		borders = new ArrayList<>();
+		borders = new HashSet<>();
 	}
 
 	public Player getOwner() {
@@ -40,7 +42,7 @@ public class Territory {
 		return regions;
 	}
 
-	public List<Territory> getBorders() {
+	public Set<Territory> getBorders() {
 		return borders;
 	}
 
@@ -50,5 +52,10 @@ public class Territory {
 
 	public String getName() {
 		return name;
+	}
+
+	@Override
+	public int compareTo(Territory o) {
+		return id.compareTo(o.id);
 	}
 }

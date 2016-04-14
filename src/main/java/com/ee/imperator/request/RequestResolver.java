@@ -1,6 +1,7 @@
 package com.ee.imperator.request;
 
 import org.ee.web.request.AbstractRequestResolver;
+import org.ee.web.request.Request;
 import org.ee.web.request.RequestHandler;
 import org.ee.web.request.page.WebPage;
 import org.thymeleaf.TemplateEngine;
@@ -20,9 +21,8 @@ public class RequestResolver extends AbstractRequestResolver {
 	private static TemplateEngine engine;
 
 	@Override
-	protected PageContext createContext() {
-		// TODO
-		return new ThymeleafContext(getTemplateEngine(), new WebContext(getRequest(), getResponse(), getServletContext()), new Member(), getNavigation());
+	protected PageContext createContext(Request request) {
+		return new ThymeleafContext(getTemplateEngine(), new WebContext(getRequest(), getResponse(), getServletContext()), new Member(), getNavigation(), request.getPath());
 	}
 
 	private TemplateEngine getTemplateEngine() {

@@ -21,6 +21,10 @@ public abstract class AbstractPage implements WebPage {
 	private final String template;
 	private final String title;
 
+	protected AbstractPage(String path, String template) {
+		this(path, template, null);
+	}
+
 	protected AbstractPage(String path, String template, String title) {
 		this(path, template, Response.Status.OK, title);
 	}

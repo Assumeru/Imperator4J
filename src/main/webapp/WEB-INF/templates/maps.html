@@ -9,7 +9,7 @@
 		</thead>
 		<tbody>
 			<tr th:each="map : ${maps}">
-				<td><a th:href="${ctx.map(map)}" th:text="${map.name}"></a></td>
+				<td><a th:href="@{${ctx.map(map)}}" th:text="${map.name}"></a></td>
 				<td th:text="${map.players}"></td>
 			</tr>
 		</tbody>

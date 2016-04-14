@@ -11,6 +11,8 @@ import java.util.List;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.ee.logger.LogManager;
+import org.ee.logger.Logger;
 import org.ee.reflection.Builder;
 import org.ee.text.PrimitiveUtils;
 import org.w3c.dom.Document;
@@ -24,6 +26,7 @@ import com.ee.imperator.mission.Mission;
 import com.ee.imperator.mission.VictoryCondition;
 
 public class MapParser {
+	private static final Logger LOG = LogManager.createLogger();
 	private final File file;
 	private int index = -1;
 	private int id;
@@ -39,11 +42,15 @@ public class MapParser {
 		this.file = file;
 	}
 
-	public static java.util.Map<Integer, Map> parseMaps(File... files) throws MapParseException {
+	public static java.util.Map<Integer, Map> parseMaps(File... files) {
 		java.util.Map<Integer, Map> maps = new HashMap<>();
 		for(File file : files) {
-			Map map = new MapParser(file).parse();
-			maps.put(map.getId(), map);
+			try {
+				Map map = new MapParser(file).parse();
+				maps.put(map.getId(), map);
+			} catch (MapParseException e) {
+				LOG.e("Failed to load map from " + file, e);
+			}
 		}
 		return maps;
 	}
@@ -197,6 +204,7 @@ public class MapParser {
 				territory.getRegions().add(region);
 			}
 		}
+		territory.getRegions().sort(null);
 	}
 
 	private void parseBorders(Element item) throws MapParseException {

@@ -6,24 +6,17 @@ import java.util.Set;
 import org.ee.collection.MapBuilder;
 import org.ee.collection.SetBuilder;
 
-public class PrimitiveUtils {
+public final class PrimitiveUtils {
 	private static final Set<Class<?>> PRIMITIVES = new SetBuilder<Class<?>>()
-			.add(boolean.class)
 			.add(Boolean.class)
-			.add(byte.class)
 			.add(Byte.class)
-			.add(char.class)
 			.add(Character.class)
-			.add(double.class)
 			.add(Double.class)
-			.add(float.class)
 			.add(Float.class)
-			.add(long.class)
 			.add(Long.class)
-			.add(short.class)
 			.add(Short.class)
-			.add(int.class)
 			.add(Integer.class)
+			.add(Void.class)
 			.build(true);
 	private static final Map<String, Class<?>> PRIMITIVE_NAMES = new MapBuilder<String, Class<?>>()
 			.put("boolean", boolean.class)
@@ -34,10 +27,14 @@ public class PrimitiveUtils {
 			.put("long", long.class)
 			.put("short", short.class)
 			.put("int", int.class)
+			.put("void", void.class)
 			.build(true);
 
+	private PrimitiveUtils() {
+	}
+
 	public static boolean isPrimitive(Class<?> type) {
-		return PRIMITIVES.contains(type);
+		return type.isPrimitive() || PRIMITIVES.contains(type);
 	}
 
 	public static boolean isPrimitive(Object o) {
@@ -76,7 +73,9 @@ public class PrimitiveUtils {
 			return (E) Short.valueOf(Short.parseShort(input));
 		} else if(type == long.class || type == Long.class) {
 			return (E) Long.valueOf(Long.parseLong(input));
+		} else if(type == int.class || type == Integer.class) {
+			return (E) Integer.valueOf(Integer.parseInt(input));
 		}
-		return (E) Integer.valueOf(Integer.parseInt(input));
+		return null;
 	}
 }
