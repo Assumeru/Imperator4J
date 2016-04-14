@@ -6,8 +6,4 @@ public interface User {
 	String getName();
 
 	String getProfileLink();
-
-	default boolean equals(User other) {
-		return getId() == other.getId();
-	}
 }

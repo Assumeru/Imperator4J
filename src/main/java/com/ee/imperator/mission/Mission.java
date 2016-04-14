@@ -9,7 +9,7 @@ public interface Mission {
 
 	public int getId();
 
-	public String getDescription(Language language);
+	public String getDescription(Language language, PlayerMission mission);
 
 	public boolean containsEliminate();
 

@@ -60,4 +60,14 @@ public class Member implements User {
 	public int getWins() {
 		return wins;
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(this == obj) {
+			return true;
+		} else if(obj instanceof User) {
+			return ((User) obj).getId() == getId();
+		}
+		return false;
+	}
 }

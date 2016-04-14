@@ -310,7 +310,7 @@ public class MapParser {
 		try {
 			return parseArguments(item).newInstance(conditionClass);
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-			throw new MapParseException("Failed to create victory condition from " + conditionClass);
+			throw new MapParseException("Failed to create victory condition from " + conditionClass, e);
 		}
 	}
 }

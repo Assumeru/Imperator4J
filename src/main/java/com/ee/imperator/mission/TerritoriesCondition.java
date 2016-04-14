@@ -13,4 +13,8 @@ public class TerritoriesCondition implements VictoryCondition {
 	public boolean isFulfilled(Player player) {
 		return player.getTerritories().size() >= numTerritories;
 	}
+
+	public int getNumTerritories() {
+		return numTerritories;
+	}
 }

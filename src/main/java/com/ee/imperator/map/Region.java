@@ -3,6 +3,8 @@ package com.ee.imperator.map;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ee.imperator.user.User;
+
 public class Region {
 	private final String id;
 	private final String name;
@@ -30,5 +32,14 @@ public class Region {
 
 	public List<Territory> getTerritories() {
 		return territories;
+	}
+
+	public boolean isOwnedBy(User user) {
+		for(Territory territory : territories) {
+			if(!territory.getOwner().equals(user)) {
+				return false;
+			}
+		}
+		return true;
 	}
 }

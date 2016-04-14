@@ -50,4 +50,14 @@ public class Player implements User {
 		//TODO
 		return null;
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(this == obj) {
+			return true;
+		} else if(obj instanceof User) {
+			return ((User) obj).getId() == getId();
+		}
+		return false;
+	}
 }

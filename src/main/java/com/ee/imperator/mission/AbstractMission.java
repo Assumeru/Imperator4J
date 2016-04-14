@@ -25,8 +25,12 @@ public abstract class AbstractMission implements Mission {
 	}
 
 	@Override
-	public String getDescription(Language language) {
+	public String getDescription(Language language, PlayerMission mission) {
 		return language.translate(description).toString();
+	}
+
+	protected String getDescription() {
+		return description;
 	}
 
 	@Override
