@@ -26,6 +26,7 @@ import com.ee.imperator.mission.VictoryCondition;
 public class MapParser {
 	private final File file;
 	private int index = -1;
+	private int id;
 	private String name;
 	private int players;
 	private java.util.Map<String, String> descriptions;
@@ -38,9 +39,19 @@ public class MapParser {
 		this.file = file;
 	}
 
+	public static java.util.Map<Integer, Map> parseMaps(File... files) throws MapParseException {
+		java.util.Map<Integer, Map> maps = new HashMap<>();
+		for(File file : files) {
+			Map map = new MapParser(file).parse();
+			maps.put(map.getId(), map);
+		}
+		return maps;
+	}
+
 	public Map parse() throws MapParseException {
 		try {
 			Document doc = readDocument();
+			id = getIntAttribute(doc.getDocumentElement(), "id");
 			NodeList children = doc.getDocumentElement().getChildNodes();
 			skipTo(children, "name");
 			name = getText(children.item(index));
@@ -57,7 +68,7 @@ public class MapParser {
 		} catch (ClassCastException e) {
 			throw new MapParseException("Expected node of type Element", e);
 		}
-		return new Map(name, players, descriptions, territories, regions, missions, missionDistribution);
+		return new Map(id, name, players, descriptions, territories, regions, missions, missionDistribution);
 	}
 
 	private void skipTo(NodeList children, String name) throws MapParseException {

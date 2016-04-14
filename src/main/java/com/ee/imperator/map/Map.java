@@ -5,6 +5,7 @@ import java.util.List;
 import com.ee.imperator.mission.Mission;
 
 public class Map {
+	private final int id;
 	private final String name;
 	private final int players;
 	private final java.util.Map<String, String> descriptions;
@@ -13,7 +14,8 @@ public class Map {
 	private final java.util.Map<Integer, Mission> missions;
 	private final List<Integer> missionDistribution;
 
-	public Map(String name, int players, java.util.Map<String, String> descriptions, java.util.Map<String, Territory> territories, java.util.Map<String, Region> regions, java.util.Map<Integer, Mission> missions, List<Integer> missionDistribution) {
+	public Map(int id, String name, int players, java.util.Map<String, String> descriptions, java.util.Map<String, Territory> territories, java.util.Map<String, Region> regions, java.util.Map<Integer, Mission> missions, List<Integer> missionDistribution) {
+		this.id = id;
 		this.name = name;
 		this.players = players;
 		this.descriptions = descriptions;
@@ -49,5 +51,9 @@ public class Map {
 
 	public List<Integer> getMissionDistribution() {
 		return missionDistribution;
+	}
+
+	public int getId() {
+		return id;
 	}
 }
