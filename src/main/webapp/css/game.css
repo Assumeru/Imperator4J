@@ -1,0 +1,385 @@
+#main, #content, .swipe-panes > div, .swipe-pane, #map, #map .map-square, #map .map-container {
+	height: 100%;
+}
+
+#main {
+	background-color: transparent;
+}
+
+#content {
+	background-color: #fff;
+	position: relative;
+}
+
+#content > nav {
+	white-space: nowrap;
+}
+
+#content > nav .nav-tabs.nav-justified > li {
+	display: table-cell;
+	width: 1%;
+}
+
+#content > nav .nav-tabs.nav-justified > li > a {
+	margin-bottom: 0;
+	border-bottom: 1px solid #ddd;
+	border-radius: 4px 4px 0 0;
+}
+
+#content > nav .nav-tabs.nav-justified > .active > a, #content > nav .nav-tabs.nav-justified > .active > a:hover, #content > nav .nav-tabs.nav-justified > .active > a:focus {
+	border-bottom-color: #fff;
+}
+
+#content > nav li .number, .discard-dialog form [data-card] label .number {
+	display: inline-block;
+	border: 1px solid #ddd;
+	border-radius: 50%;
+	height: 1em;
+	width: 1em;
+	line-height: 1;
+	box-sizing: unset;
+	color: #333;
+}
+
+#content > nav li .number:empty {
+	display: none;
+}
+
+@media (max-width: 768px) {
+	#content > nav {
+		overflow: hidden;
+	}
+
+	.swipe-panes > div {
+		width: 100%;
+	}
+}
+
+@media (min-width: 768px) {
+	.mobile-only {
+		display: none !important;
+	}
+}
+
+#content > .row {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	top: 92px;
+	margin: 0;
+}
+
+.swipe-panes {
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.swipe-panes > div {
+	overflow: hidden;
+	white-space: nowrap;
+	display: inline-block;
+	vertical-align: top;
+	padding: 0;
+}
+
+.swipe-pane {
+	width: 100%;
+	padding: 15px;
+	display: inline-block;
+	vertical-align: top;
+	overflow: auto;
+	word-wrap: break-word;
+	white-space: normal;
+}
+
+.not-player .player-only {
+	display: none !important;
+}
+
+#chat {
+	margin-top: 0;
+}
+
+#map {
+	border-left: 1px solid #ddd;
+	text-align: center;
+	position: relative;
+}
+
+#map .map-controls {
+	position: absolute;
+	top: 0;
+	right: 0;
+	opacity: 0.5;
+	display: none;
+	z-index: 2;
+}
+
+#map .map-controls:hover {
+	opacity: 1;
+}
+
+#map .map-controls button {
+	display: block;
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: unset;
+	padding: 0;
+	line-height: 1;
+}
+
+#map .map-controls button.zoom-in {
+	cursor: zoom-in;
+}
+
+#map .map-controls button.zoom-out {
+	cursor: zoom-out;
+}
+
+#map .map-container {
+	overflow: hidden;
+}
+
+#map .map-container img {
+	max-height: 100%;
+	max-width: 100%;
+}
+
+#map .map-container svg {
+	transition: height 1s;
+	-ms-user-select: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	user-select: none;
+}
+
+#map .map-container svg > g {
+	stroke: #000;
+	fill: #000;
+	fill-rule: evenodd;
+	opacity: 0.6;
+	cursor: pointer;
+	stroke-width: 1;
+}
+
+#map .map-container svg > g:hover {
+	opacity: 1;
+	stroke-width: 2;
+}
+
+#map .map-container svg > g.active {
+	opacity: 1;
+}
+
+#map .map-container svg > g.border {
+	opacity: 0.2;
+}
+
+#map .map-container svg > g.units {
+	opacity: 1;
+	stroke: none;
+	pointer-events: none;
+}
+
+#territories img, #regions img, #territory img {
+	height: 1em;
+}
+
+#regions .collapsed.btn > .glyphicon-chevron-up,
+#turn-controls .collapsed.btn > .glyphicon-chevron-down,
+#regions .btn:not(.collapsed) > .glyphicon-chevron-down,
+#turn-controls .btn:not(.collapsed) > .glyphicon-chevron-up,
+body:not(.my-turn) #controls-box [data-button="stack"],
+body:not(.my-turn) #controls-box [data-button="move"],
+body:not(.my-turn) #controls-box [data-button="endturn"],
+body:not(.my-turn) #controls-box [data-value|="units-left"],
+body:not(.my-turn) #card-controls {
+	display: none;
+}
+
+#regions .btn[data-highlight="true"] {
+	background-color: #fff;
+}
+
+#regions .region-division {
+	height: 5px;
+	white-space: nowrap;
+	margin-bottom: 5px;
+}
+
+#regions .region-division > div {
+	display: inline-block;
+	height: 100%;
+	vertical-align: top;
+}
+
+#turn-controls {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+}
+
+#turn-controls > button {
+	border-radius: unset;
+	opacity: 0.7;
+	border-bottom: none;
+}
+
+#turn-controls > button:hover {
+	opacity: 1;
+}
+
+#turn-controls .collapse {
+	background-color: #fff;
+	border-top: 1px solid #ccc;
+	width: 100%;
+}
+
+#controls-box > button {
+	margin: 2px;
+}
+
+#controls-box > .btn[disabled] {
+	cursor: default;
+	pointer-events: auto;
+}
+
+.card {
+	border: 2px solid #66023c;
+	border-radius: 5%;
+	margin: 0 1% 5px;
+	width: 18%;
+	max-width: 130px;
+	min-width: 65px;
+}
+
+#card-controls {
+	margin: 1em 5px;
+}
+
+#card-controls .btn {
+	margin-bottom: 5px;
+}
+
+#radial-menu {
+	display: none;
+	position: fixed;
+	width: 150px;
+	height: 150px;
+}
+
+#radial-menu svg {
+	width: 100%;
+	height: 100%;
+}
+
+#radial-menu g {
+	pointer-events: none;
+}
+
+#radial-menu .inner, #radial-menu .outer {
+	fill: transparent;
+	stroke: rgba(240, 240, 240, 0.5);
+	stroke-width: 5;
+}
+
+#radial-menu .slice {
+	stroke: #ddd;
+	fill: #fff;
+	cursor: pointer;
+	pointer-events: auto;
+}
+
+#radial-menu .slice:hover {
+	fill: #f0f0f0;
+}
+
+#radial-menu .disabled .slice {
+	cursor: default;
+	fill: #f0f0f0;
+	pointer-events: none;
+}
+
+#combatlog {
+	padding: 0;
+	border-radius: unset;
+	height: 100%;
+	position: relative;
+}
+
+#combatlog > div {
+	height: 100%;
+	overflow: auto;
+}
+
+#combatlog .log-entry:nth-child(even) {
+	background-color: #f9f9f9;
+}
+
+#combatlog .die {
+	width: 16px;
+	height: 16px;
+	background-size: 312.5%;
+}
+
+#combatlog .card {
+	min-width: 30px;
+	width: 30px;
+}
+
+.dialog .clearfix .col-md-6 {
+	margin-top: 1em;
+}
+
+.die {
+	width: 50px;
+	height: 50px;
+	background-image: url('../img/game/dice.png');
+	display: inline-block;
+	border-radius: 5px;
+	margin: 2px;
+	vertical-align: middle;
+	box-sizing: unset;
+	color: transparent;
+}
+
+.die.attack {
+	background-color: #D00000;
+	border: 2px solid red;
+}
+
+.die.defend {
+	background-color: #0000D0;
+	border: 2px solid blue;
+}
+
+.die.d1 {
+	background-position: 0 0;
+}
+
+.die.d2 {
+	background-position: -100% 0;
+}
+
+.die.d3 {
+	background-position: -50% 0;
+}
+
+.die.d4 {
+	background-position: 0 100%;
+}
+
+.die.d5 {
+	background-position: -100% 100%;
+}
+
+.die.d6 {
+	background-position: -50% 100%;
+}
+
+.discard-dialog form [data-card] label input {
+	display: block;
+	margin: 4px auto;
+}
