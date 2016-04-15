@@ -1,9 +1,13 @@
 package com.ee.imperator.request;
 
+import java.util.Map;
+
+import javax.ws.rs.core.Response.Status;
+
+import org.ee.collection.MapBuilder;
 import org.ee.web.request.AbstractRequestResolver;
 import org.ee.web.request.Request;
 import org.ee.web.request.RequestHandler;
-import org.ee.web.request.page.WebPage;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
@@ -16,8 +20,10 @@ import com.ee.imperator.request.thymeleaf.ThymeleafContext;
 import com.ee.imperator.user.Member;
 
 public class RequestResolver extends AbstractRequestResolver {
-	private static final WebPage DEFAULT_PAGE = new Http404();
-	private static final WebPage ERROR_PAGE = new Http500();
+	private static final Map<Integer, RequestHandler> STATUS_PAGES = new MapBuilder<Integer, RequestHandler>()
+			.put(Status.NOT_FOUND.getStatusCode(), new Http404())
+			.put(Status.INTERNAL_SERVER_ERROR.getStatusCode(), new Http500())
+			.build(true);
 	private static TemplateEngine engine;
 
 	@Override
@@ -45,17 +51,12 @@ public class RequestResolver extends AbstractRequestResolver {
 	}
 
 	@Override
-	protected RequestHandler getErrorHandler() {
-		return ERROR_PAGE;
-	}
-
-	@Override
-	protected RequestHandler getDefaultHandler() {
-		return DEFAULT_PAGE;
-	}
-
-	@Override
 	protected String[] getPackages() {
 		return new String[] { getClass().getPackage().getName() };
+	}
+
+	@Override
+	protected RequestHandler getStatusPage(final int status) {
+		return STATUS_PAGES.get(status);
 	}
 }

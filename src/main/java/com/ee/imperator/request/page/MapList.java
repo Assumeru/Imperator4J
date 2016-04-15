@@ -10,7 +10,7 @@ import com.ee.imperator.Imperator;
 import com.ee.imperator.map.Map;
 
 @NavigationPage(index = 4, name = "Maps")
-public class MapList extends AbstractPage {
+public class MapList extends ImperatorPage {
 	public MapList() {
 		super("maps", "maps", "Maps");
 	}

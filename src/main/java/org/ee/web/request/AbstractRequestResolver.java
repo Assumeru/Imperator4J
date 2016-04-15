@@ -12,8 +12,10 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
@@ -59,21 +61,49 @@ public abstract class AbstractRequestResolver {
 		return navigation;
 	}
 
-	private Response handleRequest(RequestHandler handler, String path) {
-		Request request = new Request(servletContext, this.request, path);
-		Object context = createContext(request);
+	private Response handleRequest(final RequestHandler handler, final String path) {
+		final Request request = new Request(servletContext, this.request, path);
+		final Object context = createContext(request);
 		request.setContext(context);
 		try {
 			return handler.getResponse(request);
+		} catch(WebApplicationException e) {
+			RequestHandler errorHandler = getStatusPage(e.getResponse().getStatus());
+			if(errorHandler != null) {
+				return errorHandler.getResponse(request);
+			}
+			LOG.w("Returning WebApplicationException response", e);
+			return e.getResponse();
 		} catch (Exception e) {
 			LOG.e("Error handling request using " + handler, e);
 		}
-		return getErrorHandler().getResponse(request);
+		return getStatusPageInternal(Status.INTERNAL_SERVER_ERROR).getResponse(request);
 	}
 
-	protected abstract RequestHandler getErrorHandler();
+	private RequestHandler getStatusPageInternal(final int status) {
+		RequestHandler handler = getStatusPage(status);
+		if(handler != null) {
+			return handler;
+		}
+		LOG.w("No status page found for " + status);
+		return new RequestHandler() {
+			@Override
+			public boolean matches(String path) {
+				return true;
+			}
+			
+			@Override
+			public Response getResponse(Request request) {
+				return Response.status(status).build();
+			}
+		};
+	}
 
-	protected abstract RequestHandler getDefaultHandler();
+	private RequestHandler getStatusPageInternal(Status status) {
+		return getStatusPageInternal(status.getStatusCode());
+	}
+
+	protected abstract RequestHandler getStatusPage(int status);
 
 	protected abstract Object createContext(Request request);
 
@@ -92,7 +122,7 @@ public abstract class AbstractRequestResolver {
 		if(path.contains("../")) {
 			//Is this even possible?
 			LOG.e("Path contains ../");
-			return getErrorHandler();
+			return getStatusPageInternal(Status.BAD_REQUEST);
 		}
 		for(RequestHandler handler : requestHandlers) {
 			if(handler.matches(path)) {
@@ -100,7 +130,7 @@ public abstract class AbstractRequestResolver {
 			}
 		}
 		LOG.i("No handler found for " + path);
-		return getDefaultHandler();
+		return getStatusPageInternal(Status.NOT_FOUND);
 	}
 
 	private synchronized void initRequestHandlers() {

@@ -2,7 +2,7 @@ package com.ee.imperator.request.page;
 
 import javax.ws.rs.core.Response;
 
-public abstract class ErrorPage extends AbstractPage {
+public abstract class ErrorPage extends ImperatorPage {
 	private final String description;
 
 	protected ErrorPage(Response.Status status, String title, String description) {

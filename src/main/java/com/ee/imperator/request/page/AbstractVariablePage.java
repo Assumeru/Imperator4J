@@ -16,7 +16,7 @@ import org.ee.reflection.MethodUtils;
 import org.ee.text.PrimitiveUtils;
 import org.ee.text.UriTemplate;
 
-public abstract class AbstractVariablePage extends AbstractPage {
+public abstract class AbstractVariablePage extends ImperatorPage {
 	private static final Logger LOG = LogManager.createLogger();
 	private UriTemplate template;
 	private Method method;
@@ -92,7 +92,12 @@ public abstract class AbstractVariablePage extends AbstractPage {
 			}
 			try {
 				method.invoke(this, args);
-			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			} catch (InvocationTargetException e) {
+				if(e.getCause() instanceof RuntimeException) {
+					throw (RuntimeException) e.getCause();
+				}
+				throw new RuntimeException(e);
+			} catch (IllegalAccessException | IllegalArgumentException e) {
 				throw new RuntimeException(e);
 			}
 		}
