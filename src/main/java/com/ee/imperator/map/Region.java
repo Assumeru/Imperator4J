@@ -5,7 +5,7 @@ import java.util.Set;
 
 import com.ee.imperator.user.User;
 
-public class Region implements Comparable<Region> {
+public class Region implements Comparable<Region>, HasFlag {
 	private final String id;
 	private final String name;
 	private final int units;
@@ -18,6 +18,7 @@ public class Region implements Comparable<Region> {
 		this.territories = new HashSet<>();
 	}
 
+	@Override
 	public String getId() {
 		return id;
 	}

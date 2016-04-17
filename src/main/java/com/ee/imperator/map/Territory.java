@@ -7,7 +7,7 @@ import java.util.Set;
 
 import com.ee.imperator.user.Player;
 
-public class Territory implements Comparable<Territory> {
+public class Territory implements Comparable<Territory>, HasFlag {
 	private final String id;
 	private final String name;
 	private final List<Region> regions;
@@ -46,6 +46,7 @@ public class Territory implements Comparable<Territory> {
 		return borders;
 	}
 
+	@Override
 	public String getId() {
 		return id;
 	}

@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.ee.imperator.map.Map;
+import com.ee.imperator.user.Member;
 import com.ee.imperator.user.Player;
 
 public class Game {
@@ -12,15 +13,20 @@ public class Game {
 		TURN_START, FORTIFY, POST_COMBAT, FINISHED
 	}
 	private int id;
+	private String name;
 	private State state;
 	private Map map;
 	private List<Player> players;
 	private Player currentTurn;
 	private String password;
+	private Player owner;
 
-	public Game(Map map) {
+	public Game(Member owner, String name, Map map) {
+		this.owner = new Player(owner, this);
+		this.name = name;
 		this.map = map;
 		players = new ArrayList<>();
+		players.add(this.owner);
 		state = State.TURN_START;
 	}
 
@@ -28,8 +34,16 @@ public class Game {
 		return id;
 	}
 
+	public String getName() {
+		return name;
+	}
+
 	public Map getMap() {
 		return map;
+	}
+
+	public Player getOwner() {
+		return owner;
 	}
 
 	public List<Player> getPlayers() {

@@ -13,8 +13,16 @@ public class MemberCache {
 	}
 
 	public Member getMember(Request request) {
+		Integer id = getId(request);
+		if(id == null) {
+			return getDefaultMember();
+		}
+		return getMember(id);
+	}
+
+	private Integer getId(Request reques) {
 		//TODO
-		return new Member();
+		return null;
 	}
 
 	public Member getMember(int id) {
@@ -23,7 +31,16 @@ public class MemberCache {
 			return member;
 		}
 		//TODO
-		return new Member();
+		return getDefaultMember();
+	}
+
+	private Member getDefaultMember() {
+		Member member = cache.get(null);
+		if(member == null) {
+			member = new Member();
+			cache.put(null, member);
+		}
+		return member;
 	}
 
 	public void clear() {

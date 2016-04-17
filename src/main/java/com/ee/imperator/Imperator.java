@@ -1,5 +1,7 @@
 package com.ee.imperator;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletContext;
@@ -55,5 +57,10 @@ public class Imperator extends WebApplication {
 
 	public static Game getGame(int id) {
 		return gameCache.getGame(id);
+	}
+
+	public static List<Game> getGames() {
+		//TODO
+		return Collections.emptyList();
 	}
 }

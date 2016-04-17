@@ -26,7 +26,7 @@ public abstract class AbstractWebPage implements WebPage {
 
 	@Override
 	public boolean matches(String path) {
-		return path.startsWith(getPath());
+		return path.equals(this.path) || path.equals(this.path + "/");
 	}
 
 	@Override

@@ -16,7 +16,6 @@ import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 import com.ee.imperator.Imperator;
 import com.ee.imperator.request.page.Http404;
 import com.ee.imperator.request.page.Http500;
-import com.ee.imperator.request.page.PageContext;
 import com.ee.imperator.request.thymeleaf.ThymeleafContext;
 
 public class RequestResolver extends AbstractRequestResolver {

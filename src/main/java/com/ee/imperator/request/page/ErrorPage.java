@@ -2,6 +2,8 @@ package com.ee.imperator.request.page;
 
 import javax.ws.rs.core.Response;
 
+import com.ee.imperator.request.PageContext;
+
 public abstract class ErrorPage extends ImperatorPage {
 	private final String description;
 

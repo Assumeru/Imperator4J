@@ -1,4 +1,4 @@
-package com.ee.imperator.request.page;
+package com.ee.imperator.request;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Calendar;
@@ -8,9 +8,10 @@ import java.util.List;
 import org.ee.i18n.Language;
 import org.ee.web.request.page.WebPage;
 
+import com.ee.imperator.game.Game;
+import com.ee.imperator.map.HasFlag;
 import com.ee.imperator.map.Map;
-import com.ee.imperator.map.Region;
-import com.ee.imperator.map.Territory;
+import com.ee.imperator.request.page.Variable;
 import com.ee.imperator.user.Member;
 
 public interface PageContext {
@@ -41,13 +42,13 @@ public interface PageContext {
 
 	String image(String file);
 
-	String regionFlag(Region region);
-
-	String territoryFlag(Territory territory);
+	String flag(HasFlag location);
 
 	String map(Map map);
 
 	String getPath();
+
+	String game(Game game);
 
 	default void setVariable(Variable<?> variable) {
 		setVariable(variable.getName(), variable.getDefaultValue(this));

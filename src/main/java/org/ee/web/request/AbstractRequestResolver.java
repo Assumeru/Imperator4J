@@ -86,17 +86,7 @@ public abstract class AbstractRequestResolver {
 			return handler;
 		}
 		LOG.w("No status page found for " + status);
-		return new RequestHandler() {
-			@Override
-			public boolean matches(String path) {
-				return true;
-			}
-			
-			@Override
-			public Response getResponse(Request request) {
-				return Response.status(status).build();
-			}
-		};
+		return new DefaultRequestHandler(status);
 	}
 
 	private RequestHandler getStatusPageInternal(Status status) {

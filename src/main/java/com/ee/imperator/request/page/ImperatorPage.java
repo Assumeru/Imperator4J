@@ -10,6 +10,8 @@ import org.ee.collection.MapBuilder;
 import org.ee.web.request.Request;
 import org.ee.web.request.page.AbstractWebPage;
 
+import com.ee.imperator.request.PageContext;
+
 public abstract class ImperatorPage extends AbstractWebPage {
 	private final String template;
 	private final String title;

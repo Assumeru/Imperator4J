@@ -8,6 +8,7 @@ import javax.ws.rs.core.Response.Status;
 
 import com.ee.imperator.Imperator;
 import com.ee.imperator.map.Map;
+import com.ee.imperator.request.PageContext;
 
 public class MapPage extends AbstractVariablePage {
 	public MapPage() {

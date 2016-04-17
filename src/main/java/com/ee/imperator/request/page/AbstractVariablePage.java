@@ -16,6 +16,8 @@ import org.ee.reflection.MethodUtils;
 import org.ee.text.PrimitiveUtils;
 import org.ee.text.UriTemplate;
 
+import com.ee.imperator.request.PageContext;
+
 public abstract class AbstractVariablePage extends ImperatorPage {
 	private static final Logger LOG = LogManager.createLogger();
 	private UriTemplate template;

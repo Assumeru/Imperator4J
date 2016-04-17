@@ -17,10 +17,15 @@
 			</thead>
 			<tbody>
 				<tr th:each="game : ${games}" th:class="${(game.hasStarted() ? 'started ' : game.hasEnded() ? 'ended ' : '') + (game.hasPassword() ? 'password' : '')}">
-					<td></td>
-					<td></td>
-					<td th:text="${i18n.__('%1$d / %2%d', game.players.size, game.map.players)}"></td>
-					<td></td>
+					<td>
+						<a th:text="${game.name}" th:href="@{${ctx.game(game)}}"></a>
+						<span class="glyphicon glyphicon-hourglass" th:title="${i18n.__('This game is in progress.')}" th:if="${game.hasStarted()}"></span>
+						<span class="glyphicon glyphicon-ok" th:title="${i18n.__('This game has ended.')}" th:if="${game.hasEnded()}"></span>
+						<span class="glyphicon glyphicon-lock" th:title="${i18n.__('This game requires a password to join.')}" th:if="${!game.hasEnded() &amp;&amp; game.hasPassword()}"></span>
+					</td>
+					<td><a th:text="${i18n.__(game.map.name)}" th:href="@{${ctx.map(game.map)}}"></a></td>
+					<td th:text="${i18n.__('%1$d / %2$d', game.players.size, game.map.players)}"></td>
+					<td th:text="${game.owner.name}"></td>
 				</tr>
 			</tbody>
 		</table>

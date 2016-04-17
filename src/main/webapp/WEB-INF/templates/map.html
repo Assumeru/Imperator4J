@@ -17,7 +17,7 @@
 					<tbody>
 						<tr th:each="region : ${map.sortedRegions}">
 							<td>
-								<img th:src="@{${ctx.regionFlag(region)}}" alt="" /> <span th:text="${i18n.__(region.name)}"></span>
+								<img th:src="@{${ctx.flag(region)}}" alt="" /> <span th:text="${i18n.__(region.name)}"></span>
 							</td>
 							<td th:text="${region.units}"></td>
 							<td th:text="${region.territories.size}"></td>
@@ -46,12 +46,12 @@
 					</div>
 					<div>
 						<div th:each="territory : ${map.sortedTerritories}" class="territory-hover" th:attr="data-territory=${territory.id}">
-							<div class="flag" th:style="'background-image: url(' + @{${ctx.territoryFlag(territory)}} + ')'"></div>
+							<div class="flag" th:style="'background-image: url(' + @{${ctx.flag(territory)}} + ')'"></div>
 							<div class="content">
 								<h4 th:text="${i18n.__(territory.name)}"></h4>
 								<ul class="regions">
 <li th:each="region : ${territory.regions}">
-	<span th:style="'background-image: url(' + @{${ctx.regionFlag(region)}} + ')'"></span>
+	<span th:style="'background-image: url(' + @{${ctx.flag(region)}} + ')'"></span>
 	<span th:text="${i18n.__(region.name)}"></span>
 </li>
 								</ul>
