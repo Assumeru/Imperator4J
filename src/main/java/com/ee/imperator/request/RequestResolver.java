@@ -13,11 +13,11 @@ import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
+import com.ee.imperator.Imperator;
 import com.ee.imperator.request.page.Http404;
 import com.ee.imperator.request.page.Http500;
 import com.ee.imperator.request.page.PageContext;
 import com.ee.imperator.request.thymeleaf.ThymeleafContext;
-import com.ee.imperator.user.Member;
 
 public class RequestResolver extends AbstractRequestResolver {
 	private static final Map<Integer, RequestHandler> STATUS_PAGES = new MapBuilder<Integer, RequestHandler>()
@@ -28,7 +28,7 @@ public class RequestResolver extends AbstractRequestResolver {
 
 	@Override
 	protected PageContext createContext(Request request) {
-		return new ThymeleafContext(getTemplateEngine(), new WebContext(getRequest(), getResponse(), getServletContext()), new Member(), getNavigation(), request.getPath());
+		return new ThymeleafContext(getTemplateEngine(), new WebContext(getRequest(), getResponse(), getServletContext()), Imperator.getMember(request), getNavigation(), request.getPath());
 	}
 
 	private TemplateEngine getTemplateEngine() {
