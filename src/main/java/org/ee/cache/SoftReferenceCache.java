@@ -25,14 +25,13 @@ public class SoftReferenceCache<K, V> implements Map<K, V> {
 				cache.remove(key);
 				return null;
 			}
-			value.update();
 			return val;
 		}
 		return null;
 	}
 
 	private boolean shouldBeCleared(Value<V> value) {
-		return timeToKeep > 0 && System.currentTimeMillis() - value.getLastAccessed() > timeToKeep;
+		return timeToKeep > 0 && System.currentTimeMillis() - value.getCreated() > timeToKeep;
 	}
 
 	@Override
@@ -98,19 +97,15 @@ public class SoftReferenceCache<K, V> implements Map<K, V> {
 
 	private static class Value<T> {
 		private final SoftReference<T> value;
-		private long lastAccessed;
+		private final long created;
 
 		public Value(T value) {
 			this.value = new SoftReference<>(value);
-			update();
+			created = System.currentTimeMillis();
 		}
 
-		public void update() {
-			lastAccessed = System.currentTimeMillis();
-		}
-
-		public long getLastAccessed() {
-			return lastAccessed;
+		public long getCreated() {
+			return created;
 		}
 
 		public T getValue() {

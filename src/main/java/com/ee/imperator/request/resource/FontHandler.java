@@ -1,24 +1,23 @@
 package com.ee.imperator.request.resource;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.ws.rs.core.MediaType;
 
+import org.ee.collection.MapBuilder;
 import org.ee.web.request.Request;
 import org.ee.web.request.ResourceHandler;
 
 import com.google.common.io.Files;
 
 public class FontHandler extends ResourceHandler {
-	private static final Map<String, MediaType> TYPES = new HashMap<>();
-	static {
-		TYPES.put("svg", MediaType.APPLICATION_SVG_XML_TYPE);
-		TYPES.put("eot", new MediaType("application", "vnd.ms-fontobject"));
-		TYPES.put("ttf", new MediaType("application", "x-font-ttf"));
-		TYPES.put("woff", new MediaType("application", "font-woff"));
-		TYPES.put("woff2", new MediaType("font", "woff2"));
-	}
+	private static final Map<String, MediaType> TYPES = new MapBuilder<String, MediaType>()
+			.put("svg", MediaType.APPLICATION_SVG_XML_TYPE)
+			.put("eot", new MediaType("application", "vnd.ms-fontobject"))
+			.put("ttf", new MediaType("application", "x-font-ttf"))
+			.put("woff", new MediaType("application", "font-woff"))
+			.put("woff2", new MediaType("font", "woff2"))
+			.build(true);
 
 	@Override
 	public boolean matches(String path) {

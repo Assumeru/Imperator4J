@@ -8,7 +8,7 @@ import com.ee.imperator.map.Map;
 import com.ee.imperator.user.Member;
 import com.ee.imperator.user.Player;
 
-public class Game {
+public class Game implements Comparable<Game> {
 	public enum State {
 		TURN_START, FORTIFY, POST_COMBAT, FINISHED
 	}
@@ -73,5 +73,14 @@ public class Game {
 
 	public boolean hasEnded() {
 		return state == State.FINISHED;
+	}
+
+	@Override
+	public int compareTo(Game o) {
+		int c = map.compareTo(o.map);
+		if(c == 0) {
+			return Integer.compare(players.size(), o.players.size());
+		}
+		return c;
 	}
 }

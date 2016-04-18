@@ -12,11 +12,11 @@ import com.ee.imperator.request.PageContext;
 
 public class MapPage extends AbstractVariablePage {
 	public MapPage() {
-		super("map/{id : [-]{0,1}[0-9]+}/{name}", "map", "map");
+		super("map/{id : [-]{0,1}[0-9]+}/{name : .*}", "map", "map");
 	}
 
 	public void setVariables(PageContext context, @PathParam("id") int id) {
-		Map map = Imperator.getMaps().get(id);
+		Map map = Imperator.getData().getMap(id);
 		if(map == null) {
 			throw new WebApplicationException(Status.NOT_FOUND);
 		} else {

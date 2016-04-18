@@ -15,7 +15,7 @@ public class Index extends ImperatorPage {
 	protected void setVariables(PageContext context) {
 		if(context.getUser().isLoggedIn()) {
 			context.setVariable(PageContext.VARIABLE_BODY, "gamelist");
-			context.setVariable("games", Imperator.getGames());
+			context.setVariable("games", Imperator.getData().getGames());
 		} else {
 			context.setVariable(PageContext.VARIABLE_BODY, "splash");
 		}

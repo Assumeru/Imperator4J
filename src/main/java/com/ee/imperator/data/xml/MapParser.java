@@ -1,4 +1,4 @@
-package com.ee.imperator.map;
+package com.ee.imperator.data.xml;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -21,6 +21,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.ee.imperator.exception.MapParseException;
+import com.ee.imperator.map.Map;
+import com.ee.imperator.map.Region;
+import com.ee.imperator.map.Territory;
 import com.ee.imperator.mission.GenericMission;
 import com.ee.imperator.mission.Mission;
 import com.ee.imperator.mission.VictoryCondition;

@@ -27,6 +27,11 @@ public class MapBuilder<K, V> {
 		return this;
 	}
 
+	public MapBuilder<K, V> putGet(K key, K valueKey) {
+		map.put(key, map.get(valueKey));
+		return this;
+	}
+
 	public MapBuilder<K, V> putAll(Map<? extends K, ? extends V> m) {
 		map.putAll(m);
 		return this;

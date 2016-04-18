@@ -7,6 +7,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
 
+import com.ee.imperator.data.xml.MapParser;
+
 public class TestMapParser {
 	@Rule
 	public ErrorCollector collector = new ErrorCollector();

@@ -1,5 +1,6 @@
 package com.ee.imperator.user;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.ee.imperator.game.Game;
@@ -47,8 +48,13 @@ public class Player implements User {
 	}
 
 	public List<Territory> getTerritories() {
-		//TODO
-		return null;
+		List<Territory> territories = new ArrayList<>();
+		for(Territory territory : game.getMap().getTerritories().values()) {
+			if(equals(territory.getOwner())) {
+				territories.add(territory);
+			}
+		}
+		return territories;
 	}
 
 	@Override
