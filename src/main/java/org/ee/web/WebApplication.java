@@ -7,14 +7,15 @@ import java.util.Set;
 
 import javax.servlet.ServletContext;
 import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Context;
 
+import org.ee.config.Config;
 import org.ee.web.request.AbstractRequestResolver;
 
 public abstract class WebApplication extends Application {
 	private static ServletContext context;
+	private static Config config;
 
-	public WebApplication(@Context ServletContext context) {
+	public WebApplication(ServletContext context) {
 		WebApplication.context = context;
 	}
 
@@ -31,16 +32,23 @@ public abstract class WebApplication extends Application {
 		return context;
 	}
 
+	public static Config getConfig() {
+		return config;
+	}
+
+	public static void setConfig(Config config) {
+		WebApplication.config = config;
+	}
+
 	public static File[] getFiles(final String path, final String suffix) {
-		return getFiles(path, new FilenameFilter() {
-			@Override
-			public boolean accept(File dir, String name) {
-				return name.endsWith(suffix);
-			}
-		});
+		return getFiles(path, (dir, name) -> name.endsWith(suffix));
 	}
 
 	public static File[] getFiles(String path, FilenameFilter filter) {
-		return new File(context.getRealPath(path)).listFiles(filter);
+		return getFile(path).listFiles(filter);
+	}
+
+	public static File getFile(String path) {
+		return new File(context.getRealPath(path));
 	}
 }

@@ -36,11 +36,6 @@ public class Member implements User {
 		return name;
 	}
 
-	@Override
-	public String getProfileLink() {
-		return null;
-	}
-
 	public Language getLanguage() {
 		return language;
 	}

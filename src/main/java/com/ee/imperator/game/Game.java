@@ -1,11 +1,11 @@
 package com.ee.imperator.game;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 import com.ee.imperator.map.Map;
-import com.ee.imperator.user.Member;
 import com.ee.imperator.user.Player;
 
 public class Game implements Comparable<Game> {
@@ -20,14 +20,30 @@ public class Game implements Comparable<Game> {
 	private Player currentTurn;
 	private String password;
 	private Player owner;
+	private long time;
+	private int units;
+	private boolean conquered;
 
-	public Game(Member owner, String name, Map map) {
-		this.owner = new Player(owner, this);
+	public Game(int id, Map map, String name, int owner, int turn, long time, State state, int units, boolean conquered, String password, Collection<Player> players) {
+		this.id = id;
 		this.name = name;
-		this.map = map;
-		players = new ArrayList<>();
-		players.add(this.owner);
-		state = State.TURN_START;
+		this.time = time;
+		this.state = state;
+		this.units = units;
+		this.conquered = conquered;
+		this.password = password;
+		this.players = new ArrayList<>(players.size());
+		for(Player player : players) {
+			player.setGame(this);
+			this.players.add(player);
+			if(player.getId() == owner) {
+				this.owner = player;
+			}
+			if(player.getId() == turn) {
+				currentTurn = player;
+			}
+		}
+		this.players.sort(null);
 	}
 
 	public int getId() {
@@ -73,6 +89,18 @@ public class Game implements Comparable<Game> {
 
 	public boolean hasEnded() {
 		return state == State.FINISHED;
+	}
+
+	public boolean hasConquered() {
+		return conquered;
+	}
+
+	public long getTime() {
+		return time;
+	}
+
+	public int getUnits() {
+		return units;
 	}
 
 	@Override

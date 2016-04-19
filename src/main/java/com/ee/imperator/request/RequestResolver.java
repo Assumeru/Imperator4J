@@ -14,12 +14,14 @@ import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
 import com.ee.imperator.Imperator;
+import com.ee.imperator.request.page.Http403;
 import com.ee.imperator.request.page.Http404;
 import com.ee.imperator.request.page.Http500;
 import com.ee.imperator.request.thymeleaf.ThymeleafContext;
 
 public class RequestResolver extends AbstractRequestResolver {
 	private static final Map<Integer, RequestHandler> STATUS_PAGES = new MapBuilder<Integer, RequestHandler>()
+			.put(Status.FORBIDDEN.getStatusCode(), new Http403())
 			.put(Status.NOT_FOUND.getStatusCode(), new Http404())
 			.put(Status.INTERNAL_SERVER_ERROR.getStatusCode(), new Http500())
 			.build(true);
@@ -27,7 +29,7 @@ public class RequestResolver extends AbstractRequestResolver {
 
 	@Override
 	protected PageContext createContext(Request request) {
-		return new ThymeleafContext(getTemplateEngine(), new WebContext(getRequest(), getResponse(), getServletContext()), Imperator.getMember(request), getNavigation(), request.getPath());
+		return new ThymeleafContext(getTemplateEngine(), new WebContext(getRequest(), getResponse(), getServletContext()), Imperator.getData().getMember(request), getNavigation(), request.getPath());
 	}
 
 	private TemplateEngine getTemplateEngine() {

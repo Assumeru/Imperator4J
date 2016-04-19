@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -78,7 +79,7 @@ public class MapParser {
 		} catch (ClassCastException e) {
 			throw new MapParseException("Expected node of type Element", e);
 		}
-		return new Map(id, name, players, descriptions, territories, regions, missions, missionDistribution);
+		return new Map(id, name, players, descriptions, territories, regions, missions, Collections.unmodifiableList(missionDistribution));
 	}
 
 	private void skipTo(NodeList children, String name) throws MapParseException {
@@ -234,6 +235,7 @@ public class MapParser {
 		for(int i = 0; i < missions.getLength(); i++) {
 			parseMission((Element) missions.item(i));
 		}
+		((ArrayList<?>) missionDistribution).trimToSize();
 	}
 
 	private void parseMission(Element item) throws MapParseException {

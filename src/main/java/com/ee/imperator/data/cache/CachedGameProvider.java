@@ -1,5 +1,6 @@
 package com.ee.imperator.data.cache;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -8,6 +9,7 @@ import java.util.Map;
 
 import org.ee.cache.SoftReferenceCache;
 
+import com.ee.imperator.Imperator;
 import com.ee.imperator.data.BatchGameProvider;
 import com.ee.imperator.data.GameProvider;
 import com.ee.imperator.game.Game;
@@ -19,6 +21,10 @@ public class CachedGameProvider implements GameProvider {
 	public CachedGameProvider(GameProvider gameProvider, long timeToKeep) {
 		this.gameProvider = gameProvider;
 		cache = new SoftReferenceCache<>(timeToKeep);
+	}
+
+	public CachedGameProvider(GameProvider gameProvider) {
+		this(gameProvider, Imperator.getConfig().getLong(CachedGameProvider.class, "timeToKeep"));
 	}
 
 	private void cache(Game game) {
@@ -67,5 +73,10 @@ public class CachedGameProvider implements GameProvider {
 			cache(game);
 		}
 		return game;
+	}
+
+	@Override
+	public void close() throws IOException {
+		gameProvider.close();
 	}
 }

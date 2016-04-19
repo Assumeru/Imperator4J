@@ -1,5 +1,6 @@
 package com.ee.imperator.data;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.ee.web.request.Request;
@@ -40,6 +41,11 @@ public class JoinedDataProvider implements DataProvider {
 	}
 
 	@Override
+	public Integer getId(Request request) {
+		return memberProvider.getId(request);
+	}
+
+	@Override
 	public List<Map> getMaps() {
 		return mapProvider.getMaps();
 	}
@@ -47,5 +53,18 @@ public class JoinedDataProvider implements DataProvider {
 	@Override
 	public Map getMap(int id) {
 		return mapProvider.getMap(id);
+	}
+
+	@Override
+	public void close() throws IOException {
+		try {
+			gameProvider.close();
+		} finally {
+			try {
+				mapProvider.close();
+			} finally {
+				memberProvider.close();
+			}
+		}
 	}
 }

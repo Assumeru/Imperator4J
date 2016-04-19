@@ -12,7 +12,7 @@ import com.ee.imperator.request.PageContext;
 @NavigationPage(index = 2, name = "New Game")
 public class NewGamePage extends ImperatorPage {
 	public NewGamePage() {
-		super("game/new", "newgame");
+		super("game/new", "newgame", "New Game");
 	}
 
 	@Override

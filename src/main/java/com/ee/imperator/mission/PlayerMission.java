@@ -11,6 +11,11 @@ public class PlayerMission {
 	private final Integer targetId;
 
 	public PlayerMission(Mission mission, Player player, Integer targetId) {
+		if(mission == null) {
+			throw new NullPointerException("mission == null");
+		} else if(player == null) {
+			throw new NullPointerException("player == null");
+		}
 		this.mission = mission;
 		this.player = player;
 		this.targetId = targetId;

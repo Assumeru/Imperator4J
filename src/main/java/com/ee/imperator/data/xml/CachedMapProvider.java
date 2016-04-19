@@ -1,5 +1,6 @@
 package com.ee.imperator.data.xml;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -39,5 +40,9 @@ public class CachedMapProvider implements MapProvider {
 		if(maps == null) {
 			maps = MapParser.parseMaps(Imperator.getFiles("/WEB-INF/maps/", ".xml"));
 		}
+	}
+
+	@Override
+	public void close() throws IOException {
 	}
 }

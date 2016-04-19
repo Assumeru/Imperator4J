@@ -12,7 +12,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
-import org.ee.reflection.MethodUtils;
+import org.ee.reflection.ReflectionUtils;
 import org.ee.text.PrimitiveUtils;
 import org.ee.text.UriTemplate;
 
@@ -46,7 +46,7 @@ public abstract class AbstractVariablePage extends ImperatorPage {
 
 	private void setTemplate(String pattern) {
 		template = new UriTemplate(pattern + "{___slash : [/]*}");
-		List<Method> methods = MethodUtils.getMethodsUntil(getClass(), AbstractVariablePage.class);
+		List<Method> methods = ReflectionUtils.getMethodsUntil(getClass(), AbstractVariablePage.class);
 		for(Method method : methods) {
 			if(method.getName().equals("setVariables") && method.getParameterCount() > 0 && method.getParameterTypes()[0] == PageContext.class) {
 				setMethod(method);
