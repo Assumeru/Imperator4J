@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body th:fragment="fragment">
+<section id="new-game">
+	<h1 th:text="${i18n.__(title)}"></h1>
+	<form method="post">
+		<span th:if="${error != null}" class="help-inline" th:text="${i18n.__(error)}"></span>
+		<div th:class="${'input-group' + (error == null ? '' : ' has-error')}">
+			<div class="input-group-addon">
+				<span class="glyphicon glyphicon-tag"></span>
+			</div>
+			<input class="form-control" type="text" name="name" th:value="${name}" th:maxlength="${cfg.getInt('com.ee.imperator.game.Game.name.maxlength')}" th:placeholder="${i18n.__('Enter game name')}" required />
+		</div>
+		<select class="form-control" name="map" required>
+			<option disabled selected value="" th:text="${i18n.__('Choose a map')}"></option>
+			<option th:each="map : ${maps}" th:value="${map.id}" th:text="${i18n.__('%1$s (%2$d players)', i18n.translate(map.name), map.players)}"></option>
+		</select>
+		<div class="input-group" id="game-color">
+			<h3 class="sr-only" th:text="${i18n.__('Choose a color')}"></h3>
+			<div class="radio-color" th:each="color,state : ${colors}">
+				<input type="radio" th:value="${color.value}" name="color" th:id="${'color-' + color.value}" th:checked="${state.first}" required />
+				<label th:for="${'color-' + color.value}" th:title="${i18n.__(color.key)}">
+					<span th:style="${'background-color: #' + color.value}" class="btn btn-default"></span>
+					<span class="glyphicon glyphicon-chevron-up"></span>
+				</label>
+			</div>
+		</div>
+		<div class="input-group">
+			<div class="input-group-addon">
+				<span class="glyphicon glyphicon-lock"></span>
+			</div>
+			<input class="form-control" type="password" name="password" value="" th:placeholder="${i18n.__('Enter password (optional)')}" />
+		</div>
+		<hr />
+		<input class="btn btn-success" type="submit" th:value="${i18n.__('Create game')}" />
+	</form>
+</section>
+</body>
+</html>

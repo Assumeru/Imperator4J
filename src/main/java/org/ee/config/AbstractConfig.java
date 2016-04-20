@@ -321,6 +321,34 @@ public abstract class AbstractConfig implements Config {
 	}
 
 	@Override
+	public String[] getStrings(String key) {
+		String value = getString(key);
+		if(value != null) {
+			return value.split("\\s*,\\s*");
+		}
+		return null;
+	}
+
+	@Override
+	public String[] getStrings(String key, String[] fallback) {
+		String[] value = getStrings(key);
+		if(value != null) {
+			return value;
+		}
+		return fallback;
+	}
+
+	@Override
+	public String[] getStrings(Class<?> type, String key) {
+		return getStrings(getKey(type, key));
+	}
+
+	@Override
+	public String[] getStrings(Class<?> type, String key, String[] fallback) {
+		return getStrings(getKey(type, key), fallback);
+	}
+
+	@Override
 	public void close() throws IOException {
 	}
 }

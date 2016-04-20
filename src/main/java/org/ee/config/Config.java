@@ -82,4 +82,12 @@ public interface Config extends Closeable {
 	String getString(Class<?> type, String key);
 
 	String getString(Class<?> type, String key, String fallback);
+
+	String[] getStrings(String key);
+
+	String[] getStrings(String key, String[] fallback);
+
+	String[] getStrings(Class<?> type, String key);
+
+	String[] getStrings(Class<?> type, String key, String[] fallback);
 }

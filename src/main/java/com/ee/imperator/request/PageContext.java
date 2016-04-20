@@ -5,9 +5,11 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
+import org.ee.config.Config;
 import org.ee.i18n.Language;
 import org.ee.web.request.page.WebPage;
 
+import com.ee.imperator.Imperator;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.map.HasFlag;
 import com.ee.imperator.map.Map;
@@ -26,7 +28,8 @@ public interface PageContext {
 	public static final Variable<List<String>> VARIABLE_JAVASCRIPT = new Variable<>("javascript", ctx -> Collections.emptyList());
 	public static final Variable<PageContext> VARIABLE_CONTEXT = new Variable<>("ctx", ctx -> ctx);
 	public static final Variable<String> VARIABLE_MAIN_CLASS = new Variable<>("mainClass", ctx -> "container");
-	public static final Variable<?>[] DEFAULT_VARIABLES = { VARIABLE_LANGUAGE, VARIABLE_NAVIGATION, VARIABLE_SHOW_FOOTER, VARIABLE_YEAR, VARIABLE_CSS, VARIABLE_JAVASCRIPT, VARIABLE_CONTEXT, VARIABLE_MAIN_CLASS };
+	public static final Variable<Config> VARIABLE_CONFIG = new Variable<>("cfg", ctx -> Imperator.getConfig());
+	public static final Variable<?>[] DEFAULT_VARIABLES = { VARIABLE_CONFIG, VARIABLE_LANGUAGE, VARIABLE_NAVIGATION, VARIABLE_SHOW_FOOTER, VARIABLE_YEAR, VARIABLE_CSS, VARIABLE_JAVASCRIPT, VARIABLE_CONTEXT, VARIABLE_MAIN_CLASS };
 
 	Member getUser();
 
