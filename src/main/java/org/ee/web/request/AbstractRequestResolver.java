@@ -4,18 +4,24 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Cookie;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriInfo;
 
 import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
@@ -38,11 +44,19 @@ public abstract class AbstractRequestResolver {
 
 	@Path("/{path: (.*)}")
 	@GET
-	@POST
-	public Response handleRequest() {
+	public Response handleRequest(@Context UriInfo uriInfo, @Context HttpHeaders headers) {
 		String path = getPath();
 		RequestHandler page = getHandler(path);
-		return handleRequest(page, path);
+		return handleRequest(page, path, headers.getCookies(), uriInfo.getQueryParameters(), null);
+	}
+
+	@Path("/{path: (.*)}")
+	@POST
+	@Consumes("application/x-www-form-urlencoded")
+	public Response handleRequest(@Context UriInfo uriInfo, @Context HttpHeaders headers, MultivaluedMap<String, String> postParams) {
+		String path = getPath();
+		RequestHandler page = getHandler(path);
+		return handleRequest(page, path, headers.getCookies(), uriInfo.getQueryParameters(), postParams);
 	}
 
 	protected HttpServletRequest getRequest() {
@@ -61,8 +75,8 @@ public abstract class AbstractRequestResolver {
 		return navigation;
 	}
 
-	private Response handleRequest(final RequestHandler handler, final String path) {
-		final Request request = new Request(servletContext, this.request, path);
+	private Response handleRequest(final RequestHandler handler, final String path, Map<String, Cookie> cookies, MultivaluedMap<String, String> getParams, MultivaluedMap<String, String> postParams) {
+		final Request request = new Request(servletContext, this.request, cookies, getParams, postParams, path);
 		final Object context = createContext(request);
 		request.setContext(context);
 		try {

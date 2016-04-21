@@ -7,15 +7,22 @@ import java.util.Map;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response.Status;
 
+import org.ee.logger.LogManager;
+import org.ee.logger.Logger;
 import org.ee.web.request.page.NavigationPage;
 
 import com.ee.imperator.Imperator;
 import com.ee.imperator.exception.ConfigurationException;
+import com.ee.imperator.exception.FormException;
 import com.ee.imperator.request.PageContext;
+import com.ee.imperator.request.page.form.NewGameForm;
+import com.ee.imperator.user.Member;
 import com.ee.imperator.user.Player;
 
 @NavigationPage(index = 2, name = "New Game")
 public class NewGamePage extends ImperatorPage {
+	private static final Logger LOG = LogManager.createLogger();
+
 	public NewGamePage() {
 		super("game/new", "newgame", "New Game");
 	}
@@ -25,9 +32,24 @@ public class NewGamePage extends ImperatorPage {
 		if(!context.getUser().isLoggedIn()) {
 			throw new WebApplicationException(Status.FORBIDDEN);
 		}
+		if(context.getPostParams() != null) {
+			try {
+				NewGameForm form = new NewGameForm(context);
+				createNewGame(form, context.getUser());
+				return;
+			} catch (FormException e) {
+				context.setVariable("error", e.getMessage());
+				LOG.v(e);
+			}
+		}
 		context.setVariable(PageContext.VARIABLE_CSS, Arrays.asList("newgame.css"));
 		context.setVariable("maps", Imperator.getData().getMaps());
 		context.setVariable("colors", getColors());
+		context.setVariable("name", context.getUser().getLanguage().translate("%1$s's game", context.getUser().getName()));
+	}
+
+	private void createNewGame(NewGameForm form, Member member) {
+		//TODO create game
 	}
 
 	private Map<String, String> getColors() {

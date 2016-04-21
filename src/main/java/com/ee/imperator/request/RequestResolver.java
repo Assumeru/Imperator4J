@@ -29,7 +29,7 @@ public class RequestResolver extends AbstractRequestResolver {
 
 	@Override
 	protected PageContext createContext(Request request) {
-		return new ThymeleafContext(getTemplateEngine(), new WebContext(getRequest(), getResponse(), getServletContext()), Imperator.getData().getMember(request), getNavigation(), request.getPath());
+		return new ThymeleafContext(getTemplateEngine(), new WebContext(getRequest(), getResponse(), getServletContext()), Imperator.getData().getMember(request), getNavigation(), request);
 	}
 
 	private TemplateEngine getTemplateEngine() {

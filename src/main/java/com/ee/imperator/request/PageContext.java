@@ -5,6 +5,9 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
+import javax.ws.rs.core.Cookie;
+import javax.ws.rs.core.MultivaluedMap;
+
 import org.ee.config.Config;
 import org.ee.i18n.Language;
 import org.ee.web.request.page.WebPage;
@@ -32,6 +35,12 @@ public interface PageContext {
 	public static final Variable<?>[] DEFAULT_VARIABLES = { VARIABLE_CONFIG, VARIABLE_LANGUAGE, VARIABLE_NAVIGATION, VARIABLE_SHOW_FOOTER, VARIABLE_YEAR, VARIABLE_CSS, VARIABLE_JAVASCRIPT, VARIABLE_CONTEXT, VARIABLE_MAIN_CLASS };
 
 	Member getUser();
+
+	java.util.Map<String, Cookie> getCookies();
+
+	MultivaluedMap<String, String> getGetParams();
+
+	MultivaluedMap<String, String> getPostParams();
 
 	ByteArrayOutputStream processPage();
 

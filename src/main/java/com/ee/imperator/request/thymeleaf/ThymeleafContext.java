@@ -6,6 +6,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.List;
 
+import org.ee.web.request.Request;
 import org.ee.web.request.page.WebPage;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
@@ -17,8 +18,8 @@ public class ThymeleafContext extends AbstractPageContext {
 	private final TemplateEngine templateEngine;
 	private final WebContext context;
 
-	public ThymeleafContext(TemplateEngine templateEngine, WebContext context, Member user, List<WebPage> navigationPages, String path) {
-		super(user, navigationPages, path);
+	public ThymeleafContext(TemplateEngine templateEngine, WebContext context, Member user, List<WebPage> navigationPages, Request request) {
+		super(user, navigationPages, request);
 		this.templateEngine = templateEngine;
 		this.context = context;
 	}
