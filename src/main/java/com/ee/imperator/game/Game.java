@@ -24,6 +24,18 @@ public class Game implements Comparable<Game> {
 	private int units;
 	private boolean conquered;
 
+	public Game(int id, Map map, String name, Player owner, String password, long time) {
+		this.id = id;
+		this.name = name;
+		this.owner = owner;
+		players = new ArrayList<>();
+		players.add(owner);
+		owner.setGame(this);
+		this.time = time;
+		this.password = password;
+		state = State.TURN_START;
+	}
+
 	public Game(int id, Map map, String name, int owner, int turn, long time, State state, int units, boolean conquered, String password, Collection<Player> players) {
 		this.id = id;
 		this.name = name;

@@ -8,6 +8,7 @@ import org.ee.web.request.Request;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.map.Map;
 import com.ee.imperator.user.Member;
+import com.ee.imperator.user.Player;
 
 public class JoinedDataProvider implements DataProvider {
 	private final GameProvider gameProvider;
@@ -66,5 +67,10 @@ public class JoinedDataProvider implements DataProvider {
 				memberProvider.close();
 			}
 		}
+	}
+
+	@Override
+	public Game createGame(Player owner, Map map, String name, String password) {
+		return gameProvider.createGame(owner, map, name, password);
 	}
 }

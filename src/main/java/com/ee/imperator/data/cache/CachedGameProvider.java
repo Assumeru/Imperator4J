@@ -13,6 +13,7 @@ import com.ee.imperator.Imperator;
 import com.ee.imperator.data.BatchGameProvider;
 import com.ee.imperator.data.GameProvider;
 import com.ee.imperator.game.Game;
+import com.ee.imperator.user.Player;
 
 public class CachedGameProvider implements GameProvider {
 	private final SoftReferenceCache<Integer, Game> cache;
@@ -78,5 +79,12 @@ public class CachedGameProvider implements GameProvider {
 	@Override
 	public void close() throws IOException {
 		gameProvider.close();
+	}
+
+	@Override
+	public Game createGame(Player owner, com.ee.imperator.map.Map map, String name, String password) {
+		Game game = gameProvider.createGame(owner, map, name, password);
+		cache(game);
+		return game;
 	}
 }

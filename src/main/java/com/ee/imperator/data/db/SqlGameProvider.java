@@ -25,6 +25,7 @@ import com.ee.imperator.map.Territory;
 import com.ee.imperator.mission.Mission;
 import com.ee.imperator.mission.PlayerMission;
 import com.ee.imperator.user.Player;
+import com.mysql.cj.api.jdbc.Statement;
 
 public class SqlGameProvider implements BatchGameProvider {
 	private static final Logger LOG = LogManager.createLogger();
@@ -157,5 +158,27 @@ public class SqlGameProvider implements BatchGameProvider {
 				throw new IOException(e);
 			}
 		}
+	}
+
+	@Override
+	public Game createGame(Player owner, com.ee.imperator.map.Map map, String name, String password) {
+		try(Connection conn = dataSource.getConnection()) {
+			//TODO password
+			PreparedStatement statement = conn.prepareStatement("INSERT INTO games (map, name, uid, time) VALUES(?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+			statement.setInt(1, map.getId());
+			statement.setString(2, name);
+			statement.setInt(3, owner.getId());
+			long time = System.currentTimeMillis();
+			statement.setLong(4, time);
+			statement.execute();
+			ResultSet result = statement.getGeneratedKeys();
+			if(result.next()) {
+				//TODO add player
+				return new Game(result.getInt(1), map, name, owner, password, time);
+			}
+		} catch(SQLException e) {
+			LOG.e("Failed to create game", e);
+		}
+		return null;
 	}
 }
