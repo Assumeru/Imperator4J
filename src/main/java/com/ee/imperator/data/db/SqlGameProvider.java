@@ -39,7 +39,7 @@ public class SqlGameProvider implements BatchGameProvider {
 	public List<Game> getGames() {
 		List<Game> games = new ArrayList<>();
 		try(Connection conn = dataSource.getConnection()) {
-			loadGames(conn.prepareCall("SELECT gid, map, name, uid, turn, time, state, units, conquered, password FROM games").executeQuery(), games);
+			loadGames(conn.prepareCall("SELECT `gid`, `map`, `name`, `uid`, `turn`, `time`, `state`, `units`, `conquered`, `password` FROM `games`").executeQuery(), games);
 		} catch (SQLException e) {
 			LOG.e("Error loading games", e);
 		}
@@ -50,7 +50,7 @@ public class SqlGameProvider implements BatchGameProvider {
 	public Game getGame(int id) {
 		List<Game> games = new ArrayList<>(1);
 		try(Connection conn = dataSource.getConnection()) {
-			PreparedStatement statement = conn.prepareStatement("SELECT gid, map, name, uid, turn, time, state, units, conquered, password FROM games WHERE gid = ?");
+			PreparedStatement statement = conn.prepareStatement("SELECT `gid`, `map`, `name`, `uid`, `turn`, `time`, `state`, `units`, `conquered`, `password` FROM `games` WHERE `gid` = ?");
 			statement.setInt(1, id);
 			loadGames(statement.executeQuery(), games);
 		} catch (SQLException e) {
@@ -63,7 +63,7 @@ public class SqlGameProvider implements BatchGameProvider {
 	public List<Integer> getGameIds() {
 		List<Integer> ids = new ArrayList<>();
 		try(Connection conn = dataSource.getConnection()) {
-			ResultSet result = conn.prepareCall("SELECT gid FROM games").executeQuery();
+			ResultSet result = conn.prepareCall("SELECT `gid` FROM `games`").executeQuery();
 			while(result.next()) {
 				ids.add(result.getInt(1));
 			}
@@ -77,7 +77,7 @@ public class SqlGameProvider implements BatchGameProvider {
 	public Collection<Game> getGames(Collection<Integer> ids) {
 		List<Game> games = new ArrayList<>(ids.size());
 		try(Connection conn = dataSource.getConnection()) {
-			PreparedStatement statement = new PreparedStatementBuilder("SELECT gid, map, name, uid, turn, time, state, units, conquered, password FROM games WHERE gid IN(").appendParameters(ids.size()).append(')').build(conn);
+			PreparedStatement statement = new PreparedStatementBuilder("SELECT `gid`, `map`, `name`, `uid`, `turn`, `time`, `state`, `units`, `conquered`, `password` FROM games WHERE `gid` IN(").appendParameters(ids.size()).append(')').build(conn);
 			int index = 1;
 			for(int id : ids) {
 				statement.setInt(index, id);
@@ -111,7 +111,7 @@ public class SqlGameProvider implements BatchGameProvider {
 	private Map<Integer, Player> loadPlayers(int id, Map<Integer, Mission> missions) throws SQLException {
 		Map<Integer, Player> players = new HashMap<>();
 		try(Connection conn = dataSource.getConnection()) {
-			PreparedStatement statement = conn.prepareStatement("SELECT uid, color, autoroll, mission, m_uid, state, c_art, c_cav, c_inf, c_jok WHERE gid = ?");
+			PreparedStatement statement = conn.prepareStatement("SELECT `uid`, `color`, `autoroll`, `mission`, `m_uid`, `state`, `c_art`, `c_cav`, `c_inf`, `c_jok` FROM `gamesjoined` WHERE `gid` = ?");
 			statement.setInt(1, id);
 			ResultSet result = statement.executeQuery();
 			while(result.next()) {
@@ -136,7 +136,7 @@ public class SqlGameProvider implements BatchGameProvider {
 
 	private void loadTerritories(Game game) throws SQLException {
 		try(Connection conn = dataSource.getConnection()) {
-			PreparedStatement statement = conn.prepareStatement("SELECT territory, uid, units FROM territories WHERE gid = ?");
+			PreparedStatement statement = conn.prepareStatement("SELECT `territory`, `uid`, `units` FROM `territories` WHERE `gid` = ?");
 			statement.setInt(1, game.getId());
 			ResultSet result = statement.executeQuery();
 			while(result.next()) {
@@ -163,22 +163,55 @@ public class SqlGameProvider implements BatchGameProvider {
 	@Override
 	public Game createGame(Player owner, com.ee.imperator.map.Map map, String name, String password) {
 		try(Connection conn = dataSource.getConnection()) {
-			//TODO password
-			PreparedStatement statement = conn.prepareStatement("INSERT INTO games (map, name, uid, time) VALUES(?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+			StringBuilder query = new StringBuilder("INSERT INTO `games` (`map`, `name`, `uid`, `time`");
+			if(password != null) {
+				query.append(", `password`");
+			}
+			query.append(") VALUES(?, ?, ?, ?");
+			if(password != null) {
+				query.append(", ?");
+			}
+			query.append(')');
+			PreparedStatement statement = conn.prepareStatement(query.toString(), Statement.RETURN_GENERATED_KEYS);
 			statement.setInt(1, map.getId());
 			statement.setString(2, name);
 			statement.setInt(3, owner.getId());
 			long time = System.currentTimeMillis();
 			statement.setLong(4, time);
+			if(password != null) {
+				statement.setString(5, password);
+			}
 			statement.execute();
 			ResultSet result = statement.getGeneratedKeys();
 			if(result.next()) {
-				//TODO add player
-				return new Game(result.getInt(1), map, name, owner, password, time);
+				Game game = new Game(result.getInt(1), map, name, owner, password, time);
+				addPlayerToGame(conn, owner, game);
+				conn.commit();
+				return game;
 			}
 		} catch(SQLException e) {
 			LOG.e("Failed to create game", e);
 		}
 		return null;
+	}
+
+	private void addPlayerToGame(Connection conn, Player player, Game game) throws SQLException {
+		PreparedStatement statement = conn.prepareStatement("INSERT INTO `gamesjoined` (`gid`, `uid`, `color`) VALUES (?, ?, ?)");
+		statement.setInt(1, game.getId());
+		statement.setInt(2, player.getId());
+		statement.setString(3, player.getColor());
+		statement.execute();
+	}
+
+	@Override
+	public boolean addPlayerToGame(Player player, Game game) {
+		try(Connection conn = dataSource.getConnection()) {
+			addPlayerToGame(conn, player, game);
+			conn.commit();
+			return true;
+		} catch (SQLException e) {
+			LOG.e("Failed to add player to game", e);
+		}
+		return false;
 	}
 }

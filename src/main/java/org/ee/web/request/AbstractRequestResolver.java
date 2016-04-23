@@ -21,6 +21,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.Response.Status.Family;
 import javax.ws.rs.core.UriInfo;
 
 import org.ee.logger.LogManager;
@@ -86,7 +87,11 @@ public abstract class AbstractRequestResolver {
 			if(errorHandler != null) {
 				return errorHandler.getResponse(request);
 			}
-			LOG.w("Returning WebApplicationException response", e);
+			if(e.getResponse().getStatusInfo().getFamily() == Family.REDIRECTION) {
+				LOG.v("Redirecting");
+			} else {
+				LOG.w("Returning WebApplicationException response", e);
+			}
 			return e.getResponse();
 		} catch (Exception e) {
 			LOG.e("Error handling request using " + handler, e);

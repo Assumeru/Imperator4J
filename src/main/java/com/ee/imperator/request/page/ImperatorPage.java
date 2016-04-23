@@ -42,12 +42,7 @@ public abstract class ImperatorPage extends AbstractWebPage {
 		return template;
 	}
 
-	protected String getBodyTemplate(PageContext context) {
-		return template;
-	}
-
 	protected void setDefaultVariables(PageContext context) {
-		final String template = getBodyTemplate(context);
 		if(template != null) {
 			context.setVariable(PageContext.VARIABLE_BODY, template);
 		}

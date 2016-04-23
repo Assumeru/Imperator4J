@@ -19,6 +19,8 @@ public class DBCPGameProvider extends CachedGameProvider {
 		dataSource.setUrl(getConfigOrCrash("url"));
 		dataSource.setUsername(Imperator.getConfig().getString(DBCPGameProvider.class, "username"));
 		dataSource.setPassword(Imperator.getConfig().getString(DBCPGameProvider.class, "password"));
+		dataSource.setDefaultAutoCommit(false);
+		dataSource.setRollbackOnReturn(true);
 		return dataSource;
 	}
 

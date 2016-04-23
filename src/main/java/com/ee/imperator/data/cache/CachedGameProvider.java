@@ -87,4 +87,13 @@ public class CachedGameProvider implements GameProvider {
 		cache(game);
 		return game;
 	}
+
+	@Override
+	public boolean addPlayerToGame(Player player, Game game) {
+		if(gameProvider.addPlayerToGame(player, game)) {
+			game.addPlayer(player);
+			return true;
+		}
+		return false;
+	}
 }

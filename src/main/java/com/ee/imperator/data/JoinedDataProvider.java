@@ -32,6 +32,16 @@ public class JoinedDataProvider implements DataProvider {
 	}
 
 	@Override
+	public Game createGame(Player owner, Map map, String name, String password) {
+		return gameProvider.createGame(owner, map, name, password);
+	}
+
+	@Override
+	public boolean addPlayerToGame(Player player, Game game) {
+		return gameProvider.addPlayerToGame(player, game);
+	}
+
+	@Override
 	public Member getMember(int id) {
 		return memberProvider.getMember(id);
 	}
@@ -67,10 +77,5 @@ public class JoinedDataProvider implements DataProvider {
 				memberProvider.close();
 			}
 		}
-	}
-
-	@Override
-	public Game createGame(Player owner, Map map, String name, String password) {
-		return gameProvider.createGame(owner, map, name, password);
 	}
 }

@@ -21,12 +21,15 @@ public class GamePage extends AbstractVariablePage {
 		if(game == null) {
 			throw new WebApplicationException(Status.NOT_FOUND);
 		}
+		context.setVariable(PageContext.VARIABLE_TITLE, game.getName());
+		context.setVariable("game", game);
 		if(game.hasEnded()) {
 			//TODO post game
 		} else if(game.hasStarted()) {
 			//TODO in game
 		} else {
-			//TODO pre game
+			context.setVariable(PageContext.VARIABLE_BODY, "pregame::fragment");
+			context.setVariable("canKick", game.getOwner().equals(context.getUser()));
 		}
 	}
 }

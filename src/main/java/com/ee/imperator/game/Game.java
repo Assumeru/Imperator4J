@@ -12,6 +12,7 @@ public class Game implements Comparable<Game> {
 	public enum State {
 		TURN_START, FORTIFY, POST_COMBAT, FINISHED
 	}
+
 	private int id;
 	private String name;
 	private State state;
@@ -26,11 +27,11 @@ public class Game implements Comparable<Game> {
 
 	public Game(int id, Map map, String name, Player owner, String password, long time) {
 		this.id = id;
+		this.map = map;
 		this.name = name;
 		this.owner = owner;
 		players = new ArrayList<>();
-		players.add(owner);
-		owner.setGame(this);
+		addPlayer(owner);
 		this.time = time;
 		this.password = password;
 		state = State.TURN_START;
@@ -38,6 +39,7 @@ public class Game implements Comparable<Game> {
 
 	public Game(int id, Map map, String name, int owner, int turn, long time, State state, int units, boolean conquered, String password, Collection<Player> players) {
 		this.id = id;
+		this.map = map;
 		this.name = name;
 		this.time = time;
 		this.state = state;
@@ -46,8 +48,7 @@ public class Game implements Comparable<Game> {
 		this.password = password;
 		this.players = new ArrayList<>(players.size());
 		for(Player player : players) {
-			player.setGame(this);
-			this.players.add(player);
+			addPlayer(player, false);
 			if(player.getId() == owner) {
 				this.owner = player;
 			}
@@ -72,6 +73,20 @@ public class Game implements Comparable<Game> {
 
 	public Player getOwner() {
 		return owner;
+	}
+
+	public void addPlayer(Player player) {
+		addPlayer(player, true);
+	}
+
+	private void addPlayer(Player player, boolean sort) {
+		if(!players.contains(player)) {
+			player.setGame(this);
+			players.add(player);
+			if(sort) {
+				players.sort(null);
+			}
+		}
 	}
 
 	public List<Player> getPlayers() {

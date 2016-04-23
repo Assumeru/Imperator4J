@@ -50,7 +50,7 @@ public class Player implements User, Comparable<Player> {
 	}
 
 	public void setGame(Game game) {
-		if(this.game != null) {
+		if(this.game != null && this.game != game) {
 			throw new IllegalStateException("Player already has a game");
 		}
 		this.game = game;

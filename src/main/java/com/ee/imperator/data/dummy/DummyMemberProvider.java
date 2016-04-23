@@ -23,7 +23,7 @@ public class DummyMemberProvider extends CachedMemberProvider {
 			
 			@Override
 			public Member getMember(int id) {
-				return new Member(0, "Dummy user", LanguageManager.createLanguage("en", "us"), true, 0, 0, 0);
+				return new Member(1, "Dummy user", LanguageManager.createLanguage("en", "us"), true, 0, 0, 0);
 			}
 			
 			@Override

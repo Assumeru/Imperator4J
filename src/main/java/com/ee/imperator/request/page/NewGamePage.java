@@ -1,10 +1,13 @@
 package com.ee.imperator.request.page;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.ee.logger.LogManager;
@@ -14,9 +17,9 @@ import org.ee.web.request.page.NavigationPage;
 import com.ee.imperator.Imperator;
 import com.ee.imperator.exception.ConfigurationException;
 import com.ee.imperator.exception.FormException;
+import com.ee.imperator.game.Game;
 import com.ee.imperator.request.PageContext;
 import com.ee.imperator.request.page.form.NewGameForm;
-import com.ee.imperator.user.Member;
 import com.ee.imperator.user.Player;
 
 @NavigationPage(index = 2, name = "New Game")
@@ -35,11 +38,14 @@ public class NewGamePage extends ImperatorPage {
 		if(context.getPostParams() != null) {
 			try {
 				NewGameForm form = new NewGameForm(context);
-				createNewGame(form, context.getUser());
+				createNewGame(form, context);
 				return;
 			} catch (FormException e) {
 				context.setVariable("error", e.getMessage());
 				LOG.v(e);
+			} catch (URISyntaxException e) {
+				LOG.e(e);
+				throw new RuntimeException(e);
 			}
 		}
 		context.setVariable(PageContext.VARIABLE_CSS, Arrays.asList("newgame.css"));
@@ -48,8 +54,12 @@ public class NewGamePage extends ImperatorPage {
 		context.setVariable("name", context.getUser().getLanguage().translate("%1$s's game", context.getUser().getName()));
 	}
 
-	private void createNewGame(NewGameForm form, Member member) {
-		//TODO create game
+	private void createNewGame(NewGameForm form, PageContext context) throws URISyntaxException {
+		Player owner = new Player(context.getUser());
+		owner.setColor(form.getColor());
+		//TODO hash password
+		Game game = Imperator.getData().createGame(owner, form.getMap(), form.getName(), form.getPassword());
+		throw new WebApplicationException(Response.seeOther(new URI(context.game(game))).build());
 	}
 
 	private Map<String, String> getColors() {

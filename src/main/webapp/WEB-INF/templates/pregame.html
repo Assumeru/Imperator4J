@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body th:fragment="fragment">
+<section>
+	<h1 th:text="${i18n.__(title)}"></h1>
+	<h4 th:text="${i18n.__('Map')}"></h4>
+	<p><a th:href="@{${ctx.map(game.map)}}" th:text="${i18n.__(game.map.name)}"></a></p>
+	<h4 th:text="${i18n.__('Players')}"></h4>
+	<ul id="player-list">
+		<li th:each="player : ${game.players}">
+			<span th:style="${'color: #' + player.color}" th:text="${player.name}"></span>
+			<span th:if="${game.owner == player}" th:text="${i18n.__('(Owner)')}"></span>
+			<button th:if="${canKick &amp;&amp; !player.equals(ctx.user)}" class="btn btn-danger" th:title="${i18n.__('Kick')}" th:attr="data-kick=${player.id}"><span class="glyphicon glyphicon-remove"></span></button>
+		</li>
+	</ul>
+	<div th:if="${game.hasPassword()}">
+		<h4 th:text="${i18n.__('Invite code')}"></h4>
+		<p><code><a th:href="@{'/todo'}">TODO</a></code></p>
+	</div>
+</section>
+<section id="leave-game" th:if="${game.players.contains(ctx.user)}">
+	<form method="post">
+		<input class="btn btn-warning" type="submit" name="leavegame" th:value="${i18n.__('Leave game')}" />
+	</form>
+</section>
+</html>
