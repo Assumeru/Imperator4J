@@ -17,7 +17,14 @@ public class ImperatorConfig extends PropertiesConfig {
 	}
 
 	private static File getConfigPath() {
-		//TODO check other places
+		String path = System.getProperty(ImperatorConfig.class.getName() + ".file");
+		if(path != null) {
+			File file = new File(path);
+			if(file.exists()) {
+				return file;
+			}
+			LOG.w("Failed to find " + file);
+		}
 		LOG.w("Falling back on /WEB-INF/default.properties");
 		return Imperator.getFile("/WEB-INF/default.properties");
 	}

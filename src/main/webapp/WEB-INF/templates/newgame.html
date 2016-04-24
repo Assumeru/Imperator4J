@@ -9,7 +9,7 @@
 			<div class="input-group-addon">
 				<span class="glyphicon glyphicon-tag"></span>
 			</div>
-			<input class="form-control" type="text" name="name" th:value="${name}" th:maxlength="${cfg.getInt('com.ee.imperator.game.Game.name.maxlength')}" th:placeholder="${i18n.__('Enter game name')}" required />
+			<input class="form-control" type="text" name="name" th:value="${name}" th:maxlength="${cfg.getInt('com.ee.imperator.game.Game.name.maxLength')}" th:placeholder="${i18n.__('Enter game name')}" required />
 		</div>
 		<select class="form-control" name="map" required>
 			<option disabled selected value="" th:text="${i18n.__('Choose a map')}"></option>

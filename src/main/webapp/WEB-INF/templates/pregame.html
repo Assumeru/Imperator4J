@@ -13,9 +13,9 @@
 			<button th:if="${canKick &amp;&amp; !player.equals(ctx.user)}" class="btn btn-danger" th:title="${i18n.__('Kick')}" th:attr="data-kick=${player.id}"><span class="glyphicon glyphicon-remove"></span></button>
 		</li>
 	</ul>
-	<div th:if="${game.hasPassword()}">
+	<div th:if="${game.inviteCode != null}">
 		<h4 th:text="${i18n.__('Invite code')}"></h4>
-		<p><code><a th:href="@{'/todo'}">TODO</a></code></p>
+		<p><code><a th:href="@{${ctx.invite(game)}}" th:text="${game.inviteCode}"></a></code></p>
 	</div>
 </section>
 <section id="leave-game" th:if="${game.players.contains(ctx.user)}">

@@ -90,4 +90,11 @@ public interface Config extends Closeable {
 	String[] getStrings(Class<?> type, String key);
 
 	String[] getStrings(Class<?> type, String key, String[] fallback);
+
+	static String getKey(Class<?> type, String key) {
+		if(key == null || key.isEmpty()) {
+			return type.getName();
+		}
+		return type.getName() + "." + key;
+	}
 }

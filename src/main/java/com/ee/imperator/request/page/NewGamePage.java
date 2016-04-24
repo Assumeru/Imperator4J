@@ -57,8 +57,11 @@ public class NewGamePage extends ImperatorPage {
 	private void createNewGame(NewGameForm form, PageContext context) throws URISyntaxException {
 		Player owner = new Player(context.getUser());
 		owner.setColor(form.getColor());
-		//TODO hash password
-		Game game = Imperator.getData().createGame(owner, form.getMap(), form.getName(), form.getPassword());
+		String password = form.getPassword();
+		if(password != null) {
+			password = Imperator.getHasher().hash(password);
+		}
+		Game game = Imperator.getData().createGame(owner, form.getMap(), form.getName(), password);
 		throw new WebApplicationException(Response.seeOther(new URI(context.game(game))).build());
 	}
 

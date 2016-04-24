@@ -8,13 +8,6 @@ import org.ee.logger.Logger;
 public abstract class AbstractConfig implements Config {
 	private static final Logger LOG = LogManager.createLogger();
 
-	private String getKey(Class<?> type, String key) {
-		if(key == null || key.isEmpty()) {
-			return type.getName();
-		}
-		return type.getName() + "." + key;
-	}
-
 	@Override
 	public Boolean getBoolean(String key) {
 		String value = getString(key);
@@ -40,12 +33,12 @@ public abstract class AbstractConfig implements Config {
 
 	@Override
 	public Boolean getBoolean(Class<?> type, String key) {
-		return getBoolean(getKey(type, key));
+		return getBoolean(Config.getKey(type, key));
 	}
 
 	@Override
 	public boolean getBoolean(Class<?> type, String key, boolean fallback) {
-		return getBoolean(getKey(type, key), fallback);
+		return getBoolean(Config.getKey(type, key), fallback);
 	}
 
 	@Override
@@ -72,12 +65,12 @@ public abstract class AbstractConfig implements Config {
 
 	@Override
 	public Byte getByte(Class<?> type, String key) {
-		return getByte(getKey(type, key));
+		return getByte(Config.getKey(type, key));
 	}
 
 	@Override
 	public byte getByte(Class<?> type, String key, byte fallback) {
-		return getByte(getKey(type, key), fallback);
+		return getByte(Config.getKey(type, key), fallback);
 	}
 
 	@Override
@@ -101,12 +94,12 @@ public abstract class AbstractConfig implements Config {
 
 	@Override
 	public Character getChar(Class<?> type, String key) {
-		return getChar(getKey(type, key));
+		return getChar(Config.getKey(type, key));
 	}
 
 	@Override
 	public char getChar(Class<?> type, String key, char fallback) {
-		return getChar(getKey(type, key), fallback);
+		return getChar(Config.getKey(type, key), fallback);
 	}
 
 	@Override
@@ -133,12 +126,12 @@ public abstract class AbstractConfig implements Config {
 
 	@Override
 	public Class<?> getClass(Class<?> type, String key) {
-		return getClass(getKey(type, key));
+		return getClass(Config.getKey(type, key));
 	}
 
 	@Override
 	public Class<?> getClass(Class<?> type, String key, Class<?> fallback) {
-		return getClass(getKey(type, key), fallback);
+		return getClass(Config.getKey(type, key), fallback);
 	}
 
 	@Override
@@ -165,12 +158,12 @@ public abstract class AbstractConfig implements Config {
 
 	@Override
 	public Double getDouble(Class<?> type, String key) {
-		return getDouble(getKey(type, key));
+		return getDouble(Config.getKey(type, key));
 	}
 
 	@Override
 	public double getDouble(Class<?> type, String key, double fallback) {
-		return getDouble(getKey(type, key), fallback);
+		return getDouble(Config.getKey(type, key), fallback);
 	}
 
 	@Override
@@ -197,12 +190,12 @@ public abstract class AbstractConfig implements Config {
 
 	@Override
 	public Float getFloat(Class<?> type, String key) {
-		return getFloat(getKey(type, key));
+		return getFloat(Config.getKey(type, key));
 	}
 
 	@Override
 	public float getFloat(Class<?> type, String key, float fallback) {
-		return getFloat(getKey(type, key), fallback);
+		return getFloat(Config.getKey(type, key), fallback);
 	}
 
 	@Override
@@ -229,12 +222,12 @@ public abstract class AbstractConfig implements Config {
 
 	@Override
 	public Integer getInt(Class<?> type, String key) {
-		return getInt(getKey(type, key));
+		return getInt(Config.getKey(type, key));
 	}
 
 	@Override
 	public int getInt(Class<?> type, String key, int fallback) {
-		return getInt(getKey(type, key), fallback);
+		return getInt(Config.getKey(type, key), fallback);
 	}
 
 	@Override
@@ -261,12 +254,12 @@ public abstract class AbstractConfig implements Config {
 
 	@Override
 	public Long getLong(Class<?> type, String key) {
-		return getLong(getKey(type, key));
+		return getLong(Config.getKey(type, key));
 	}
 
 	@Override
 	public long getLong(Class<?> type, String key, long fallback) {
-		return getLong(getKey(type, key), fallback);
+		return getLong(Config.getKey(type, key), fallback);
 	}
 
 	@Override
@@ -293,12 +286,12 @@ public abstract class AbstractConfig implements Config {
 
 	@Override
 	public Short getShort(Class<?> type, String key) {
-		return getShort(getKey(type, key));
+		return getShort(Config.getKey(type, key));
 	}
 
 	@Override
 	public short getShort(Class<?> type, String key, short fallback) {
-		return getShort(getKey(type, key), fallback);
+		return getShort(Config.getKey(type, key), fallback);
 	}
 
 	@Override
@@ -307,17 +300,18 @@ public abstract class AbstractConfig implements Config {
 		if(value != null) {
 			return value;
 		}
+		LOG.d("No value found for " + key);
 		return fallback;
 	}
 
 	@Override
 	public String getString(Class<?> type, String key) {
-		return getString(getKey(type, key));
+		return getString(Config.getKey(type, key));
 	}
 
 	@Override
 	public String getString(Class<?> type, String key, String fallback) {
-		return getString(getKey(type, key), fallback);
+		return getString(Config.getKey(type, key), fallback);
 	}
 
 	@Override
@@ -335,17 +329,18 @@ public abstract class AbstractConfig implements Config {
 		if(value != null) {
 			return value;
 		}
+		LOG.d("No value found for " + key);
 		return fallback;
 	}
 
 	@Override
 	public String[] getStrings(Class<?> type, String key) {
-		return getStrings(getKey(type, key));
+		return getStrings(Config.getKey(type, key));
 	}
 
 	@Override
 	public String[] getStrings(Class<?> type, String key, String[] fallback) {
-		return getStrings(getKey(type, key), fallback);
+		return getStrings(Config.getKey(type, key), fallback);
 	}
 
 	@Override

@@ -32,7 +32,7 @@ public class NewGameForm extends Form {
 		name = name.trim();
 		if(name.isEmpty()) {
 			throw new FormException("Please enter a name");
-		} else if(name.length() > Imperator.getConfig().getInt(Game.class, "name.maxlength")) {
+		} else if(name.length() > Imperator.getConfig().getInt(Game.class, "name.maxLength")) {
 			throw new FormException("Please enter a shorter name");
 		}
 	}

@@ -1,14 +1,23 @@
 package com.ee.imperator.game;
 
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.ee.crypt.Hasher;
+import org.ee.logger.LogManager;
+import org.ee.logger.Logger;
+
+import com.ee.imperator.Imperator;
 import com.ee.imperator.map.Map;
 import com.ee.imperator.user.Player;
 
 public class Game implements Comparable<Game> {
+	private static final Logger LOG = LogManager.createLogger();
+
 	public enum State {
 		TURN_START, FORTIFY, POST_COMBAT, FINISHED
 	}
@@ -24,6 +33,7 @@ public class Game implements Comparable<Game> {
 	private long time;
 	private int units;
 	private boolean conquered;
+	private String inviteCode;
 
 	public Game(int id, Map map, String name, Player owner, String password, long time) {
 		this.id = id;
@@ -128,6 +138,25 @@ public class Game implements Comparable<Game> {
 
 	public int getUnits() {
 		return units;
+	}
+
+	public String getInviteCode() {
+		if(password == null) {
+			return null;
+		} else if(inviteCode == null) {
+			generateInviteCode();
+		}
+		return inviteCode;
+	}
+
+	private synchronized void generateInviteCode() {
+		if(inviteCode == null) {
+			try {
+				inviteCode = new Hasher(Imperator.getConfig().getString(getClass(), "inviteCode", "MD5")).digest(password.getBytes("UTF-8")).toString(16);
+			} catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+				LOG.e(e);
+			}
+		}
 	}
 
 	@Override

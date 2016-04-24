@@ -58,9 +58,11 @@ public interface PageContext {
 
 	String map(Map map);
 
-	String getPath();
-
 	String game(Game game);
+
+	String invite(Game game);
+
+	String getPath();
 
 	default void setVariable(Variable<?> variable) {
 		setVariable(variable.getName(), variable.getDefaultValue(this));
