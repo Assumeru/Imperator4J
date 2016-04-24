@@ -15,12 +15,52 @@
 	</ul>
 	<div th:if="${game.inviteCode != null}">
 		<h4 th:text="${i18n.__('Invite code')}"></h4>
-		<p><code><a th:href="@{${ctx.invite(game)}}" th:text="${game.inviteCode}"></a></code></p>
+		<p><code><a th:href="@{${ctx.game(game)}(code=${game.inviteCode})}" th:text="${game.inviteCode}"></a></code></p>
 	</div>
 </section>
 <section id="leave-game" th:if="${game.players.contains(ctx.user)}">
 	<form method="post">
 		<input class="btn btn-warning" type="submit" name="leavegame" th:value="${i18n.__('Leave game')}" />
+	</form>
+</section>
+<section id="join-game" th:if="${!game.players.contains(ctx.user) &amp;&amp; game.players.size < game.map.players}">
+	<form method="post">
+		<span class="help-inline" th:if="${colorError != null}" th:text="${i18n.__(colorError)}"></span>
+		<div th:class="${'input-group' + (colorError == null ? '' : ' has-error')}" id="game-color">
+			<h3 th:text="${i18n.__('Choose a color')}"></h3>
+			<div class="radio-color" th:each="color,state : ${colors}">
+				<input type="radio" th:value="${color.value}" name="color" th:id="${'color-' + color.value}" th:checked="${state.first}" required />
+				<label th:for="${'color-' + color.value}" th:title="${i18n.__(color.key)}">
+					<span th:style="${'background-color: #' + color.value}" class="btn btn-default"></span>
+					<span class="glyphicon glyphicon-chevron-up"></span>
+				</label>
+			</div>
+		</div>
+		<div th:class="${passwordError != null ? 'has-error' : ''}">
+			<span class="help-inline" th:if="${passwordError != null}" th:text="${i18n.__(passwordError)}"></span>
+			<div class="row" th:if="${game.hasPassword()}">
+				<div class="col-sm-5">
+					<div class="input-group">
+						<div class="input-group-addon">
+							<span class="glyphicon glyphicon-lock"></span>
+						</div>
+						<input class="form-control" type="password" name="password" value="" th:placeholder="${i18n.__('Enter password')}" />
+					</div>
+				</div>
+				<div class="col-sm-2">
+					<p class="text-center" th:text="${i18n.__('or')}"></p>
+				</div>
+				<div class="col-sm-5">
+					<div class="input-group">
+						<div class="input-group-addon">
+							<span class="glyphicon glyphicon-bookmark"></span>
+						</div>
+						<input class="form-control" type="text" name="code" th:value="${code}" th:placeholder="${i18n.__('Enter invite code')}" />
+					</div>
+				</div>
+			</div>
+		</div>
+		<input class="btn btn-success" type="submit" th:value="${i18n.__('Join game')}" />
 	</form>
 </section>
 </html>

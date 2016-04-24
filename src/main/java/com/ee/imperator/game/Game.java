@@ -152,7 +152,8 @@ public class Game implements Comparable<Game> {
 	private synchronized void generateInviteCode() {
 		if(inviteCode == null) {
 			try {
-				inviteCode = new Hasher(Imperator.getConfig().getString(getClass(), "inviteCode", "MD5")).digest(password.getBytes("UTF-8")).toString(16);
+				byte[] input = (id + password).getBytes("UTF-8");
+				inviteCode = new Hasher(Imperator.getConfig().getString(getClass(), "inviteCode", "MD5")).digest(input).toString(16);
 			} catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
 				LOG.e(e);
 			}

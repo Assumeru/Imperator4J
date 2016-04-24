@@ -60,8 +60,6 @@ public interface PageContext {
 
 	String game(Game game);
 
-	String invite(Game game);
-
 	String getPath();
 
 	default void setVariable(Variable<?> variable) {

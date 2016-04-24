@@ -86,11 +86,6 @@ public abstract class AbstractPageContext implements PageContext {
 		return "/game/" + getNamedUrlBit(game.getId(), game.getName());
 	}
 
-	@Override
-	public String invite(Game game) {
-		return game(game) + "?code=" + game.getInviteCode();
-	}
-
 	private String getNamedUrlBit(int id, String name) {
 		try {
 			return id + "/" + URLEncoder.encode(name, "UTF-8").replace("%2F", "/").replace("%2f", "/");
