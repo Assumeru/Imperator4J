@@ -160,6 +160,10 @@ public class Game implements Comparable<Game> {
 		}
 	}
 
+	public String getPassword() {
+		return password;
+	}
+
 	@Override
 	public int compareTo(Game o) {
 		int c = map.compareTo(o.map);

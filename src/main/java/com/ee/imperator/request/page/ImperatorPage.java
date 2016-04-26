@@ -42,7 +42,7 @@ public abstract class ImperatorPage extends AbstractWebPage {
 		return template;
 	}
 
-	protected void setDefaultVariables(PageContext context) {
+	private void setDefaultVariables(PageContext context) {
 		if(template != null) {
 			context.setVariable(PageContext.VARIABLE_BODY, template);
 		}
@@ -60,7 +60,7 @@ public abstract class ImperatorPage extends AbstractWebPage {
 	protected abstract void setVariables(PageContext context);
 
 	@Override
-	protected ByteArrayOutputStream getResponseOutput(Request request) {
+	protected final ByteArrayOutputStream getResponseOutput(Request request) {
 		PageContext context = (PageContext) request.getContext();
 		setDefaultVariables(context);
 		setVariables(context);
