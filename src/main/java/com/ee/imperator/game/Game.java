@@ -7,12 +7,16 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.ee.collection.Util;
 import org.ee.crypt.Hasher;
 import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
 
 import com.ee.imperator.Imperator;
 import com.ee.imperator.map.Map;
+import com.ee.imperator.map.Territory;
+import com.ee.imperator.mission.Mission;
+import com.ee.imperator.mission.PlayerMission;
 import com.ee.imperator.user.Player;
 
 public class Game implements Comparable<Game> {
@@ -175,5 +179,44 @@ public class Game implements Comparable<Game> {
 			return Integer.compare(players.size(), o.players.size());
 		}
 		return c;
+	}
+
+	public void start() {
+		if(hasStarted() || hasEnded()) {
+			throw new IllegalStateException("This game has already been started");
+		}
+		distributeTerritories();
+		distributeMissions();
+		currentTurn = players.get((int) (Math.random() * players.size()));
+	}
+
+	private void distributeTerritories() {
+		Territory[] territories = map.getTerritories().values().toArray(new Territory[map.getTerritories().size()]);
+		Util.shuffle(territories);
+		int perPlayer = territories.length / players.size();
+		int t = 0;
+		for(Player player : players) {
+			for(int i = 0; i < perPlayer; i++, t++) {
+				territories[t].setOwner(player);
+				territories[t].setUnits(3);
+			}
+		}
+	}
+
+	private void distributeMissions() {
+		Integer[] distribution = map.getMissionDistribution().toArray(new Integer[map.getMissionDistribution().size()]);
+		Util.shuffle(distribution);
+		int i = 0;
+		for(Player player : players) {
+			Integer target = null;
+			Mission mission = map.getMissions().get(distribution[i++]);
+			if(mission.containsEliminate()) {
+				target = (int) (Math.random() * (players.size() - 1));
+				if(players.get(target).equals(player)) {
+					target = players.size() - 1;
+				}
+			}
+			player.setMission(new PlayerMission(mission, player, target));
+		}
 	}
 }

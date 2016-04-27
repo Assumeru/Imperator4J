@@ -90,20 +90,12 @@ public class CachedGameProvider implements GameProvider {
 
 	@Override
 	public boolean addPlayerToGame(Player player, Game game) {
-		if(gameProvider.addPlayerToGame(player, game)) {
-			game.addPlayer(player);
-			return true;
-		}
-		return false;
+		return gameProvider.addPlayerToGame(player, game);
 	}
 
 	@Override
 	public boolean removePlayerFromGame(Player player, Game game) {
-		if(gameProvider.removePlayerFromGame(player, game)) {
-			game.removePlayer(player);
-			return true;
-		}
-		return false;
+		return gameProvider.removePlayerFromGame(player, game);
 	}
 
 	@Override
@@ -113,5 +105,10 @@ public class CachedGameProvider implements GameProvider {
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public void startGame(Game game) {
+		gameProvider.startGame(game);
 	}
 }

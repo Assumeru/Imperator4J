@@ -52,6 +52,11 @@ public class JoinedDataProvider implements DataProvider {
 	}
 
 	@Override
+	public void startGame(Game game) {
+		gameProvider.startGame(game);
+	}
+
+	@Override
 	public Member getMember(int id) {
 		return memberProvider.getMember(id);
 	}

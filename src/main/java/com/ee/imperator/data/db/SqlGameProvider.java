@@ -208,6 +208,7 @@ public class SqlGameProvider implements BatchGameProvider {
 		try(Connection conn = dataSource.getConnection()) {
 			addPlayerToGame(conn, player, game);
 			conn.commit();
+			game.addPlayer(player);
 			return true;
 		} catch (SQLException e) {
 			LOG.e("Failed to add player to game", e);
@@ -223,6 +224,7 @@ public class SqlGameProvider implements BatchGameProvider {
 			statement.setInt(2, player.getId());
 			statement.execute();
 			conn.commit();
+			game.removePlayer(player);
 			return true;
 		} catch (SQLException e) {
 			LOG.e("Failed to remove player from game", e);
@@ -245,5 +247,16 @@ public class SqlGameProvider implements BatchGameProvider {
 			LOG.e("Failed to delete game", e);
 		}
 		return false;
+	}
+
+	@Override
+	public void startGame(Game game) {
+		try(Connection conn = dataSource.getConnection()) {
+			game.start();
+			//TODO save
+			conn.commit();
+		} catch (SQLException e) {
+			LOG.e("Failed to start game", e);
+		}
 	}
 }

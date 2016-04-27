@@ -19,4 +19,6 @@ public interface GameProvider extends Closeable {
 	boolean removePlayerFromGame(Player player, Game game);
 
 	boolean deleteGame(Game game);
+
+	void startGame(Game game);
 }
