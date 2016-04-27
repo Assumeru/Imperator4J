@@ -1,7 +1,5 @@
 package com.ee.imperator.request.page;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -10,7 +8,6 @@ import java.util.Set;
 
 import javax.ws.rs.PathParam;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.ee.logger.LogManager;
@@ -58,7 +55,15 @@ public class GamePage extends AbstractVariablePage {
 			}
 			context.setVariable("colors", colors);
 		} else if(context.getPostParams() != null) {
-			//TODO controls
+			if(context.getUser().equals(game.getOwner())) {
+				if(context.getPostParams().getFirst("startgame") != null && game.getPlayers().size() == game.getMap().getPlayers()) {
+					//TODO start
+				} else if(context.getPostParams().getFirst("disband") != null) {
+					deleteGame(game);
+				}
+			} else if(context.getPostParams().getFirst("leavegame") != null) {
+				leaveGame(context, game);
+			}
 		}
 		context.setVariable(PageContext.VARIABLE_BODY, "pregame::fragment");
 		context.setVariable("canKick", game.getOwner().equals(context.getUser()));
@@ -72,16 +77,25 @@ public class GamePage extends AbstractVariablePage {
 			Player player = new Player(context.getUser());
 			player.setColor(form.getColor());
 			if(Imperator.getData().addPlayerToGame(player, game)) {
-				throw new WebApplicationException(Response.seeOther(new URI(context.game(game))).build());
+				redirect(context.game(game));
 			}
 		} catch (FormException e) {
 			if(e.getName() != null) {
 				context.setVariable(e.getName(), e.getMessage());
 			}
 			LOG.v(e);
-		} catch (URISyntaxException e) {
-			LOG.e(e);
-			throw new RuntimeException(e);
+		}
+	}
+
+	private void leaveGame(PageContext context, Game game) {
+		if(Imperator.getData().removePlayerFromGame(game.getPlayerById(context.getUser().getId()), game)) {
+			redirect(context.game(game));
+		}
+	}
+
+	private void deleteGame(Game game) {
+		if(Imperator.getData().deleteGame(game)) {
+			redirect("/");
 		}
 	}
 

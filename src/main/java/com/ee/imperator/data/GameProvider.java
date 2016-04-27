@@ -15,4 +15,8 @@ public interface GameProvider extends Closeable {
 	Game createGame(Player owner, Map map, String name, String password);
 
 	boolean addPlayerToGame(Player player, Game game);
+
+	boolean removePlayerFromGame(Player player, Game game);
+
+	boolean deleteGame(Game game);
 }

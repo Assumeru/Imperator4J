@@ -42,6 +42,16 @@ public class JoinedDataProvider implements DataProvider {
 	}
 
 	@Override
+	public boolean removePlayerFromGame(Player player, Game game) {
+		return gameProvider.removePlayerFromGame(player, game);
+	}
+
+	@Override
+	public boolean deleteGame(Game game) {
+		return gameProvider.deleteGame(game);
+	}
+
+	@Override
 	public Member getMember(int id) {
 		return memberProvider.getMember(id);
 	}

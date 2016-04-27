@@ -1,13 +1,10 @@
 package com.ee.imperator.request.page;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.ee.logger.LogManager;
@@ -43,9 +40,6 @@ public class NewGamePage extends ImperatorPage {
 			} catch (FormException e) {
 				context.setVariable("error", e.getMessage());
 				LOG.v(e);
-			} catch (URISyntaxException e) {
-				LOG.e(e);
-				throw new RuntimeException(e);
 			}
 		}
 		context.setVariable(PageContext.VARIABLE_CSS, Arrays.asList("newgame.css"));
@@ -54,7 +48,7 @@ public class NewGamePage extends ImperatorPage {
 		context.setVariable("name", context.getUser().getLanguage().translate("%1$s's game", context.getUser().getName()));
 	}
 
-	private void createNewGame(NewGameForm form, PageContext context) throws URISyntaxException {
+	private void createNewGame(NewGameForm form, PageContext context) {
 		Player owner = new Player(context.getUser());
 		owner.setColor(form.getColor());
 		String password = form.getPassword();
@@ -62,7 +56,7 @@ public class NewGamePage extends ImperatorPage {
 			password = Imperator.getHasher().hash(password);
 		}
 		Game game = Imperator.getData().createGame(owner, form.getMap(), form.getName(), password);
-		throw new WebApplicationException(Response.seeOther(new URI(context.game(game))).build());
+		redirect(context.game(game));
 	}
 
 	private Map<String, String> getColors() {

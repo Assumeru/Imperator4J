@@ -155,7 +155,7 @@ public class SqlGameProvider implements BatchGameProvider {
 			try {
 				((AutoCloseable) dataSource).close();
 			} catch (Exception e) {
-				throw new IOException(e);
+				throw new IOException("Failed to close data source", e);
 			}
 		}
 	}
@@ -211,6 +211,38 @@ public class SqlGameProvider implements BatchGameProvider {
 			return true;
 		} catch (SQLException e) {
 			LOG.e("Failed to add player to game", e);
+		}
+		return false;
+	}
+
+	@Override
+	public boolean removePlayerFromGame(Player player, Game game) {
+		try(Connection conn = dataSource.getConnection()) {
+			PreparedStatement statement = conn.prepareStatement("DELETE FROM `gamesjoined` WHERE `gid` = ? AND `uid` = ?");
+			statement.setInt(1, game.getId());
+			statement.setInt(2, player.getId());
+			statement.execute();
+			conn.commit();
+			return true;
+		} catch (SQLException e) {
+			LOG.e("Failed to remove player from game", e);
+		}
+		return false;
+	}
+
+	@Override
+	public boolean deleteGame(Game game) {
+		try(Connection conn = dataSource.getConnection()) {
+			PreparedStatement statement = conn.prepareStatement("DELETE FROM `chat` WHERE `gid` = ?");
+			statement.setInt(1, game.getId());
+			statement.execute();
+			statement = conn.prepareStatement("DELETE FROM `games` WHERE `gid` = ?");
+			statement.setInt(1, game.getId());
+			statement.execute();
+			conn.commit();
+			return true;
+		} catch (SQLException e) {
+			LOG.e("Failed to delete game", e);
 		}
 		return false;
 	}

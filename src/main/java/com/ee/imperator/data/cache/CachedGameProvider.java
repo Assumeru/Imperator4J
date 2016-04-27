@@ -96,4 +96,22 @@ public class CachedGameProvider implements GameProvider {
 		}
 		return false;
 	}
+
+	@Override
+	public boolean removePlayerFromGame(Player player, Game game) {
+		if(gameProvider.removePlayerFromGame(player, game)) {
+			game.removePlayer(player);
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean deleteGame(Game game) {
+		if(gameProvider.deleteGame(game)) {
+			cache.remove(game.getId());
+			return true;
+		}
+		return false;
+	}
 }

@@ -89,6 +89,10 @@ public class Game implements Comparable<Game> {
 		addPlayer(player, true);
 	}
 
+	public void removePlayer(Player player) {
+		players.remove(player);
+	}
+
 	private void addPlayer(Player player, boolean sort) {
 		if(!players.contains(player)) {
 			player.setGame(this);

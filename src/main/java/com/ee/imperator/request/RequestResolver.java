@@ -48,6 +48,7 @@ public class RequestResolver extends AbstractRequestResolver {
 			templateResolver.setSuffix(".html");
 			templateResolver.setCacheTTLMs(Long.valueOf(3600000L));
 			engine.setTemplateResolver(templateResolver);
+			//TODO engine.setLinkBuilder()
 		}
 	}
 

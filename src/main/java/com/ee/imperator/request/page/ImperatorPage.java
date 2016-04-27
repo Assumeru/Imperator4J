@@ -1,9 +1,12 @@
 package com.ee.imperator.request.page;
 
 import java.io.ByteArrayOutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.Map;
 
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 import org.ee.collection.MapBuilder;
@@ -65,5 +68,13 @@ public abstract class ImperatorPage extends AbstractWebPage {
 		setDefaultVariables(context);
 		setVariables(context);
 		return context.processPage();
+	}
+
+	protected final void redirect(String path) {
+		try {
+			throw new WebApplicationException(Response.seeOther(new URI(path)).build());
+		} catch (URISyntaxException e) {
+			throw new RuntimeException("Failed to redirect to " + path, e);
+		}
 	}
 }
