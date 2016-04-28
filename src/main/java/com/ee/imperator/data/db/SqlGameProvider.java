@@ -253,10 +253,50 @@ public class SqlGameProvider implements BatchGameProvider {
 	public void startGame(Game game) {
 		try(Connection conn = dataSource.getConnection()) {
 			game.start();
-			//TODO save
+			saveMissions(conn, game);
+			saveTerritories(conn, game);
+			updateTurn(conn, game);
 			conn.commit();
 		} catch (SQLException e) {
 			LOG.e("Failed to start game", e);
 		}
+	}
+
+	private void saveMissions(Connection conn, Game game) throws SQLException {
+		for(Player player : game.getPlayers()) {
+			PreparedStatement statement = conn.prepareStatement("UPDATE `gamesjoined` SET `mission` = ?, `m_uid` = ? WHERE `uid` = ? AND `gid` = ?");
+			statement.setInt(1, player.getMission().getId());
+			statement.setInt(2, player.getMission().getTargetId());
+			statement.setInt(3, player.getId());
+			statement.setInt(4, game.getId());
+			statement.execute();
+		}
+	}
+
+	private void saveTerritories(Connection conn, Game game) throws SQLException {
+		StringBuilder query = new StringBuilder("INSERT INTO `territories` (`gid`, `territory`, `uid`, `units`) VALUES");
+		for(int i = 0; i < game.getMap().getTerritories().size(); i++) {
+			if(i > 0) {
+				query.append(", ");
+			}
+			query.append("(?, ?, ?, ?)");
+		}
+		PreparedStatement statement = conn.prepareStatement(query.toString());
+		int i = 1;
+		for(Territory territory : game.getMap().getTerritories().values()) {
+			statement.setInt(i++, game.getId());
+			statement.setString(i++, territory.getId());
+			statement.setInt(i++, territory.getOwner().getId());
+			statement.setInt(i++, territory.getUnits());
+		}
+		statement.execute();
+	}
+
+	private void updateTurn(Connection conn, Game game) throws SQLException {
+		PreparedStatement statement = conn.prepareStatement("UPDATE `games` SET `time` = ?, `turn` = ? WHERE `gid` = ?");
+		statement.setLong(1, game.getTime());
+		statement.setInt(2, game.getCurrentPlayer() == null ? 0 : game.getCurrentPlayer().getId());
+		statement.setInt(3, game.getId());
+		statement.execute();
 	}
 }

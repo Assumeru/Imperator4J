@@ -8,9 +8,9 @@ import com.ee.imperator.user.Player;
 public class PlayerMission {
 	private final Mission mission;
 	private final Player player;
-	private final Integer targetId;
+	private final int targetId;
 
-	public PlayerMission(Mission mission, Player player, Integer targetId) {
+	public PlayerMission(Mission mission, Player player, int targetId) {
 		if(mission == null) {
 			throw new NullPointerException("mission == null");
 		} else if(player == null) {
@@ -50,9 +50,13 @@ public class PlayerMission {
 	}
 
 	public Player getTarget() {
-		if(targetId == null) {
+		if(targetId == 0) {
 			return null;
 		}
 		return getGame().getPlayerById(targetId);
+	}
+
+	public int getTargetId() {
+		return targetId;
 	}
 }

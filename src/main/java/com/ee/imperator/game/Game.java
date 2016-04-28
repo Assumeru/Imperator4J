@@ -182,12 +182,10 @@ public class Game implements Comparable<Game> {
 	}
 
 	public void start() {
-		if(hasStarted() || hasEnded()) {
-			throw new IllegalStateException("This game has already been started");
-		}
 		distributeTerritories();
 		distributeMissions();
 		currentTurn = players.get((int) (Math.random() * players.size()));
+		time = System.currentTimeMillis();
 	}
 
 	private void distributeTerritories() {
