@@ -172,6 +172,10 @@ public class Game implements Comparable<Game> {
 		return password;
 	}
 
+	public State getState() {
+		return state;
+	}
+
 	@Override
 	public int compareTo(Game o) {
 		int c = map.compareTo(o.map);
@@ -206,13 +210,14 @@ public class Game implements Comparable<Game> {
 		Util.shuffle(distribution);
 		int i = 0;
 		for(Player player : players) {
-			Integer target = null;
+			int target = 0;
 			Mission mission = map.getMissions().get(distribution[i++]);
 			if(mission.containsEliminate()) {
 				target = (int) (Math.random() * (players.size() - 1));
 				if(players.get(target).equals(player)) {
 					target = players.size() - 1;
 				}
+				target = players.get(target).getId();
 			}
 			player.setMission(new PlayerMission(mission, player, target));
 		}

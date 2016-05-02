@@ -1,6 +1,7 @@
 package com.ee.imperator.data.dummy;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import org.ee.i18n.LanguageManager;
 import org.ee.web.request.Request;
@@ -28,7 +29,7 @@ public class DummyMemberProvider extends CachedMemberProvider {
 
 			@Override
 			public Integer getId(Request request) {
-				return 2;
+				return Objects.hashCode(request.getRequest().getHeader("User-Agent"));
 			}
 		});
 	}

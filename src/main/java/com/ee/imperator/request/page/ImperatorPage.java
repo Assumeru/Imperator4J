@@ -3,8 +3,6 @@ package com.ee.imperator.request.page;
 import java.io.ByteArrayOutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.Map;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
@@ -13,7 +11,8 @@ import org.ee.collection.MapBuilder;
 import org.ee.web.request.Request;
 import org.ee.web.request.page.AbstractWebPage;
 
-import com.ee.imperator.request.PageContext;
+import com.ee.imperator.request.context.PageContext;
+import com.ee.imperator.request.context.Variable;
 
 public abstract class ImperatorPage extends AbstractWebPage {
 	private final String template;
@@ -50,14 +49,10 @@ public abstract class ImperatorPage extends AbstractWebPage {
 			context.setVariable(PageContext.VARIABLE_BODY, template);
 		}
 		context.setVariable(PageContext.VARIABLE_TITLE, title);
-		context.setVariable(PageContext.VARIABLE_JAVASCRIPT_SETTINGS, new MapBuilder<String, Object>().put("settings", getJavaScriptSettings()).build());
+		context.setVariable(PageContext.VARIABLE_JAVASCRIPT_SETTINGS, new MapBuilder<>().put("settings", PageContext.VARIABLE_JAVASCRIPT_SETTINGS.get(context)).build());
 		for(Variable<?> var : PageContext.DEFAULT_VARIABLES) {
 			context.setVariable(var);
 		}
-	}
-
-	protected Map<String, Object> getJavaScriptSettings() {
-		return Collections.emptyMap();
 	}
 
 	protected abstract void setVariables(PageContext context);

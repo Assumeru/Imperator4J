@@ -5,7 +5,7 @@ import java.util.Arrays;
 import org.ee.web.request.page.NavigationPage;
 
 import com.ee.imperator.Imperator;
-import com.ee.imperator.request.PageContext;
+import com.ee.imperator.request.context.PageContext;
 
 @NavigationPage(index = 4, name = "Maps")
 public class MapList extends ImperatorPage {

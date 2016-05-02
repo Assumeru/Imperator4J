@@ -14,10 +14,11 @@ import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
 import com.ee.imperator.Imperator;
+import com.ee.imperator.request.context.PageContext;
+import com.ee.imperator.request.context.ThymeleafContext;
 import com.ee.imperator.request.page.Http403;
 import com.ee.imperator.request.page.Http404;
 import com.ee.imperator.request.page.Http500;
-import com.ee.imperator.request.thymeleaf.ThymeleafContext;
 
 public class RequestResolver extends AbstractRequestResolver {
 	private static final Map<Integer, RequestHandler> STATUS_PAGES = new MapBuilder<Integer, RequestHandler>()

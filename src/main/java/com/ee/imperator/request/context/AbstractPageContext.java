@@ -1,4 +1,4 @@
-package com.ee.imperator.request;
+package com.ee.imperator.request.context;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;

@@ -1,4 +1,4 @@
-package com.ee.imperator.request.thymeleaf;
+package com.ee.imperator.request.context;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -11,7 +11,6 @@ import org.ee.web.request.page.WebPage;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
 
-import com.ee.imperator.request.AbstractPageContext;
 import com.ee.imperator.user.Member;
 
 public class ThymeleafContext extends AbstractPageContext {

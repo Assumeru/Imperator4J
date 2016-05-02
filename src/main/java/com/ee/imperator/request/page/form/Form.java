@@ -1,7 +1,7 @@
 package com.ee.imperator.request.page.form;
 
 import com.ee.imperator.exception.FormException;
-import com.ee.imperator.request.PageContext;
+import com.ee.imperator.request.context.PageContext;
 
 public class Form {
 	private PageContext context;

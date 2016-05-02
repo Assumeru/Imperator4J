@@ -5,7 +5,7 @@ import java.util.Map;
 import com.ee.imperator.Imperator;
 import com.ee.imperator.exception.FormException;
 import com.ee.imperator.game.Game;
-import com.ee.imperator.request.PageContext;
+import com.ee.imperator.request.context.PageContext;
 
 public class JoinGameForm extends Form {
 	private Game game;

@@ -10,6 +10,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response.Status;
 
+import org.ee.collection.MapBuilder;
 import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
 
@@ -17,7 +18,7 @@ import com.ee.imperator.Imperator;
 import com.ee.imperator.exception.ConfigurationException;
 import com.ee.imperator.exception.FormException;
 import com.ee.imperator.game.Game;
-import com.ee.imperator.request.PageContext;
+import com.ee.imperator.request.context.PageContext;
 import com.ee.imperator.request.page.form.JoinGameForm;
 import com.ee.imperator.user.Player;
 
@@ -38,36 +39,52 @@ public class GamePage extends AbstractVariablePage {
 		}
 		context.setVariable(PageContext.VARIABLE_TITLE, game.getName());
 		context.setVariable("game", game);
+		PageContext.VARIABLE_JAVASCRIPT_SETTINGS.put(context, "gid", game.getId());
 		if(game.hasEnded()) {
 			// TODO post game
 		} else if(game.hasStarted()) {
-			// TODO in game
+			setInGameVariables(context, game);
 		} else {
 			setPreGameVariables(context, game);
 		}
 	}
 
+	private void setInGameVariables(PageContext context, Game game) {
+		context.setVariable(PageContext.VARIABLE_BODY, "ingame::fragment");
+		context.setVariable(PageContext.VARIABLE_CSS, Arrays.asList("game.css"));
+		context.setVariable(PageContext.VARIABLE_SHOW_FOOTER, false);
+		if(game.getPlayers().contains(context.getUser())) {
+			context.setVariable(PageContext.VARIABLE_MAIN_CLASS, "container-fluid");
+		} else {
+			context.setVariable(PageContext.VARIABLE_MAIN_CLASS, "container-fluid not-player");
+		}
+	}
+
 	private void setPreGameVariables(PageContext context, Game game) {
 		if(!game.getPlayers().contains(context.getUser())) {
+			context.setVariable(PageContext.VARIABLE_CSS, Arrays.asList("newgame.css"));
 			Map<String, String> colors = getColors(game);
 			if(context.getPostParams() != null) {
 				joinGame(context, game, colors);
 			}
 			context.setVariable("colors", colors);
-		} else if(context.getPostParams() != null) {
-			if(context.getUser().equals(game.getOwner())) {
-				if(context.getPostParams().getFirst("startgame") != null && game.getPlayers().size() == game.getMap().getPlayers()) {
-					startGame(context, game);
-				} else if(context.getPostParams().getFirst("disband") != null) {
-					deleteGame(game);
+		} else {
+			PageContext.VARIABLE_JAVASCRIPT_SETTINGS.put(context, "API", new MapBuilder<>().put("longpollingURL", Imperator.buildLink(Ajax.PATH)).build());
+			context.setVariable(PageContext.VARIABLE_JAVASCRIPT, Arrays.asList("store.js", "api.js", "dialog.js", "pregame.js"));
+			if(context.getPostParams() != null) {
+				if(context.getUser().equals(game.getOwner())) {
+					if(context.getPostParams().getFirst("startgame") != null && game.getPlayers().size() == game.getMap().getPlayers()) {
+						startGame(context, game);
+					} else if(context.getPostParams().getFirst("disband") != null) {
+						deleteGame(game);
+					}
+				} else if(context.getPostParams().getFirst("leavegame") != null) {
+					leaveGame(context, game);
 				}
-			} else if(context.getPostParams().getFirst("leavegame") != null) {
-				leaveGame(context, game);
 			}
 		}
 		context.setVariable(PageContext.VARIABLE_BODY, "pregame::fragment");
 		context.setVariable("canKick", game.getOwner().equals(context.getUser()));
-		context.setVariable(PageContext.VARIABLE_CSS, Arrays.asList("newgame.css"));
 		context.setVariable("code", context.getGetParams().getFirst("code"));
 	}
 
@@ -79,7 +96,7 @@ public class GamePage extends AbstractVariablePage {
 			if(Imperator.getData().addPlayerToGame(player, game)) {
 				redirect(context.game(game));
 			}
-		} catch (FormException e) {
+		} catch(FormException e) {
 			if(e.getName() != null) {
 				context.setVariable(e.getName(), e.getMessage());
 			}

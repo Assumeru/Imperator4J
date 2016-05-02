@@ -79,4 +79,8 @@ public class Imperator extends WebApplication {
 	public static PasswordHasher getHasher() {
 		return hasher;
 	}
+
+	public static String buildLink(String url) {
+		return getContext().getContextPath() + "/" + url;
+	}
 }

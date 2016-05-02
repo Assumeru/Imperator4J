@@ -6,7 +6,7 @@ import com.ee.imperator.Imperator;
 import com.ee.imperator.exception.FormException;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.map.Map;
-import com.ee.imperator.request.PageContext;
+import com.ee.imperator.request.context.PageContext;
 import com.ee.imperator.user.Player;
 
 public class NewGameForm extends Form {

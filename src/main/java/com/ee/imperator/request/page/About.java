@@ -2,7 +2,7 @@ package com.ee.imperator.request.page;
 
 import org.ee.web.request.page.NavigationPage;
 
-import com.ee.imperator.request.PageContext;
+import com.ee.imperator.request.context.PageContext;
 
 @NavigationPage(index = 5, name = "About")
 public class About extends ImperatorPage {

@@ -1,8 +1,6 @@
-package com.ee.imperator.request.page;
+package com.ee.imperator.request.context;
 
 import java.util.function.Function;
-
-import com.ee.imperator.request.PageContext;
 
 public class Variable<Value> {
 	private final String name;
@@ -19,5 +17,9 @@ public class Variable<Value> {
 
 	public Value getDefaultValue(PageContext context) {
 		return defaultValue.apply(context);
+	}
+
+	public void setOn(PageContext context, Object value) {
+		context.setVariable(getName(), value);
 	}
 }

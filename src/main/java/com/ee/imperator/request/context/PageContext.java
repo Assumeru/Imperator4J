@@ -1,4 +1,4 @@
-package com.ee.imperator.request;
+package com.ee.imperator.request.context;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Calendar;
@@ -16,13 +16,12 @@ import com.ee.imperator.Imperator;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.map.HasFlag;
 import com.ee.imperator.map.Map;
-import com.ee.imperator.request.page.Variable;
 import com.ee.imperator.user.Member;
 
 public interface PageContext {
 	public static final String VARIABLE_BODY = "body";
 	public static final String VARIABLE_TITLE = "title";
-	public static final String VARIABLE_JAVASCRIPT_SETTINGS = "javascriptSettings";
+	public static final MapVariable VARIABLE_JAVASCRIPT_SETTINGS = new MapVariable("javascriptSettings");
 	public static final Variable<Language> VARIABLE_LANGUAGE = new Variable<>("i18n", ctx -> ctx.getUser().getLanguage());
 	public static final Variable<List<WebPage>> VARIABLE_NAVIGATION = new Variable<>("navPages", ctx -> ctx.getNavigationPages());
 	public static final Variable<Boolean> VARIABLE_SHOW_FOOTER = new Variable<>("showFooter", ctx -> true);
@@ -63,10 +62,10 @@ public interface PageContext {
 	String getPath();
 
 	default void setVariable(Variable<?> variable) {
-		setVariable(variable.getName(), variable.getDefaultValue(this));
+		setVariable(variable, variable.getDefaultValue(this));
 	}
 
 	default void setVariable(Variable<?> variable, Object value) {
-		setVariable(variable.getName(), value);
+		variable.setOn(this, value);
 	}
 }
