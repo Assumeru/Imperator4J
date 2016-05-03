@@ -41,12 +41,18 @@ public class LongPolling implements RequestHandler<PageContext, Response> {
 	private void sleep(Map<String, String> arguments) {
 		if("update".equals(arguments.get("mode"))) {
 			try {
+				String type = arguments.get("type");
+				boolean game = false;
+				if("game".equals(type) || "pregame".equals(type)) {
+					game = true;
+				} else if(!"chat".equals(type)) {
+					return;
+				}
 				long time = Long.parseLong(arguments.get("time"));
 				int gid = Integer.parseInt(arguments.get("gid"));
 				int maxTries = Imperator.getConfig().getInt(getClass(), "maxTries");
 				long sleep = Imperator.getConfig().getLong(getClass(), "sleep");
-				for(int i = 0; i < maxTries || maxTries == 0; i++) {
-					// TODO check for change
+				for(int i = 0; Imperator.getData().getChatMessages(gid, time).isEmpty() && (!game || Imperator.getData().getGame(gid).getTime() <= time) && i < maxTries || maxTries == 0; i++) {
 					Thread.sleep(sleep);
 				}
 			} catch(NumberFormatException e) {

@@ -11,23 +11,27 @@ import org.ee.web.WebApplication;
 
 import com.ee.imperator.crypt.PasswordHasher;
 import com.ee.imperator.crypt.bcrypt.BCryptHasher;
+import com.ee.imperator.data.ChatProvider;
 import com.ee.imperator.data.DataProvider;
 import com.ee.imperator.data.GameProvider;
 import com.ee.imperator.data.JoinedDataProvider;
 import com.ee.imperator.data.MapProvider;
 import com.ee.imperator.data.MemberProvider;
 import com.ee.imperator.request.RequestResolver;
+import com.ee.imperator.url.UrlBuilder;
 
 public class Imperator extends WebApplication {
 	private static final Logger LOG = LogManager.createLogger();
 	private static DataProvider dataProvider;
 	private static PasswordHasher hasher;
+	private static UrlBuilder urlBuilder;
 
 	public Imperator(@Context ServletContext context) {
 		super(context);
 		initConfig();
 		initDataProvider();
 		initHasher();
+		initUrlBuilder();
 	}
 
 	private void initConfig() {
@@ -45,7 +49,7 @@ public class Imperator extends WebApplication {
 
 	private void initDataProvider() {
 		try {
-			dataProvider = new JoinedDataProvider(getProviderInstance(GameProvider.class), getProviderInstance(MemberProvider.class), getProviderInstance(MapProvider.class));
+			dataProvider = new JoinedDataProvider(getProviderInstance(GameProvider.class), getProviderInstance(MemberProvider.class), getProviderInstance(MapProvider.class), getProviderInstance(ChatProvider.class));
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to init data provider", e);
 		}
@@ -67,6 +71,14 @@ public class Imperator extends WebApplication {
 		}
 	}
 
+	private void initUrlBuilder() {
+		try {
+			urlBuilder = ReflectionUtils.getSubclass(getConfig().getClass(UrlBuilder.class, null), UrlBuilder.class).newInstance();
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to init url builder", e);
+		}
+	}
+
 	@Override
 	protected Class<RequestResolver> getRequestResolver() {
 		return RequestResolver.class;
@@ -80,7 +92,11 @@ public class Imperator extends WebApplication {
 		return hasher;
 	}
 
-	public static String buildLink(String url) {
-		return getContext().getContextPath() + "/" + url;
+	public static String getContextPath() {
+		return getContext().getContextPath();
+	}
+
+	public static UrlBuilder getUrlBuilder() {
+		return urlBuilder;
 	}
 }

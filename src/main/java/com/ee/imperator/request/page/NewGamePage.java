@@ -56,7 +56,7 @@ public class NewGamePage extends ImperatorPage {
 			password = Imperator.getHasher().hash(password);
 		}
 		Game game = Imperator.getData().createGame(owner, form.getMap(), form.getName(), password);
-		redirect(context.game(game));
+		redirect(Imperator.getUrlBuilder().game(game));
 	}
 
 	private Map<String, String> getColors() {

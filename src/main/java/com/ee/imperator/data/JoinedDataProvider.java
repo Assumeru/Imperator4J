@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.ee.web.request.Request;
 
+import com.ee.imperator.chat.ChatMessage;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.map.Map;
 import com.ee.imperator.user.Member;
@@ -14,11 +15,13 @@ public class JoinedDataProvider implements DataProvider {
 	private final GameProvider gameProvider;
 	private final MemberProvider memberProvider;
 	private final MapProvider mapProvider;
+	private final ChatProvider chatProvider;
 
-	public JoinedDataProvider(GameProvider gameProvider, MemberProvider memberProvider, MapProvider mapProvider) {
+	public JoinedDataProvider(GameProvider gameProvider, MemberProvider memberProvider, MapProvider mapProvider, ChatProvider chatProvider) {
 		this.gameProvider = gameProvider;
 		this.memberProvider = memberProvider;
 		this.mapProvider = mapProvider;
+		this.chatProvider = chatProvider;
 	}
 
 	@Override
@@ -92,5 +95,10 @@ public class JoinedDataProvider implements DataProvider {
 				memberProvider.close();
 			}
 		}
+	}
+
+	@Override
+	public List<ChatMessage> getChatMessages(int id, long time) {
+		return chatProvider.getChatMessages(id, time);
 	}
 }

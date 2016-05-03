@@ -4,7 +4,7 @@
 <section>
 	<h1 th:text="${i18n.__(title)}"></h1>
 	<h4 th:text="${i18n.__('Map')}"></h4>
-	<p><a th:href="@{${ctx.map(game.map)}}" th:text="${i18n.__(game.map.name)}"></a></p>
+	<p><a th:href="@{${url.map(game.map)}}" th:text="${i18n.__(game.map.name)}"></a></p>
 	<h4 th:text="${i18n.__('Players')}"></h4>
 	<ul id="player-list">
 		<li th:each="player : ${game.players}">
@@ -15,7 +15,7 @@
 	</ul>
 	<div th:if="${game.inviteCode != null &amp;&amp; game.players.contains(ctx.user)}">
 		<h4 th:text="${i18n.__('Invite code')}"></h4>
-		<p><code><a th:href="@{${ctx.game(game)}(code=${game.inviteCode})}" th:text="${game.inviteCode}"></a></code></p>
+		<p><code><a th:href="@{${url.game(game)}(code=${game.inviteCode})}" th:text="${game.inviteCode}"></a></code></p>
 	</div>
 </section>
 <section id="owner-controls" th:if="${game.owner.equals(ctx.user)}">

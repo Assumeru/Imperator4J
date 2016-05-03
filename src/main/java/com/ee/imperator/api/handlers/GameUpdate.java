@@ -18,7 +18,7 @@ public class GameUpdate {
 				.put("update", System.currentTimeMillis());
 		if(game == null) {
 			output.put("gameState", member.getLanguage().translate("This game has been disbanded."))
-					.put("redirect", Imperator.buildLink(""));
+					.put("redirect", Imperator.getUrlBuilder().buildLink(""));
 			return output;
 		}
 		//TODO chat

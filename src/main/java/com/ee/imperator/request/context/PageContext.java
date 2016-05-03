@@ -13,9 +13,7 @@ import org.ee.i18n.Language;
 import org.ee.web.request.page.WebPage;
 
 import com.ee.imperator.Imperator;
-import com.ee.imperator.game.Game;
-import com.ee.imperator.map.HasFlag;
-import com.ee.imperator.map.Map;
+import com.ee.imperator.url.UrlBuilder;
 import com.ee.imperator.user.Member;
 
 public interface PageContext {
@@ -31,7 +29,8 @@ public interface PageContext {
 	public static final Variable<PageContext> VARIABLE_CONTEXT = new Variable<>("ctx", ctx -> ctx);
 	public static final Variable<String> VARIABLE_MAIN_CLASS = new Variable<>("mainClass", ctx -> "container");
 	public static final Variable<Config> VARIABLE_CONFIG = new Variable<>("cfg", ctx -> Imperator.getConfig());
-	public static final Variable<?>[] DEFAULT_VARIABLES = { VARIABLE_CONFIG, VARIABLE_LANGUAGE, VARIABLE_NAVIGATION, VARIABLE_SHOW_FOOTER, VARIABLE_YEAR, VARIABLE_CSS, VARIABLE_JAVASCRIPT, VARIABLE_CONTEXT, VARIABLE_MAIN_CLASS };
+	public static final Variable<UrlBuilder> VARIABLE_URL_BUILDER = new Variable<>("url", ctx -> Imperator.getUrlBuilder());
+	public static final Variable<?>[] DEFAULT_VARIABLES = { VARIABLE_CONFIG, VARIABLE_LANGUAGE, VARIABLE_NAVIGATION, VARIABLE_SHOW_FOOTER, VARIABLE_YEAR, VARIABLE_CSS, VARIABLE_JAVASCRIPT, VARIABLE_CONTEXT, VARIABLE_MAIN_CLASS, VARIABLE_URL_BUILDER };
 
 	Member getUser();
 
@@ -46,18 +45,6 @@ public interface PageContext {
 	void setVariable(String key, Object value);
 
 	List<WebPage> getNavigationPages();
-
-	String css(String file);
-
-	String javascript(String file);
-
-	String image(String file);
-
-	String flag(HasFlag location);
-
-	String map(Map map);
-
-	String game(Game game);
 
 	String getPath();
 

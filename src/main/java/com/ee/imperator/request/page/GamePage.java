@@ -69,7 +69,7 @@ public class GamePage extends AbstractVariablePage {
 			}
 			context.setVariable("colors", colors);
 		} else {
-			PageContext.VARIABLE_JAVASCRIPT_SETTINGS.put(context, "API", new MapBuilder<>().put("longpollingURL", Imperator.buildLink(Ajax.PATH)).build());
+			PageContext.VARIABLE_JAVASCRIPT_SETTINGS.put(context, "API", new MapBuilder<>().put("longpollingURL", Imperator.getUrlBuilder().buildLink(Ajax.PATH)).build());
 			context.setVariable(PageContext.VARIABLE_JAVASCRIPT, Arrays.asList("store.js", "api.js", "dialog.js", "pregame.js"));
 			if(context.getPostParams() != null) {
 				if(context.getUser().equals(game.getOwner())) {
@@ -94,7 +94,7 @@ public class GamePage extends AbstractVariablePage {
 			Player player = new Player(context.getUser());
 			player.setColor(form.getColor());
 			if(Imperator.getData().addPlayerToGame(player, game)) {
-				redirect(context.game(game));
+				redirect(Imperator.getUrlBuilder().game(game));
 			}
 		} catch(FormException e) {
 			if(e.getName() != null) {
@@ -106,7 +106,7 @@ public class GamePage extends AbstractVariablePage {
 
 	private void leaveGame(PageContext context, Game game) {
 		if(Imperator.getData().removePlayerFromGame(game.getPlayerById(context.getUser().getId()), game)) {
-			redirect(context.game(game));
+			redirect(Imperator.getUrlBuilder().game(game));
 		}
 	}
 
@@ -118,7 +118,7 @@ public class GamePage extends AbstractVariablePage {
 
 	private void startGame(PageContext context, Game game) {
 		Imperator.getData().startGame(game);
-		redirect(context.game(game));
+		redirect(Imperator.getUrlBuilder().game(game));
 	}
 
 	private Map<String, String> getColors(Game game) {
