@@ -21,4 +21,6 @@ public interface GameProvider extends Closeable {
 	boolean deleteGame(Game game);
 
 	void startGame(Game game);
+
+	void updateGameTime(Game game);
 }

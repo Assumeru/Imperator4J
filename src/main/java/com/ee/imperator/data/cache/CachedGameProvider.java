@@ -99,6 +99,11 @@ public class CachedGameProvider implements GameProvider {
 	}
 
 	@Override
+	public void updateGameTime(Game game) {
+		gameProvider.updateGameTime(game);
+	}
+
+	@Override
 	public boolean deleteGame(Game game) {
 		if(gameProvider.deleteGame(game)) {
 			cache.remove(game.getId());

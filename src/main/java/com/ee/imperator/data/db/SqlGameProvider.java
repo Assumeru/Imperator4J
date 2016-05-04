@@ -209,6 +209,7 @@ public class SqlGameProvider implements BatchGameProvider {
 			addPlayerToGame(conn, player, game);
 			conn.commit();
 			game.addPlayer(player);
+			Imperator.getData().updateGameTime(game);
 			return true;
 		} catch (SQLException e) {
 			LOG.e("Failed to add player to game", e);
@@ -225,6 +226,7 @@ public class SqlGameProvider implements BatchGameProvider {
 			statement.execute();
 			conn.commit();
 			game.removePlayer(player);
+			Imperator.getData().updateGameTime(game);
 			return true;
 		} catch (SQLException e) {
 			LOG.e("Failed to remove player from game", e);
@@ -298,5 +300,19 @@ public class SqlGameProvider implements BatchGameProvider {
 		statement.setInt(2, game.getCurrentPlayer() == null ? 0 : game.getCurrentPlayer().getId());
 		statement.setInt(3, game.getId());
 		statement.execute();
+	}
+
+	@Override
+	public void updateGameTime(Game game) {
+		game.setTime(System.currentTimeMillis());
+		try(Connection conn = dataSource.getConnection()) {
+			PreparedStatement statement = conn.prepareStatement("UPDATE `games` SET `time` = ? WHERE `gid` = ?");
+			statement.setLong(1, game.getTime());
+			statement.setLong(2, game.getId());
+			statement.execute();
+			conn.commit();
+		} catch (SQLException e) {
+			LOG.e("Failed to update game time", e);
+		}
 	}
 }

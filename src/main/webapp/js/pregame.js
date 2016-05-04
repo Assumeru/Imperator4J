@@ -46,7 +46,7 @@
 	}
 
 	function parseGameUpdate($msg) {
-		var $n, $playerList = $('#player-list');
+		var $n, $playerLi, $playerList = $('#player-list');
 		if($msg !== undefined && $msg !== '' && $msg.update !== undefined) {
 			$updateErrors = 0;
 			$time = $msg.update;
@@ -58,13 +58,25 @@
 			if($msg.players !== undefined) {
 				$playerList.empty();
 				for($n = 0; $n < $msg.players.length; $n++) {
-					$playerList.append($msg.players[$n]);
+					$playerLi = $('#template-player-list > li').clone();
+					$playerLi.find('[data-template="name"]').text($msg.players[$n].name).css('color', '#' + $msg.players[$n].color);
+					if($msg.players[$n].canKick) {
+						$playerLi.find('[data-template="kick"]').attr('data-kick', $msg.players[$n].id);
+					} else {
+						$playerLi.find('[data-template="kick"]').hide();
+					}
+					if($msg.players[$n].id != $msg.owner) {
+						$playerLi.find('[data-template="owner"]').hide();
+					}
+					$playerList.append($playerLi);
 				}
 				addKickListeners();
 				if($msg.players.length === $msg.maxPlayers) {
 					$('#join-game').hide();
+					$('#owner-controls input[name="startgame"]').show();
 				} else {
 					$('#join-game').show();
+					$('#owner-controls input[name="startgame"]').hide();
 				}
 			}
 			if($msg.ownerControls !== undefined) {

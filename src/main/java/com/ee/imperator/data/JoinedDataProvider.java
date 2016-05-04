@@ -60,6 +60,11 @@ public class JoinedDataProvider implements DataProvider {
 	}
 
 	@Override
+	public void updateGameTime(Game game) {
+		gameProvider.updateGameTime(game);
+	}
+
+	@Override
 	public Member getMember(int id) {
 		return memberProvider.getMember(id);
 	}

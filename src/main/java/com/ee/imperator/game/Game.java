@@ -176,6 +176,10 @@ public class Game implements Comparable<Game> {
 		return state;
 	}
 
+	public void setTime(long time) {
+		this.time = time;
+	}
+
 	@Override
 	public int compareTo(Game o) {
 		int c = map.compareTo(o.map);

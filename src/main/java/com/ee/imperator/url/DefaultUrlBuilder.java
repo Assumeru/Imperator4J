@@ -8,7 +8,7 @@ import com.ee.imperator.game.Game;
 import com.ee.imperator.map.HasFlag;
 import com.ee.imperator.map.Map;
 
-public class DefaultUrlBuilder {
+public class DefaultUrlBuilder implements UrlBuilder {
 	private String contextPath;
 
 	public DefaultUrlBuilder() {
@@ -20,30 +20,37 @@ public class DefaultUrlBuilder {
 		}
 	}
 
+	@Override
 	public String buildLink(String url) {
 		return contextPath + url;
 	}
 
+	@Override
 	public String css(String file) {
 		return "/css/" + file;
 	}
 
+	@Override
 	public String javascript(String file) {
 		return "/js/" + file;
 	}
 
+	@Override
 	public String image(String file) {
 		return "/img/" + file;
 	}
 
+	@Override
 	public String flag(HasFlag location) {
 		return image(location.getPath());
 	}
 
+	@Override
 	public String map(Map map) {
 		return "/map/" + getNamedUrlBit(map.getId(), map.getName());
 	}
 
+	@Override
 	public String game(Game game) {
 		return "/game/" + getNamedUrlBit(game.getId(), game.getName());
 	}
