@@ -4,6 +4,8 @@ import javax.servlet.ServletContext;
 import javax.ws.rs.core.Context;
 
 import org.ee.config.Config;
+import org.ee.i18n.LanguageManager;
+import org.ee.i18n.LanguageProvider;
 import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
 import org.ee.reflection.ReflectionUtils;
@@ -32,6 +34,7 @@ public class Imperator extends WebApplication {
 		initDataProvider();
 		initHasher();
 		initUrlBuilder();
+		initLanguage();
 	}
 
 	private void initConfig() {
@@ -42,15 +45,18 @@ public class Imperator extends WebApplication {
 				LOG.w("Using default config, use jvm argument -Dcom.ee.imperator.Config=<class name> to define another config implementation.");
 			}
 			setConfig(ReflectionUtils.getSubclass(config, Config.class).newInstance());
-		} catch (Exception e) {
+		} catch(Exception e) {
 			throw new RuntimeException("Failed to init config", e);
 		}
 	}
 
 	private void initDataProvider() {
 		try {
-			dataProvider = new JoinedDataProvider(getProviderInstance(GameProvider.class), getProviderInstance(MemberProvider.class), getProviderInstance(MapProvider.class), getProviderInstance(ChatProvider.class));
-		} catch (Exception e) {
+			dataProvider = new JoinedDataProvider(getProviderInstance(GameProvider.class),
+					getProviderInstance(MemberProvider.class),
+					getProviderInstance(MapProvider.class),
+					getProviderInstance(ChatProvider.class));
+		} catch(Exception e) {
 			throw new RuntimeException("Failed to init data provider", e);
 		}
 	}
@@ -58,7 +64,7 @@ public class Imperator extends WebApplication {
 	private <T> T getProviderInstance(Class<T> type) {
 		try {
 			return ReflectionUtils.getSubclass(Imperator.getConfig().getClass(type, null), type).newInstance();
-		} catch (Exception e) {
+		} catch(Exception e) {
 			throw new RuntimeException("Failed to create provider for " + type, e);
 		}
 	}
@@ -66,7 +72,7 @@ public class Imperator extends WebApplication {
 	private void initHasher() {
 		try {
 			hasher = ReflectionUtils.getSubclass(getConfig().getClass(PasswordHasher.class, null, BCryptHasher.class), PasswordHasher.class).newInstance();
-		} catch (Exception e) {
+		} catch(Exception e) {
 			throw new RuntimeException("Failed to init password hasher", e);
 		}
 	}
@@ -74,8 +80,16 @@ public class Imperator extends WebApplication {
 	private void initUrlBuilder() {
 		try {
 			urlBuilder = ReflectionUtils.getSubclass(getConfig().getClass(UrlBuilder.class, null), UrlBuilder.class).newInstance();
-		} catch (Exception e) {
+		} catch(Exception e) {
 			throw new RuntimeException("Failed to init url builder", e);
+		}
+	}
+
+	private void initLanguage() {
+		try {
+			LanguageManager.setLanguageProvider(ReflectionUtils.getSubclass(getConfig().getClass(LanguageProvider.class, null), LanguageProvider.class).newInstance());
+		} catch(Exception e) {
+			LOG.e("Failed to init language provider, falling back on default implementation", e);
 		}
 	}
 

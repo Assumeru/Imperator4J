@@ -38,7 +38,7 @@ public class CachedMapProvider implements MapProvider {
 
 	private synchronized void loadMaps() {
 		if(maps == null) {
-			maps = MapParser.parseMaps(Imperator.getFiles("/WEB-INF/maps/", ".xml"));
+			maps = MapParser.parseMaps(Imperator.getFiles(Imperator.getConfig().getString(getClass(), "path"), ".xml"));
 		}
 	}
 
