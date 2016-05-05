@@ -9,6 +9,7 @@ import com.ee.imperator.map.Region;
 import com.ee.imperator.map.Territory;
 import com.ee.imperator.user.Member;
 import com.ee.imperator.user.Player;
+import com.ee.imperator.user.User;
 
 @Request(mode = "update", type = "game")
 public class GameUpdate {
@@ -21,8 +22,10 @@ public class GameUpdate {
 					.put("redirect", Imperator.getUrlBuilder().buildLink(""));
 			return output;
 		}
-		//TODO chat
 		output.put("state", game.getState().ordinal());
+		if(game.getPlayers().contains(member)) {
+			output.put("messages", ChatUpdate.getMessages(gid, time));
+		}
 		if(game.getTime() > time && game.getState() != Game.State.FINISHED) {
 			fillOutput(time, game, member, output);
 		}
@@ -89,5 +92,13 @@ public class GameUpdate {
 					.put("name", player.getName())
 					.put("playing", player.getState() != Player.State.GAME_OVER));
 		}
+	}
+
+	static boolean playerInGame(User user, int gid) {
+		Game game = Imperator.getData().getGame(gid);
+		if(game != null) {
+			return game.getPlayers().contains(user);
+		}
+		return false;
 	}
 }

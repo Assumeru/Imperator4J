@@ -11,6 +11,14 @@ public class InvalidRequestException extends Exception {
 
 	public InvalidRequestException(String message, String mode, String type, Throwable cause) {
 		super(message, cause);
+		this.mode = mode;
+		this.type = type;
+	}
+
+	public InvalidRequestException(String message, String mode, String type) {
+		super(message);
+		this.mode = mode;
+		this.type = type;
 	}
 
 	public String getMode() {
