@@ -60,7 +60,7 @@ Imperator.Dialog = (function($) {
 	}
 
 	function showWaitDialog() {
-		return showDialog(Imperator.settings.language.wait, $('<p class="loading"></p>').text(Imperator.settings.language.contacting), false, 'loading');
+		return showDialog(Imperator.Language.__('Please wait...'), $('<p class="loading"></p>').text(Imperator.Language.__('Contacting server.')), false, 'loading');
 	}
 
 	function showConfirmDialog($header, $message, $class, $okListener, $cancelListener) {

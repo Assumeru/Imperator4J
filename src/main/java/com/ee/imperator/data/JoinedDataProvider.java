@@ -106,4 +106,9 @@ public class JoinedDataProvider implements DataProvider {
 	public List<ChatMessage> getChatMessages(int id, long time) {
 		return chatProvider.getChatMessages(id, time);
 	}
+
+	@Override
+	public boolean hasChatMessages(int id, long time) {
+		return chatProvider.hasChatMessages(id, time);
+	}
 }

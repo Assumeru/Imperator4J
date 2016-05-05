@@ -22,6 +22,6 @@ public class DefaultLanguage extends AbstractLanguage {
 		if(vars.length == 0) {
 			throw new IllegalArgumentException("DefaultLanguage.resolve requires at least one argument");
 		}
-		return vars[0].toString();
+		return String.valueOf(vars[vars.length - 1]);
 	}
 }

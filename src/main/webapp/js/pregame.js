@@ -1,7 +1,8 @@
 (function($) {
 	var $gid = Imperator.settings.gid,
 	$time = 0,
-	$updateErrors = 0;
+	$updateErrors = 0,
+	__ = Imperator.Language.__;
 
 	function init() {
 		Imperator.API.onError(parseErrorMessage);
@@ -16,7 +17,7 @@
 				$updateErrors++;
 				sendUpdateRequest();
 			} else {
-				Imperator.Dialog.showDialog(Imperator.settings.language.error, Imperator.settings.language.disconnected, true);
+				Imperator.Dialog.showDialog(__('An error has occurred'), __('Connection to the server has been lost.'), true);
 			}
 		}
 	}
@@ -26,7 +27,7 @@
 	}
 
 	function kickPlayer() {
-		if(window.confirm(Imperator.settings.language.confirmkick)) {
+		if(window.confirm(__('Are you sure you want to kick this player?'))) {
 			Imperator.API.send({
 				gid: $gid,
 				mode: 'game',

@@ -63,7 +63,7 @@
 				$updateErrors++;
 				setTimeout(sendUpdateRequest, 100 + $updateErrors * 400);
 			}
-			Imperator.Dialog.showDialog(Imperator.settings.language.chaterror, $msg.error, true);
+			Imperator.Dialog.showDialog(Imperator.Language.__('Chat Error'), $msg.error, true);
 		}
 	}
 

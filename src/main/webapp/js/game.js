@@ -9,7 +9,8 @@
 	$missed = {
 		chat: null,
 		log: null
-	};
+	},
+	__ = Imperator.Language.__;
 	if(Number.parseInt === undefined) {
 		Number.parseInt = parseInt;
 	}
@@ -53,10 +54,10 @@
 					$updateErrors++;
 					setTimeout(sendUpdateRequest, 100 + $updateErrors * 400);
 				} else {
-					Imperator.Dialog.showDialog(Imperator.settings.language.error, Imperator.settings.language.disconnected, true);
+					Imperator.Dialog.showDialog(__('An error has occurred'), __('Connection to the server has been lost.'), true);
 				}
 			} else if($msg.error !== '') {
-				Imperator.Dialog.showDialog(Imperator.settings.language.error, $msg.error, true);
+				Imperator.Dialog.showDialog(__('An error has occurred'), $msg.error, true);
 			}
 			if($msg.request.type == 'fortify' && $dialogs.fortify !== undefined) {
 				$dialogs.fortify.close();
@@ -173,7 +174,7 @@
 		$ok = $(Imperator.settings.templates.okbutton),
 		$cancel = $(Imperator.settings.templates.cancelbutton),
 		$dialog = Imperator.Dialog.showDialogForm(
-			Imperator.settings.language.move,
+			__('Move'),
 			Imperator.settings.templates.dialogformmove,
 			$('<div>').append($ok).append(' ').append($cancel), true),
 		$inputM = $dialog.message.find('[name="move"]'),
@@ -229,7 +230,7 @@
 	}
 
 	function sendMove() {
-		if($game.state == Imperator.Game.STATE_COMBAT && window.confirm(Imperator.settings.language.confirmmove)) {
+		if($game.state == Imperator.Game.STATE_COMBAT && window.confirm(__('Are you sure you want to stop attacking?'))) {
 			if($dialogs.startmove !== undefined) {
 				$dialogs.startmove.close();
 			}
@@ -256,7 +257,7 @@
 		$ok = $(Imperator.settings.templates.okbutton),
 		$cancel = $(Imperator.settings.templates.cancelbutton),
 		$dialog = Imperator.Dialog.showDialogForm(
-			Imperator.settings.language.attack,
+			__('Attack'),
 			Imperator.settings.templates.dialogformattack,
 			$('<div>').append($ok).append(' ').append($cancel), true),
 		$selectF = $dialog.message.find('[name="from"]'),
@@ -354,7 +355,7 @@
 			$dialogs.stackInput.close();
 		}
 		$dialogs.stackInput = Imperator.Dialog.showDialogForm(
-			Imperator.settings.language.fortify.replace('%1$s', $territory.name),
+			__('Fortify %1$s', $territory.name),
 			Imperator.settings.templates.dialogformfortify,
 			$('<div>').append($ok).append(' ').append($max).append(' ').append($cancel), true);
 		$input = $dialogs.stackInput.message.find('[name="stack"]');
@@ -363,7 +364,7 @@
 		$dialogs.stackInput.message.find('form').submit(function($e) {
 			var $num = Number.parseInt($input.val(), 10);
 			$e.preventDefault();
-			if(isNaN($num) || $num > $game.units || $num < 1 || !window.confirm(Imperator.settings.language.confirmfortify.replace('%1$d', $num).replace('%2$s', $territory.name))) {
+			if(isNaN($num) || $num > $game.units || $num < 1 || !window.confirm(__(Imperator.Language.resolve('Are you sure you want to place one unit in %2$s?', 'Are you sure you want to place %1$d units in %2$s?', $num), $num, $territory.name))) {
 				$input.focus();
 			} else {
 				$dialogs.stackInput.close();
@@ -423,7 +424,7 @@
 	}
 
 	function sendForfeit() {
-		if($game.player !== undefined && $game.player.playing && window.confirm(Imperator.settings.language.forfeit)) {
+		if($game.player !== undefined && $game.player.playing && window.confirm(__('Are you sure you want to forfeit?'))) {
 			Imperator.API.send({
 				mode: 'game',
 				gid: $game.id,
@@ -466,7 +467,7 @@
 			}
 			if($game.cards.getNumberOfCards() >= Imperator.Cards.MAX_CARDS && $game.conquered) {
 				$dialog = Imperator.Dialog.showConfirmDialog(
-					Imperator.settings.language.endturn,
+					__('End turn'),
 					Imperator.settings.templates.discardcard,
 					'discard-dialog',
 					function($dialog) {
@@ -483,13 +484,13 @@
 				}
 			} else if($game.state == Imperator.Game.STATE_FORTIFY && $game.units > 0) {
 				Imperator.Dialog.showConfirmDialog(
-					Imperator.settings.language.confirmend,
-					Imperator.settings.language.unitsleft,
+					__('Are you sure you want to end your turn?'),
+					__('You still have units left to place.'),
 					undefined,
 					function() {
 						send(Imperator.Cards.CARD_NONE);
 					});
-			} else if(window.confirm(Imperator.settings.language.confirmend)) {
+			} else if(window.confirm(__('Are you sure you want to end your turn?'))) {
 				send(Imperator.Cards.CARD_NONE);
 			}
 		}
@@ -679,7 +680,7 @@
 	}
 
 	function showGameOverDialog() {
-		var $dialog = Imperator.Dialog.showDialogForm(Imperator.settings.language.gameover, Imperator.settings.language.endedmessage, $(Imperator.settings.templates.okbutton), false);
+		var $dialog = Imperator.Dialog.showDialogForm(__('Game Over'), __('This game has ended.'), $(Imperator.settings.templates.okbutton), false);
 		$dialog.message.find('form').submit(function($e) {
 			$e.preventDefault();
 			window.location.reload();
@@ -695,11 +696,11 @@
 		$ok = $(Imperator.settings.templates.okbutton);
 		if($attack.defendroll === undefined) {
 			$message.find('[data-value="defend"]').hide();
-			$dialog = Imperator.Dialog.showDialogForm(Imperator.settings.language.autorolldisabled.replace('%1$s', $defender.owner.name), $message, $ok, true);
+			$dialog = Imperator.Dialog.showDialogForm(__('%1$s has disabled Autoroll', $defender.owner.name), $message, $ok, true);
 		} else {
 			$message.find('[data-value="defend-roll"]').html(getDice('defend', $attack.defendroll));
 			if($attacker.owner == $defender.owner) {
-				$dialog = Imperator.Dialog.showDialogForm(Imperator.settings.language.conquered.replace('%1$s', $defender.name), $message, $ok, true);
+				$dialog = Imperator.Dialog.showDialogForm(__('%1$s has been conquered', $defender.name), $message, $ok, true);
 			} else {
 				$again = $(Imperator.settings.templates.attackagainbutton).hide();
 				$dialog = Imperator.Dialog.showDialogForm('', $message, $('<div>').append($again).append(' ').append($ok), true);
@@ -730,7 +731,7 @@
 	}
 
 	function getVS($attacker, $defender) {
-		return Imperator.settings.language.vs.replace('%1$s', '<span style="color: #'+$attacker.owner.color+';">'+$attacker.name+'</span>').replace('%2$s', '<span style="color: #'+$defender.owner.color+';">'+$defender.name+'</span>');
+		return __('%1$s vs. %2$s', '<span style="color: #'+$attacker.owner.color+';">'+$attacker.name+'</span>', '<span style="color: #'+$defender.owner.color+';">'+$defender.name+'</span>');
 	}
 
 	function updateAttacks() {
@@ -777,7 +778,7 @@
 		$joker = Imperator.settings.templates.card.replace('%1$s', Imperator.Cards.CARD_JOKER).replace('%2$s', Imperator.settings.language.card[Imperator.Cards.CARD_JOKER]);
 		if($newCard !== Imperator.Cards.CARD_NONE) {
 			$ok = $(Imperator.settings.templates.okbutton);
-			$dialog = Imperator.Dialog.showDialogForm(Imperator.settings.language.newcard,
+			$dialog = Imperator.Dialog.showDialogForm(__('You have received a new card!'),
 				Imperator.settings.templates.card.replace('%1$s', $newCard).replace('%2$s', Imperator.settings.language.card[$newCard]),
 				$ok, true, 'text-center');
 			$ok.click(function($e) {
