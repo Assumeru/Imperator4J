@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.ee.imperator.Imperator;
+import com.ee.imperator.game.Attack;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.map.Region;
 import com.ee.imperator.map.Territory;
@@ -42,9 +43,10 @@ public class GameUpdate {
 		addTerritories(time, game, member, output);
 		addPlayers(game, output);
 		output.put("conquered", game.hasConquered())
-		.put("turn", game.getCurrentPlayer().getId())
-		.put("units", game.getUnits());
-		//TODO attacks+
+				.put("turn", game.getCurrentPlayer().getId())
+				.put("units", game.getUnits())
+				.put("attacks", getAttacks(game));
+		// TODO
 	}
 
 	private void addRegions(Game game, JSONObject output) {
@@ -76,8 +78,8 @@ public class GameUpdate {
 					borders.put(border.getId());
 				}
 				json.put("id", territory.getId())
-				.put("name", member.getLanguage().translate(territory.getName()))
-				.put("borders", borders);
+						.put("name", member.getLanguage().translate(territory.getName()))
+						.put("borders", borders);
 			}
 		}
 	}
@@ -100,5 +102,25 @@ public class GameUpdate {
 			return game.getPlayers().contains(user);
 		}
 		return false;
+	}
+
+	static JSONArray getAttacks(Game game) {
+		JSONArray attacks = new JSONArray();
+		for(Attack attack : game.getAttacks()) {
+			attacks.put(getAttackJSON(attack));
+		}
+		return attacks;
+	}
+
+	static JSONObject getAttackJSON(Attack attack) {
+		JSONObject out = new JSONObject()
+				.put("attack", attack.getAttacker().getId())
+				.put("defender", attack.getDefender().getId())
+				.put("attackroll", attack.getAttackRoll())
+				.put("move", attack.getMove());
+		if(attack.getDefendRoll() != null) {
+			out.put("defendroll", attack.getDefendRoll());
+		}
+		return out;
 	}
 }

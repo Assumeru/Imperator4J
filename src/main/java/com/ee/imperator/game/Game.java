@@ -2,12 +2,13 @@ package com.ee.imperator.game;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.ee.collection.FixedSizeList;
 import org.ee.collection.Util;
+import org.ee.collection.VariableSizeList;
 import org.ee.crypt.Hasher;
 import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
@@ -38,29 +39,30 @@ public class Game implements Comparable<Game> {
 	private int units;
 	private boolean conquered;
 	private String inviteCode;
+	private List<Attack> attacks;
 
-	public Game(int id, Map map, String name, Player owner, String password, long time) {
+	private Game(int id, Map map, String name, String password, long time) {
 		this.id = id;
 		this.map = map;
 		this.name = name;
-		this.owner = owner;
-		players = new ArrayList<>();
-		addPlayer(owner);
-		this.time = time;
 		this.password = password;
+		this.time = time;
+		players = new FixedSizeList<>(map.getPlayers());
+		attacks = new VariableSizeList<>();
+	}
+
+	public Game(int id, Map map, String name, Player owner, String password, long time) {
+		this(id, map, name, password, time);
+		this.owner = owner;
+		addPlayer(owner);
 		state = State.TURN_START;
 	}
 
 	public Game(int id, Map map, String name, int owner, int turn, long time, State state, int units, boolean conquered, String password, Collection<Player> players) {
-		this.id = id;
-		this.map = map;
-		this.name = name;
-		this.time = time;
+		this(id, map, name, password, time);
 		this.state = state;
 		this.units = units;
 		this.conquered = conquered;
-		this.password = password;
-		this.players = new ArrayList<>(players.size());
 		for(Player player : players) {
 			addPlayer(player, false);
 			if(player.getId() == owner) {
@@ -178,6 +180,10 @@ public class Game implements Comparable<Game> {
 
 	public void setTime(long time) {
 		this.time = time;
+	}
+
+	public List<Attack> getAttacks() {
+		return attacks;
 	}
 
 	@Override

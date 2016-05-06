@@ -20,6 +20,7 @@ import org.ee.sql.PreparedStatementBuilder;
 
 import com.ee.imperator.Imperator;
 import com.ee.imperator.data.BatchGameProvider;
+import com.ee.imperator.game.Attack;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.map.Territory;
 import com.ee.imperator.mission.Mission;
@@ -39,7 +40,7 @@ public class SqlGameProvider implements BatchGameProvider {
 	public List<Game> getGames() {
 		List<Game> games = new ArrayList<>();
 		try(Connection conn = dataSource.getConnection()) {
-			loadGames(conn.prepareCall("SELECT `gid`, `map`, `name`, `uid`, `turn`, `time`, `state`, `units`, `conquered`, `password` FROM `games`").executeQuery(), games);
+			loadGames(conn.prepareCall("SELECT `gid`, `map`, `name`, `uid`, `turn`, `time`, `state`, `units`, `conquered`, `password` FROM `games`").executeQuery(), games, conn);
 		} catch (SQLException e) {
 			LOG.e("Error loading games", e);
 		}
@@ -52,7 +53,7 @@ public class SqlGameProvider implements BatchGameProvider {
 		try(Connection conn = dataSource.getConnection()) {
 			PreparedStatement statement = conn.prepareStatement("SELECT `gid`, `map`, `name`, `uid`, `turn`, `time`, `state`, `units`, `conquered`, `password` FROM `games` WHERE `gid` = ?");
 			statement.setInt(1, id);
-			loadGames(statement.executeQuery(), games);
+			loadGames(statement.executeQuery(), games, conn);
 		} catch (SQLException e) {
 			LOG.e("Error loading game " + id, e);
 		}
@@ -83,21 +84,22 @@ public class SqlGameProvider implements BatchGameProvider {
 				statement.setInt(index, id);
 				index++;
 			}
-			loadGames(statement.executeQuery(), games);
+			loadGames(statement.executeQuery(), games, conn);
 		} catch (SQLException e) {
 			LOG.e("Error loading games by ids", e);
 		}
 		return games;
 	}
 
-	private void loadGames(ResultSet result, List<Game> games) throws SQLException {
+	private void loadGames(ResultSet result, List<Game> games, Connection conn) throws SQLException {
 		while(result.next()) {
 			try {
 				int id = result.getInt(1);
 				com.ee.imperator.map.Map map = Imperator.getData().getMap(result.getInt(2)).clone();
 				Map<Integer, Player> players = loadPlayers(id, map.getMissions());
 				Game game = new Game(id, map, result.getString(3), result.getInt(4), result.getInt(5), result.getLong(6), Game.State.values()[result.getInt(7)], result.getInt(8), result.getBoolean(9), result.getString(10), players.values());
-				loadTerritories(game);
+				loadTerritories(game, conn);
+				loadAttacks(game, conn);
 				games.add(game);
 			} catch (SQLException e) {
 				throw e;
@@ -105,7 +107,9 @@ public class SqlGameProvider implements BatchGameProvider {
 				LOG.e("Failed to load game", e);
 			}
 		}
-		games.sort(null);
+		if(games.size() > 1) {
+			games.sort(null);
+		}
 	}
 
 	private Map<Integer, Player> loadPlayers(int id, Map<Integer, Mission> missions) throws SQLException {
@@ -134,16 +138,30 @@ public class SqlGameProvider implements BatchGameProvider {
 		return players;
 	}
 
-	private void loadTerritories(Game game) throws SQLException {
-		try(Connection conn = dataSource.getConnection()) {
-			PreparedStatement statement = conn.prepareStatement("SELECT `territory`, `uid`, `units` FROM `territories` WHERE `gid` = ?");
-			statement.setInt(1, game.getId());
-			ResultSet result = statement.executeQuery();
-			while(result.next()) {
-				Territory territory = game.getMap().getTerritories().get(result.getString(1));
-				territory.setOwner(game.getPlayerById(result.getInt(2)));
-				territory.setUnits(result.getInt(3));
+	private void loadTerritories(Game game, Connection conn) throws SQLException {
+		PreparedStatement statement = conn.prepareStatement("SELECT `territory`, `uid`, `units` FROM `territories` WHERE `gid` = ?");
+		statement.setInt(1, game.getId());
+		ResultSet result = statement.executeQuery();
+		while(result.next()) {
+			Territory territory = game.getMap().getTerritories().get(result.getString(1));
+			territory.setOwner(game.getPlayerById(result.getInt(2)));
+			territory.setUnits(result.getInt(3));
+		}
+	}
+
+	private void loadAttacks(Game game, Connection conn) throws SQLException {
+		PreparedStatement statement = conn.prepareStatement("SELECT `a_territory`, `d_territory`, `a_roll`, `transfer` FROM `attacks` WHERE `gid` = ?");
+		statement.setInt(1, game.getId());
+		ResultSet result = statement.executeQuery();
+		while(result.next()) {
+			String rollString = result.getString(3);
+			int[] roll = rollString != null ? new int[rollString.length()] : null;
+			if(rollString != null) {
+				for(int i = 0; i < roll.length; i++) {
+					roll[i] = rollString.charAt(i) - '0';
+				}
 			}
+			game.getAttacks().add(new Attack(game.getMap().getTerritories().get(result.getString(1)), game.getMap().getTerritories().get(result.getString(2)), result.getInt(4), roll));
 		}
 	}
 
