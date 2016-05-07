@@ -11,6 +11,7 @@ import org.ee.collection.MapBuilder;
 import org.ee.web.request.Request;
 import org.ee.web.request.page.AbstractWebPage;
 
+import com.ee.imperator.Imperator;
 import com.ee.imperator.request.context.PageContext;
 import com.ee.imperator.request.context.Variable;
 
@@ -49,9 +50,13 @@ public abstract class ImperatorPage extends AbstractWebPage {
 			context.setVariable(PageContext.VARIABLE_BODY, template);
 		}
 		context.setVariable(PageContext.VARIABLE_TITLE, title);
-		context.setVariable(PageContext.VARIABLE_JAVASCRIPT_SETTINGS, new MapBuilder<>().put("settings", PageContext.VARIABLE_JAVASCRIPT_SETTINGS.get(context)).build());
+		context.setVariable(PageContext.VARIABLE_JAVASCRIPT_SETTINGS, new MapBuilder<>().put("settings", PageContext.VARIABLE_JAVASCRIPT_SETTINGS.getDefaultValue(context)).build());
 		for(Variable<?> var : PageContext.DEFAULT_VARIABLES) {
 			context.setVariable(var);
+		}
+		String langJS = Imperator.getLanguageProvider().getJavascript();
+		if(langJS != null) {
+			PageContext.VARIABLE_JAVASCRIPT.add(context, langJS);
 		}
 	}
 

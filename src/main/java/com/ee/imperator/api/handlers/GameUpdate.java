@@ -1,11 +1,19 @@
 package com.ee.imperator.api.handlers;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.ee.imperator.Imperator;
+import com.ee.imperator.api.Api;
 import com.ee.imperator.game.Attack;
+import com.ee.imperator.game.Cards;
 import com.ee.imperator.game.Game;
+import com.ee.imperator.game.log.LogEntry;
 import com.ee.imperator.map.Region;
 import com.ee.imperator.map.Territory;
 import com.ee.imperator.user.Member;
@@ -46,7 +54,26 @@ public class GameUpdate {
 				.put("turn", game.getCurrentPlayer().getId())
 				.put("units", game.getUnits())
 				.put("attacks", getAttacks(game));
-		// TODO
+		if(game.getPlayers().contains(member)) {
+			Player player = game.getPlayerById(member.getId());
+			output.put("autoroll", player.getAutoRoll())
+				.put("cards", new JSONObject()
+						.put(String.valueOf(Cards.Card.ARTILLERY), player.getCards().getArtillery())
+						.put(String.valueOf(Cards.Card.INFANTRY), player.getCards().getInfantry())
+						.put(String.valueOf(Cards.Card.CAVALRY), player.getCards().getCavalry())
+						.put(String.valueOf(Cards.Card.JOKER), player.getCards().getJokers()))
+				.put("mission", new JSONObject()
+						.put("name", player.getMission().getName())
+						.put("description", player.getMission().getDescription(member.getLanguage())));
+		}
+		JSONArray combatLog = new JSONArray();
+		output.put("combatlog", combatLog);
+		DateFormat format = new SimpleDateFormat(Api.DATE_ATOM, Locale.US);
+		for(LogEntry entry : Imperator.getData().getCombatLogs(game, time)) {
+			combatLog.put(new JSONObject()
+					.put("time", format.format(new Date(entry.getTime())))
+					.put("message", entry.getMessage(member.getLanguage())));
+		}
 	}
 
 	private void addRegions(Game game, JSONObject output) {
@@ -57,10 +84,7 @@ public class GameUpdate {
 			for(Territory territory : region.getTerritories()) {
 				territories.put(territory.getId());
 			}
-			regions.put(region.getId(), new JSONObject()
-					.put("id", region.getId())
-					.put("territories", territories)
-					.put("units", region.getUnits()));
+			regions.put(region.getId(), new JSONObject().put("id", region.getId()).put("territories", territories).put("units", region.getUnits()));
 		}
 	}
 
@@ -68,18 +92,14 @@ public class GameUpdate {
 		JSONObject territories = new JSONObject();
 		output.put("territories", territories);
 		for(Territory territory : game.getMap().getTerritories().values()) {
-			JSONObject json = new JSONObject()
-					.put("units", territory.getUnits())
-					.put("uid", territory.getOwner().getId());
+			JSONObject json = new JSONObject().put("units", territory.getUnits()).put("uid", territory.getOwner().getId());
 			territories.put(territory.getId(), json);
 			if(time == 0) {
 				JSONArray borders = new JSONArray();
 				for(Territory border : territory.getBorders()) {
 					borders.put(border.getId());
 				}
-				json.put("id", territory.getId())
-						.put("name", member.getLanguage().translate(territory.getName()))
-						.put("borders", borders);
+				json.put("id", territory.getId()).put("name", member.getLanguage().translate(territory.getName())).put("borders", borders);
 			}
 		}
 	}
@@ -88,11 +108,7 @@ public class GameUpdate {
 		JSONObject players = new JSONObject();
 		output.put("players", players);
 		for(Player player : game.getPlayers()) {
-			players.put(String.valueOf(player.getId()), new JSONObject()
-					.put("color", player.getColor())
-					.put("id", player.getId())
-					.put("name", player.getName())
-					.put("playing", player.getState() != Player.State.GAME_OVER));
+			players.put(String.valueOf(player.getId()), new JSONObject().put("color", player.getColor()).put("id", player.getId()).put("name", player.getName()).put("playing", player.getState() != Player.State.GAME_OVER));
 		}
 	}
 
@@ -113,11 +129,7 @@ public class GameUpdate {
 	}
 
 	static JSONObject getAttackJSON(Attack attack) {
-		JSONObject out = new JSONObject()
-				.put("attack", attack.getAttacker().getId())
-				.put("defender", attack.getDefender().getId())
-				.put("attackroll", attack.getAttackRoll())
-				.put("move", attack.getMove());
+		JSONObject out = new JSONObject().put("attack", attack.getAttacker().getId()).put("defender", attack.getDefender().getId()).put("attackroll", attack.getAttackRoll()).put("move", attack.getMove());
 		if(attack.getDefendRoll() != null) {
 			out.put("defendroll", attack.getDefendRoll());
 		}

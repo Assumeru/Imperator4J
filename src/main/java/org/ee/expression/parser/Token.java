@@ -19,9 +19,8 @@ public interface Token extends Function<Integer, Integer> {
 	 * 
 	 * @param n The value of variable n
 	 * @return The result of applying $t to this token
-	 * @throws ParseException 
 	 */
-	int apply(int n) throws ParseException;
+	int apply(int n);
 
 	/**
 	 * Removes superfluous tokens from the tree.

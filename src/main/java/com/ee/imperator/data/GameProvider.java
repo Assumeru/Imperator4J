@@ -4,6 +4,7 @@ import java.io.Closeable;
 import java.util.List;
 
 import com.ee.imperator.game.Game;
+import com.ee.imperator.game.log.LogEntry;
 import com.ee.imperator.map.Map;
 import com.ee.imperator.user.Player;
 
@@ -23,4 +24,6 @@ public interface GameProvider extends Closeable {
 	void startGame(Game game);
 
 	void updateGameTime(Game game);
+
+	List<LogEntry> getCombatLogs(Game game, long time);
 }

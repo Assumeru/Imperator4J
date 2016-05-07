@@ -22,7 +22,7 @@ public class MapPage extends AbstractVariablePage {
 		} else {
 			context.setVariable(PageContext.VARIABLE_TITLE, map.getName());
 			context.setVariable(PageContext.VARIABLE_CSS, Arrays.asList("map.css"));
-			context.setVariable(PageContext.VARIABLE_JAVASCRIPT, Arrays.asList("map.js"));
+			PageContext.VARIABLE_JAVASCRIPT.add(context, "map.js");
 			context.setVariable("map", map);
 		}
 	}

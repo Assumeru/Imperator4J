@@ -1,7 +1,5 @@
 package org.ee.expression.parser;
 
-import java.text.ParseException;
-
 public class IntegerToken extends AbstractToken {
 	private final int value;
 
@@ -11,7 +9,7 @@ public class IntegerToken extends AbstractToken {
 	}
 
 	@Override
-	public int apply(int n) throws ParseException {
+	public int apply(int n) {
 		return value;
 	}
 

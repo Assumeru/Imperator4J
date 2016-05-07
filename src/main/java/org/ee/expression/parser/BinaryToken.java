@@ -14,7 +14,7 @@ public abstract class BinaryToken extends AbstractToken {
 	}
 
 	@Override
-	public int apply(int n) throws ParseException {
+	public int apply(int n) {
 		int lhs = this.lhs.apply(n);
 		int rhs = this.rhs.apply(n);
 		return apply(lhs, rhs);

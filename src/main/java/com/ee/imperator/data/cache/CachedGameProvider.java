@@ -13,6 +13,7 @@ import com.ee.imperator.Imperator;
 import com.ee.imperator.data.BatchGameProvider;
 import com.ee.imperator.data.GameProvider;
 import com.ee.imperator.game.Game;
+import com.ee.imperator.game.log.LogEntry;
 import com.ee.imperator.user.Player;
 
 public class CachedGameProvider implements GameProvider {
@@ -115,5 +116,10 @@ public class CachedGameProvider implements GameProvider {
 	@Override
 	public void startGame(Game game) {
 		gameProvider.startGame(game);
+	}
+
+	@Override
+	public List<LogEntry> getCombatLogs(Game game, long time) {
+		return gameProvider.getCombatLogs(game, time);
 	}
 }

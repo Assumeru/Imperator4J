@@ -25,6 +25,7 @@ import com.ee.imperator.user.Member;
 public class Api {
 	private static final Logger LOG = LogManager.createLogger();
 	public static final LongPolling LONG_POLLING = new LongPolling();
+	public static final String DATE_ATOM = "yyyy-MM-dd'T'HH:mm:ssXXX";
 	private static Map<String, List<Handler>> handlers;
 
 	static String handleRequest(Map<String, String> variables, Member member) throws InvalidRequestException {
@@ -146,5 +147,8 @@ public class Api {
 
 	public static String getErrorMessage(String error, String mode, String type) {
 		return getReply(new JSONObject().put("error", error), mode, type).toString();
+	}
+
+	private Api() {
 	}
 }

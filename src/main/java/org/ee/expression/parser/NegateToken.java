@@ -11,7 +11,7 @@ public class NegateToken extends AbstractToken {
 	}
 
 	@Override
-	public int apply(int n) throws ParseException {
+	public int apply(int n) {
 		return toInt(!toBoolean(value.apply(n)));
 	}
 

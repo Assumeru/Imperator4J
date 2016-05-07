@@ -15,7 +15,7 @@ public class ConditionalToken extends AbstractToken {
 	}
 
 	@Override
-	public int apply(int n) throws ParseException {
+	public int apply(int n) {
 		return toBoolean(condition.apply(n)) ? resultTrue.apply(n) : resultFalse.apply(n);
 	}
 

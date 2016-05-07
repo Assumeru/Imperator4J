@@ -64,13 +64,13 @@ public class GamePage extends AbstractVariablePage {
 		if(!game.getPlayers().contains(context.getUser())) {
 			context.setVariable(PageContext.VARIABLE_CSS, Arrays.asList("newgame.css"));
 			Map<String, String> colors = getColors(game);
-			if(context.getPostParams() != null) {
+			if(context.getPostParams() != null && game.getPlayers().size() < game.getMap().getPlayers()) {
 				joinGame(context, game, colors);
 			}
 			context.setVariable("colors", colors);
 		} else {
 			PageContext.VARIABLE_JAVASCRIPT_SETTINGS.put(context, "API", new MapBuilder<>().put("longpollingURL", Imperator.getUrlBuilder().buildLink(Ajax.PATH)).build());
-			context.setVariable(PageContext.VARIABLE_JAVASCRIPT, Arrays.asList("store.js", "api.js", "dialog.js", "pregame.js"));
+			PageContext.VARIABLE_JAVASCRIPT.addAll(context, "store.js", "api.js", "dialog.js", "pregame.js");
 			if(context.getPostParams() != null) {
 				if(context.getUser().equals(game.getOwner())) {
 					if(context.getPostParams().getFirst("startgame") != null && game.getPlayers().size() == game.getMap().getPlayers()) {
@@ -88,19 +88,21 @@ public class GamePage extends AbstractVariablePage {
 		context.setVariable("code", context.getGetParams().getFirst("code"));
 	}
 
-	private void joinGame(PageContext context, Game game, Map<String, String> colors) {
-		try {
-			JoinGameForm form = new JoinGameForm(context, game, colors);
-			Player player = new Player(context.getUser());
-			player.setColor(form.getColor());
-			if(Imperator.getData().addPlayerToGame(player, game)) {
-				redirect(Imperator.getUrlBuilder().game(game));
+	private synchronized void joinGame(PageContext context, Game game, Map<String, String> colors) {
+		if(game.getPlayers().size() < game.getMap().getPlayers()) {
+			try {
+				JoinGameForm form = new JoinGameForm(context, game, colors);
+				Player player = new Player(context.getUser());
+				player.setColor(form.getColor());
+				if(Imperator.getData().addPlayerToGame(player, game)) {
+					redirect(Imperator.getUrlBuilder().game(game));
+				}
+			} catch (FormException e) {
+				if(e.getName() != null) {
+					context.setVariable(e.getName(), e.getMessage());
+				}
+				LOG.v(e);
 			}
-		} catch(FormException e) {
-			if(e.getName() != null) {
-				context.setVariable(e.getName(), e.getMessage());
-			}
-			LOG.v(e);
 		}
 	}
 
@@ -116,9 +118,11 @@ public class GamePage extends AbstractVariablePage {
 		}
 	}
 
-	private void startGame(PageContext context, Game game) {
-		Imperator.getData().startGame(game);
-		redirect(Imperator.getUrlBuilder().game(game));
+	private synchronized void startGame(PageContext context, Game game) {
+		if(game.getPlayers().size() == game.getMap().getPlayers()) {
+			Imperator.getData().startGame(game);
+			redirect(Imperator.getUrlBuilder().game(game));
+		}
 	}
 
 	private Map<String, String> getColors(Game game) {

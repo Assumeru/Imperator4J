@@ -22,6 +22,7 @@ import com.ee.imperator.Imperator;
 import com.ee.imperator.data.BatchGameProvider;
 import com.ee.imperator.game.Attack;
 import com.ee.imperator.game.Game;
+import com.ee.imperator.game.log.LogEntry;
 import com.ee.imperator.map.Territory;
 import com.ee.imperator.mission.Mission;
 import com.ee.imperator.mission.PlayerMission;
@@ -332,5 +333,16 @@ public class SqlGameProvider implements BatchGameProvider {
 		} catch (SQLException e) {
 			LOG.e("Failed to update game time", e);
 		}
+	}
+
+	@Override
+	public List<LogEntry> getCombatLogs(Game game, long time) {
+		List<LogEntry> entries = new ArrayList<>();
+		try(Connection conn = dataSource.getConnection()) {
+			//TODO
+		} catch (SQLException e) {
+			LOG.e("Failed to get combat log", e);
+		}
+		return entries;
 	}
 }

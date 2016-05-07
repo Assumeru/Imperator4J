@@ -5,7 +5,6 @@ import javax.ws.rs.core.Context;
 
 import org.ee.config.Config;
 import org.ee.i18n.LanguageManager;
-import org.ee.i18n.LanguageProvider;
 import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
 import org.ee.reflection.ReflectionUtils;
@@ -19,6 +18,8 @@ import com.ee.imperator.data.GameProvider;
 import com.ee.imperator.data.JoinedDataProvider;
 import com.ee.imperator.data.MapProvider;
 import com.ee.imperator.data.MemberProvider;
+import com.ee.imperator.exception.ConfigurationException;
+import com.ee.imperator.i18n.ClientSideLanguageProvider;
 import com.ee.imperator.request.RequestResolver;
 import com.ee.imperator.url.UrlBuilder;
 
@@ -27,6 +28,7 @@ public class Imperator extends WebApplication {
 	private static DataProvider dataProvider;
 	private static PasswordHasher hasher;
 	private static UrlBuilder urlBuilder;
+	private static ClientSideLanguageProvider languageProvider;
 
 	public Imperator(@Context ServletContext context) {
 		super(context);
@@ -65,7 +67,7 @@ public class Imperator extends WebApplication {
 		try {
 			return ReflectionUtils.getSubclass(Imperator.getConfig().getClass(type, null), type).newInstance();
 		} catch(Exception e) {
-			throw new RuntimeException("Failed to create provider for " + type, e);
+			throw new ConfigurationException("Failed to create provider for " + type, e);
 		}
 	}
 
@@ -73,7 +75,7 @@ public class Imperator extends WebApplication {
 		try {
 			hasher = ReflectionUtils.getSubclass(getConfig().getClass(PasswordHasher.class, null, BCryptHasher.class), PasswordHasher.class).newInstance();
 		} catch(Exception e) {
-			throw new RuntimeException("Failed to init password hasher", e);
+			throw new ConfigurationException("Failed to init password hasher", e);
 		}
 	}
 
@@ -81,13 +83,14 @@ public class Imperator extends WebApplication {
 		try {
 			urlBuilder = ReflectionUtils.getSubclass(getConfig().getClass(UrlBuilder.class, null), UrlBuilder.class).newInstance();
 		} catch(Exception e) {
-			throw new RuntimeException("Failed to init url builder", e);
+			throw new ConfigurationException("Failed to init url builder", e);
 		}
 	}
 
 	private void initLanguage() {
 		try {
-			LanguageManager.setLanguageProvider(ReflectionUtils.getSubclass(getConfig().getClass(LanguageProvider.class, null), LanguageProvider.class).newInstance());
+			languageProvider = ReflectionUtils.getSubclass(getConfig().getClass(ClientSideLanguageProvider.class, null), ClientSideLanguageProvider.class).newInstance();
+			LanguageManager.setLanguageProvider(languageProvider);
 		} catch(Exception e) {
 			LOG.e("Failed to init language provider, falling back on default implementation", e);
 		}
@@ -104,6 +107,10 @@ public class Imperator extends WebApplication {
 
 	public static PasswordHasher getHasher() {
 		return hasher;
+	}
+
+	public static ClientSideLanguageProvider getLanguageProvider() {
+		return languageProvider;
 	}
 
 	public static String getContextPath() {

@@ -2,30 +2,18 @@ package com.ee.imperator.request.context;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.WeakHashMap;
 
-public class MapVariable extends Variable<Map<String, Object>> {
-	private Map<PageContext, Map<String, Object>> values = new WeakHashMap<>();
-
+public class MapVariable<K, V> extends VariableVariable<Map<K, V>> {
 	public MapVariable(String name) {
-		super(name, null);
-	}
-
-	public Map<String, Object> get(PageContext context) {
-		Map<String, Object> value = values.get(context);
-		if(value == null) {
-			value = new HashMap<>(0);
-			values.put(context, value);
-		}
-		return value;
+		super(name);
 	}
 
 	@Override
-	public Map<String, Object> getDefaultValue(PageContext context) {
-		throw new UnsupportedOperationException();
+	protected Map<K, V> newInstance() {
+		return new HashMap<>(0);
 	}
 
-	public Object put(PageContext context, String key, Object value) {
-		return get(context).put(key, value);
+	public V put(PageContext context, K key, V value) {
+		return getDefaultValue(context).put(key, value);
 	}
 }

@@ -19,13 +19,13 @@ import com.ee.imperator.user.Member;
 public interface PageContext {
 	public static final String VARIABLE_BODY = "body";
 	public static final String VARIABLE_TITLE = "title";
-	public static final MapVariable VARIABLE_JAVASCRIPT_SETTINGS = new MapVariable("javascriptSettings");
+	public static final MapVariable<String, Object> VARIABLE_JAVASCRIPT_SETTINGS = new MapVariable<>("javascriptSettings");
 	public static final Variable<Language> VARIABLE_LANGUAGE = new Variable<>("i18n", ctx -> ctx.getUser().getLanguage());
 	public static final Variable<List<WebPage>> VARIABLE_NAVIGATION = new Variable<>("navPages", ctx -> ctx.getNavigationPages());
 	public static final Variable<Boolean> VARIABLE_SHOW_FOOTER = new Variable<>("showFooter", ctx -> true);
 	public static final Variable<Integer> VARIABLE_YEAR = new Variable<>("date", ctx -> Calendar.getInstance().get(Calendar.YEAR));
 	public static final Variable<List<String>> VARIABLE_CSS = new Variable<>("css", ctx -> Collections.emptyList());
-	public static final Variable<List<String>> VARIABLE_JAVASCRIPT = new Variable<>("javascript", ctx -> Collections.emptyList());
+	public static final ListVariable<String> VARIABLE_JAVASCRIPT = new ListVariable<>("javascript");
 	public static final Variable<PageContext> VARIABLE_CONTEXT = new Variable<>("ctx", ctx -> ctx);
 	public static final Variable<String> VARIABLE_MAIN_CLASS = new Variable<>("mainClass", ctx -> "container");
 	public static final Variable<Config> VARIABLE_CONFIG = new Variable<>("cfg", ctx -> Imperator.getConfig());

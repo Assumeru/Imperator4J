@@ -7,6 +7,7 @@ import org.ee.web.request.Request;
 
 import com.ee.imperator.chat.ChatMessage;
 import com.ee.imperator.game.Game;
+import com.ee.imperator.game.log.LogEntry;
 import com.ee.imperator.map.Map;
 import com.ee.imperator.user.Member;
 import com.ee.imperator.user.Player;
@@ -62,6 +63,11 @@ public class JoinedDataProvider implements DataProvider {
 	@Override
 	public void updateGameTime(Game game) {
 		gameProvider.updateGameTime(game);
+	}
+
+	@Override
+	public List<LogEntry> getCombatLogs(Game game, long time) {
+		return gameProvider.getCombatLogs(game, time);
 	}
 
 	@Override

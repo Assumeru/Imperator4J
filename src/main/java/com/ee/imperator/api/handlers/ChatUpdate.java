@@ -9,6 +9,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.ee.imperator.Imperator;
+import com.ee.imperator.api.Api;
 import com.ee.imperator.chat.ChatMessage;
 import com.ee.imperator.exception.InvalidRequestException;
 import com.ee.imperator.user.Member;
@@ -29,7 +30,7 @@ public class ChatUpdate {
 	}
 
 	static JSONArray getMessages(int gid, long time) {
-		DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.US);
+		DateFormat format = new SimpleDateFormat(Api.DATE_ATOM, Locale.US);
 		JSONArray out = new JSONArray();
 		for(ChatMessage message : Imperator.getData().getChatMessages(gid, time)) {
 			JSONObject user = new JSONObject()

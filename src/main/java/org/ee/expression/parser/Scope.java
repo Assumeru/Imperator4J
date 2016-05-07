@@ -29,9 +29,8 @@ public class Scope extends AbstractToken {
 	}
 
 	@Override
-	public int apply(int n) throws ParseException {
-		checkExpression();
-		return tokens.get(0).apply(n);
+	public int apply(int n) {
+		throw new IllegalStateException("Uncollapsed scope");
 	}
 
 	@Override

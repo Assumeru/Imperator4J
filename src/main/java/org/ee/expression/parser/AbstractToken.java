@@ -13,11 +13,7 @@ public abstract class AbstractToken implements Token {
 
 	@Override
 	public Integer apply(Integer n) {
-		try {
-			return apply(n.intValue());
-		} catch(ParseException e) {
-			throw new RuntimeException(e);
-		}
+		return apply(n.intValue());
 	}
 
 	@Override
