@@ -28,7 +28,7 @@ public abstract class WebApplication extends Application {
 
 	protected abstract Class<? extends AbstractRequestResolver> getRequestResolver();
 
-	protected static ServletContext getContext() {
+	public static ServletContext getContext() {
 		return context;
 	}
 

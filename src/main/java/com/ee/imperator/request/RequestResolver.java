@@ -8,14 +8,10 @@ import org.ee.collection.MapBuilder;
 import org.ee.web.request.AbstractRequestResolver;
 import org.ee.web.request.Request;
 import org.ee.web.request.RequestHandler;
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.WebContext;
-import org.thymeleaf.templatemode.TemplateMode;
-import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
 import com.ee.imperator.Imperator;
+import com.ee.imperator.request.context.DefaultPageContext;
 import com.ee.imperator.request.context.PageContext;
-import com.ee.imperator.request.context.ThymeleafContext;
 import com.ee.imperator.request.page.Http403;
 import com.ee.imperator.request.page.Http404;
 import com.ee.imperator.request.page.Http500;
@@ -26,31 +22,10 @@ public class RequestResolver extends AbstractRequestResolver {
 			.put(Status.NOT_FOUND.getStatusCode(), new Http404())
 			.put(Status.INTERNAL_SERVER_ERROR.getStatusCode(), new Http500())
 			.build(true);
-	private static TemplateEngine engine;
 
 	@Override
 	protected PageContext createContext(Request request) {
-		return new ThymeleafContext(getTemplateEngine(), new WebContext(getRequest(), getResponse(), getServletContext()), Imperator.getData().getMember(request), getNavigation(), request);
-	}
-
-	private TemplateEngine getTemplateEngine() {
-		if(engine == null) {
-			initTemplateEngine();
-		}
-		return engine;
-	}
-
-	private synchronized void initTemplateEngine() {
-		if(engine == null) {
-			engine = new TemplateEngine();
-			ServletContextTemplateResolver templateResolver = new ServletContextTemplateResolver(getServletContext());
-			templateResolver.setTemplateMode(TemplateMode.HTML);
-			templateResolver.setPrefix("/WEB-INF/templates/");
-			templateResolver.setSuffix(".html");
-			templateResolver.setCacheTTLMs(Long.valueOf(3600000L));
-			engine.setTemplateResolver(templateResolver);
-			//TODO engine.setLinkBuilder()
-		}
+		return new DefaultPageContext(Imperator.getTemplateProvider().createTemplate("page", getRequest(), getResponse(), getServletContext()), Imperator.getData().getMember(request), getNavigation(), request);
 	}
 
 	@Override

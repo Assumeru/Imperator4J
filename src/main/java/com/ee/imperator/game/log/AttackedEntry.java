@@ -1,6 +1,8 @@
 package com.ee.imperator.game.log;
 
-import org.ee.i18n.Language;
+import java.util.Map;
+
+import org.ee.collection.MapBuilder;
 
 import com.ee.imperator.map.Territory;
 import com.ee.imperator.user.Player;
@@ -22,9 +24,15 @@ public class AttackedEntry extends LogEntry {
 	}
 
 	@Override
-	public CharSequence getMessage(Language language) {
-		//TODO
-		return language.translate("%1$s vs %2$s: %3$s %4$s");
+	public Map<String, Object> getMessage() {
+		return new MapBuilder<String, Object>()
+				.put("message", "%1$s vs %2$s: %3$s %4$s")
+				.put("attacker", getPlayer().getId())
+				.put("defender", defender.getId())
+				.put("attacking", attacking.getId())
+				.put("defending", defending.getId())
+				.put("attackRoll", attackRoll)
+				.put("defendRoll", defendRoll).build();
 	}
 
 	@Override

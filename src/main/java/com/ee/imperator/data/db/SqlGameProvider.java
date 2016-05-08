@@ -22,6 +22,11 @@ import com.ee.imperator.Imperator;
 import com.ee.imperator.data.BatchGameProvider;
 import com.ee.imperator.game.Attack;
 import com.ee.imperator.game.Game;
+import com.ee.imperator.game.log.AttackedEntry;
+import com.ee.imperator.game.log.CardsPlayedEntry;
+import com.ee.imperator.game.log.ConqueredEntry;
+import com.ee.imperator.game.log.EndedTurnEntry;
+import com.ee.imperator.game.log.ForfeitedEntry;
 import com.ee.imperator.game.log.LogEntry;
 import com.ee.imperator.map.Territory;
 import com.ee.imperator.mission.Mission;
@@ -155,15 +160,18 @@ public class SqlGameProvider implements BatchGameProvider {
 		statement.setInt(1, game.getId());
 		ResultSet result = statement.executeQuery();
 		while(result.next()) {
-			String rollString = result.getString(3);
-			int[] roll = rollString != null ? new int[rollString.length()] : null;
-			if(rollString != null) {
-				for(int i = 0; i < roll.length; i++) {
-					roll[i] = rollString.charAt(i) - '0';
-				}
-			}
-			game.getAttacks().add(new Attack(game.getMap().getTerritories().get(result.getString(1)), game.getMap().getTerritories().get(result.getString(2)), result.getInt(4), roll));
+			game.getAttacks().add(new Attack(game.getMap().getTerritories().get(result.getString(1)), game.getMap().getTerritories().get(result.getString(2)), result.getInt(4), getRoll(result.getString(3))));
 		}
+	}
+
+	private static int[] getRoll(String rollString) {
+		int[] roll = rollString != null ? new int[rollString.length()] : null;
+		if(rollString != null) {
+			for(int i = 0; i < roll.length; i++) {
+				roll[i] = rollString.charAt(i) - '0';
+			}
+		}
+		return roll;
 	}
 
 	@Override
@@ -339,7 +347,33 @@ public class SqlGameProvider implements BatchGameProvider {
 	public List<LogEntry> getCombatLogs(Game game, long time) {
 		List<LogEntry> entries = new ArrayList<>();
 		try(Connection conn = dataSource.getConnection()) {
-			//TODO
+			PreparedStatement statement = conn.prepareStatement("SELECT `type`, `time`, `uid`, `num`, `char_three`, `d_roll`, `units`, `territory`, `d_territory` FROM `combatlog` WHERE `gid` = ? AND `time` > ? ORDER BY time ASC");
+			statement.setInt(1, game.getId());
+			statement.setLong(2, time);
+			ResultSet result = statement.executeQuery();
+			while(result.next()) {
+				LogEntry.Type type = LogEntry.Type.values()[result.getInt(1)];
+				Player player = game.getPlayerById(result.getInt(3));
+				time = result.getLong(2);
+				LogEntry entry;
+				if(type == LogEntry.Type.ATTACKED) {
+					entry = new AttackedEntry(time, player,
+							game.getPlayerById(result.getInt(4)),
+							getRoll(result.getString(5)),
+							getRoll(result.getString(6)),
+							game.getMap().getTerritories().get(result.getString(8)),
+							game.getMap().getTerritories().get(result.getString(9)));
+				} else if(type == LogEntry.Type.CARDS_PLAYED) {
+					entry = new CardsPlayedEntry(player, time, getRoll(result.getString(5)), result.getInt(7));
+				} else if(type == LogEntry.Type.CONQUERED) {
+					entry = new ConqueredEntry(player, time, game.getMap().getTerritories().get(result.getString(8)));
+				} else if(type == LogEntry.Type.ENDED_TURN) {
+					entry = new EndedTurnEntry(player, time);
+				} else {
+					entry = new ForfeitedEntry(player, time);
+				}
+				entries.add(entry);
+			}
 		} catch (SQLException e) {
 			LOG.e("Failed to get combat log", e);
 		}

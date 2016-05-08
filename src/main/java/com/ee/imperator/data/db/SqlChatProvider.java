@@ -30,7 +30,7 @@ public class SqlChatProvider implements ChatProvider {
 	public List<ChatMessage> getChatMessages(int id, long time) {
 		List<ChatMessage> messages = new ArrayList<>();
 		try(Connection conn = dataSource.getConnection()) {
-			PreparedStatement statement = conn.prepareStatement("SELECT `uid`, `time`, `message` FROM `chat` WHERE `time` > ? AND id = ?");
+			PreparedStatement statement = conn.prepareStatement("SELECT `uid`, `time`, `message` FROM `chat` WHERE `time` > ? AND id = ? ORDER BY time ASC");
 			statement.setLong(1, time);
 			statement.setInt(2, id);
 			ResultSet result = statement.executeQuery();

@@ -1,6 +1,6 @@
 package com.ee.imperator.game.log;
 
-import org.ee.i18n.Language;
+import java.util.Map;
 
 import com.ee.imperator.user.Player;
 
@@ -24,7 +24,7 @@ public abstract class LogEntry {
 		return time;
 	}
 
-	public abstract CharSequence getMessage(Language language);
+	public abstract Map<String, Object> getMessage();
 
 	public abstract Type getType();
 }

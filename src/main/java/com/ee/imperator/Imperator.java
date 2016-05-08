@@ -21,6 +21,7 @@ import com.ee.imperator.data.MemberProvider;
 import com.ee.imperator.exception.ConfigurationException;
 import com.ee.imperator.i18n.ClientSideLanguageProvider;
 import com.ee.imperator.request.RequestResolver;
+import com.ee.imperator.template.TemplateProvider;
 import com.ee.imperator.url.UrlBuilder;
 
 public class Imperator extends WebApplication {
@@ -29,6 +30,7 @@ public class Imperator extends WebApplication {
 	private static PasswordHasher hasher;
 	private static UrlBuilder urlBuilder;
 	private static ClientSideLanguageProvider languageProvider;
+	private static TemplateProvider templateProvider;
 
 	public Imperator(@Context ServletContext context) {
 		super(context);
@@ -37,6 +39,7 @@ public class Imperator extends WebApplication {
 		initHasher();
 		initUrlBuilder();
 		initLanguage();
+		initTemplateProvider();
 	}
 
 	private void initConfig() {
@@ -96,6 +99,14 @@ public class Imperator extends WebApplication {
 		}
 	}
 
+	private void initTemplateProvider() {
+		try {
+			templateProvider = ReflectionUtils.getSubclass(getConfig().getClass(TemplateProvider.class, null), TemplateProvider.class).newInstance();
+		} catch(Exception e) {
+			throw new ConfigurationException("Failed to init template provider", e);
+		}
+	}
+
 	@Override
 	protected Class<RequestResolver> getRequestResolver() {
 		return RequestResolver.class;
@@ -113,11 +124,11 @@ public class Imperator extends WebApplication {
 		return languageProvider;
 	}
 
-	public static String getContextPath() {
-		return getContext().getContextPath();
-	}
-
 	public static UrlBuilder getUrlBuilder() {
 		return urlBuilder;
+	}
+
+	public static TemplateProvider getTemplateProvider() {
+		return templateProvider;
 	}
 }
