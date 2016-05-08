@@ -1,35 +1,20 @@
 package com.ee.imperator.exception;
 
-import org.ee.i18n.Language;
+import javax.ws.rs.core.Response.Status;
 
-import com.ee.imperator.api.Api;
-
-public class InvalidRequestException extends Exception {
-	private static final long serialVersionUID = 6416489667172984755L;
-	private String mode;
-	private String type;
+public class InvalidRequestException extends RequestException {
+	private static final long serialVersionUID = 4361443940202449253L;
 
 	public InvalidRequestException(String message, String mode, String type, Throwable cause) {
-		super(message, cause);
-		this.mode = mode;
-		this.type = type;
+		super(message, mode, type, cause);
 	}
 
 	public InvalidRequestException(String message, String mode, String type) {
-		super(message);
-		this.mode = mode;
-		this.type = type;
+		super(message, mode, type);
 	}
 
-	public String getMode() {
-		return mode;
-	}
-
-	public String getType() {
-		return type;
-	}
-
-	public String getMessage(Language language) {
-		return Api.getErrorMessage(language.translate(getMessage()).toString(), mode, type);
+	@Override
+	public Status getStatus() {
+		return Status.BAD_REQUEST;
 	}
 }

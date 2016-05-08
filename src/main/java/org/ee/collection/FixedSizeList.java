@@ -92,7 +92,7 @@ public class FixedSizeList<T> extends AbstractList<T> implements RandomAccess {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void sort(Comparator<? super T> c) {
-		Arrays.sort((T[]) values, c);
+		Arrays.sort((T[]) values, 0, size, c);
 	}
 
 	@Override

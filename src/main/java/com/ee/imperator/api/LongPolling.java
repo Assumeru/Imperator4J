@@ -12,7 +12,7 @@ import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
 
 import com.ee.imperator.Imperator;
-import com.ee.imperator.exception.InvalidRequestException;
+import com.ee.imperator.exception.RequestException;
 import com.ee.imperator.request.context.PageContext;
 
 public class LongPolling implements RequestHandler<PageContext, Response> {
@@ -27,12 +27,9 @@ public class LongPolling implements RequestHandler<PageContext, Response> {
 		if(arguments != null) {
 			sleep(arguments);
 			try {
-				String response = Api.handleRequest(arguments, context.getUser());
-				if(response != null) {
-					return Response.ok(response).type(MediaType.APPLICATION_JSON_TYPE).build();
-				}
-			} catch(InvalidRequestException e) {
-				return Response.serverError().type(MediaType.APPLICATION_JSON_TYPE).entity(e.getMessage(context.getUser().getLanguage())).build();
+				return Response.ok(Api.handleRequest(arguments, context.getUser())).type(MediaType.APPLICATION_JSON_TYPE).build();
+			} catch (RequestException e) {
+				return Response.status(e.getStatus()).type(MediaType.APPLICATION_JSON_TYPE).entity(e.getMessage(context.getUser().getLanguage())).build();
 			}
 		}
 		return Response.status(Status.BAD_REQUEST).type(MediaType.APPLICATION_JSON_TYPE).build();

@@ -25,7 +25,7 @@ public class ChatUpdate {
 		return new JSONObject().put("update", System.currentTimeMillis()).put("messages", getMessages(gid, time));
 	}
 
-	private boolean canUseChat(User user, int gid) {
+	static boolean canUseChat(User user, int gid) {
 		return gid == 0 || GameUpdate.playerInGame(user, gid);
 	}
 

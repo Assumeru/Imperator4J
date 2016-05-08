@@ -20,6 +20,7 @@ import org.reflections.Reflections;
 import com.ee.imperator.api.handlers.Param;
 import com.ee.imperator.api.handlers.Request;
 import com.ee.imperator.exception.InvalidRequestException;
+import com.ee.imperator.exception.RequestException;
 import com.ee.imperator.user.Member;
 
 public class Api {
@@ -28,19 +29,21 @@ public class Api {
 	public static final String DATE_ATOM = "yyyy-MM-dd'T'HH:mm:ssXXX";
 	private static Map<String, List<Handler>> handlers;
 
-	static String handleRequest(Map<String, String> variables, Member member) throws InvalidRequestException {
+	static String handleRequest(Map<String, String> variables, Member member) throws RequestException {
 		try {
 			JSONObject output = handleInternal(variables, member);
 			return output == null ? null : output.toString();
 		} catch(InvocationTargetException e) {
-			if(e.getCause() instanceof InvalidRequestException) {
-				throw (InvalidRequestException) e.getCause();
+			if(e.getCause() instanceof RequestException) {
+				throw (RequestException) e.getCause();
 			}
 			LOG.e("Failed to handle request", e);
-			throw new InvalidRequestException("Fatal error", variables.get("mode"), variables.get("type"), e);
+			throw new RequestException("Fatal error", variables.get("mode"), variables.get("type"), e);
+		} catch(RequestException e) {
+			throw e;
 		} catch(Exception e) {
 			LOG.e("Failed to handle request", e);
-			throw new InvalidRequestException("Fatal error", variables.get("mode"), variables.get("type"), e);
+			throw new RequestException("Fatal error", variables.get("mode"), variables.get("type"), e);
 		}
 	}
 
@@ -54,7 +57,7 @@ public class Api {
 				return getReply(out, mode, type);
 			}
 		}
-		return null;
+		throw new InvalidRequestException("Unknown request", mode, type);
 	}
 
 	private static JSONObject getReply(JSONObject reply, String mode, String type) {
@@ -108,7 +111,7 @@ public class Api {
 			return;
 		}
 		for(Method method : methods) {
-			if(method.getReturnType().isAssignableFrom(JSONObject.class) && method.getParameterCount() > 0) {
+			if((method.getReturnType() == void.class || method.getReturnType().isAssignableFrom(JSONObject.class)) && method.getParameterCount() > 0) {
 				Parameter[] params = method.getParameters();
 				if(!params[0].getType().isAssignableFrom(Member.class) || !parameterised(params)) {
 					continue;

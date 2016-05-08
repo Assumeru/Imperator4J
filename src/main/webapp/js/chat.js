@@ -87,9 +87,9 @@
 
 	function addMessage($msg) {
 		var $time = new Date($msg.time),
-		$message = $(Imperator.settings.templates.chatmessage),
+		$message = $('#template-chat-message > .chat').clone(),
 		$deleteButton = $message.find('[data-type="delete"]'),
-		$user = $message.find('a.user'),
+		$user = $message.find('.user'),
 		$stamp = $message.find('time');
 		if($canDelete) {
 			$deleteButton.click(function($e) {
@@ -106,7 +106,6 @@
 		} else {
 			$deleteButton.hide();
 		}
-		$user.attr('href', $msg.user.url);
 		$user.text($msg.user.name);
 		if($msg.user.color !== undefined) {
 			$user.css('color', '#'+$msg.user.color);

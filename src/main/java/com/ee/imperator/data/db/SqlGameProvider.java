@@ -84,7 +84,7 @@ public class SqlGameProvider implements BatchGameProvider {
 	public Collection<Game> getGames(Collection<Integer> ids) {
 		List<Game> games = new ArrayList<>(ids.size());
 		try(Connection conn = dataSource.getConnection()) {
-			PreparedStatement statement = new PreparedStatementBuilder("SELECT `gid`, `map`, `name`, `uid`, `turn`, `time`, `state`, `units`, `conquered`, `password` FROM games WHERE `gid` IN(").appendParameters(ids.size()).append(')').build(conn);
+			PreparedStatement statement = new PreparedStatementBuilder("SELECT `gid`, `map`, `name`, `uid`, `turn`, `time`, `state`, `units`, `conquered`, `password` FROM `games` WHERE `gid` IN(").appendParameters(ids.size()).append(')').build(conn);
 			int index = 1;
 			for(int id : ids) {
 				statement.setInt(index, id);
@@ -347,7 +347,7 @@ public class SqlGameProvider implements BatchGameProvider {
 	public List<LogEntry> getCombatLogs(Game game, long time) {
 		List<LogEntry> entries = new ArrayList<>();
 		try(Connection conn = dataSource.getConnection()) {
-			PreparedStatement statement = conn.prepareStatement("SELECT `type`, `time`, `uid`, `num`, `char_three`, `d_roll`, `units`, `territory`, `d_territory` FROM `combatlog` WHERE `gid` = ? AND `time` > ? ORDER BY time ASC");
+			PreparedStatement statement = conn.prepareStatement("SELECT `type`, `time`, `uid`, `num`, `char_three`, `d_roll`, `units`, `territory`, `d_territory` FROM `combatlog` WHERE `gid` = ? AND `time` > ? ORDER BY `time` ASC");
 			statement.setInt(1, game.getId());
 			statement.setLong(2, time);
 			ResultSet result = statement.executeQuery();

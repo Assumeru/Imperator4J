@@ -117,4 +117,9 @@ public class JoinedDataProvider implements DataProvider {
 	public boolean hasChatMessages(int id, long time) {
 		return chatProvider.hasChatMessages(id, time);
 	}
+
+	@Override
+	public boolean addMessage(ChatMessage message) {
+		return chatProvider.addMessage(message);
+	}
 }

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body th:fragment="fragment">
+<section class="hidden">
+	<form id="chat">
+		<div id="chat-window" class="form-control">
+			<p class="loading" th:text="${i18n.__('Loading messages...')}"></p>
+		</div>
+		<label th:title="${i18n.__('Enable this to automatically scroll down to the latest message')}" class="btn chat-scrolling">
+			<input type="checkbox" name="chatscrolling" />
+			<span>
+				<span class="glyphicon glyphicon-play"></span>
+				<span class="glyphicon glyphicon-pause"></span>
+			</span>
+		</label>
+		<div class="row">
+			<div class="col-xs-9 col-sm-10">
+				<input type="text" name="message" class="form-control" th:placeholder="${i18n.__('Say something')}" />
+			</div>
+			<div class="col-xs-3 col-sm-2">
+				<input type="submit" th:value="${i18n.__('Chat')}" class="btn btn-success form-control" />
+			</div>
+		</div>
+	</form>
+</section>
+<div id="template-chat-message" class="hidden">
+	<div class="chat">
+		<span class="btn btn-danger" data-type="delete"><span class="glyphicon glyphicon-trash"></span></span>
+		<span class="user"></span> (<time></time>): <span class="message"></span>
+	</div>
+</div>
+</body>
+</html>

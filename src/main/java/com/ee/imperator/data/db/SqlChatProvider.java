@@ -30,7 +30,7 @@ public class SqlChatProvider implements ChatProvider {
 	public List<ChatMessage> getChatMessages(int id, long time) {
 		List<ChatMessage> messages = new ArrayList<>();
 		try(Connection conn = dataSource.getConnection()) {
-			PreparedStatement statement = conn.prepareStatement("SELECT `uid`, `time`, `message` FROM `chat` WHERE `time` > ? AND id = ? ORDER BY time ASC");
+			PreparedStatement statement = conn.prepareStatement("SELECT `uid`, `time`, `message` FROM `chat` WHERE `time` > ? AND `gid` = ? ORDER BY `time` ASC");
 			statement.setLong(1, time);
 			statement.setInt(2, id);
 			ResultSet result = statement.executeQuery();
@@ -61,6 +61,24 @@ public class SqlChatProvider implements ChatProvider {
 			return statement.executeQuery().next();
 		} catch(SQLException e) {
 			LOG.e("Failed to check chat messages", e);
+		}
+		return false;
+	}
+
+	@Override
+	public boolean addMessage(ChatMessage message) {
+		try(Connection conn = dataSource.getConnection()) {
+			PreparedStatement statement = conn.prepareStatement("INSERT INTO `chat` (`gid`, `message`, `time`, `uid`) VALUES(?, ?, ?, ?)");
+			int gid = message.getGame() == null ? 0 : message.getGame().getId();
+			statement.setInt(1, gid);
+			statement.setString(2, message.getMessage());
+			statement.setLong(3, message.getTime());
+			statement.setInt(4, message.getUser().getId());
+			statement.execute();
+			conn.commit();
+			return true;
+		} catch(SQLException e) {
+			LOG.e("Failed to add chat message", e);
 		}
 		return false;
 	}

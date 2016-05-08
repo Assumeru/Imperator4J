@@ -30,7 +30,9 @@ public class CachedGameProvider implements GameProvider {
 	}
 
 	private void cache(Game game) {
-		cache.put(game.getId(), game);
+		if(game != null) {
+			cache.put(game.getId(), game);
+		}
 	}
 
 	@Override
@@ -59,9 +61,14 @@ public class CachedGameProvider implements GameProvider {
 			}
 		}
 		if(!toLoad.isEmpty()) {
-			for(Game game : gameProvider.getGames(toLoad.keySet())) {
+			Collection<Game> loaded = gameProvider.getGames(toLoad.keySet());
+			for(Game game : loaded) {
 				games.set(toLoad.get(game.getId()), game);
 				cache(game);
+			}
+			if(loaded.size() != toLoad.size()) {
+				//Remove games that couldn't be loaded
+				games.removeIf(game -> game == null);
 			}
 		}
 		return games;

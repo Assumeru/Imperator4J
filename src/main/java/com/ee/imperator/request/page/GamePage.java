@@ -10,7 +10,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response.Status;
 
-import org.ee.collection.MapBuilder;
 import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
 
@@ -39,7 +38,6 @@ public class GamePage extends AbstractVariablePage {
 		}
 		context.setVariable(PageContext.VARIABLE_TITLE, game.getName());
 		context.setVariable("game", game);
-		PageContext.VARIABLE_JAVASCRIPT_SETTINGS.put(context, "gid", game.getId());
 		if(game.hasEnded()) {
 			// TODO post game
 		} else if(game.hasStarted()) {
@@ -69,8 +67,8 @@ public class GamePage extends AbstractVariablePage {
 			}
 			context.setVariable("colors", colors);
 		} else {
-			PageContext.VARIABLE_JAVASCRIPT_SETTINGS.put(context, "API", new MapBuilder<>().put("longpollingURL", Imperator.getUrlBuilder().buildLink(Ajax.PATH)).build());
-			PageContext.VARIABLE_JAVASCRIPT.addAll(context, "store.js", "api.js", "dialog.js", "pregame.js");
+			PageContext.VARIABLE_JAVASCRIPT.add(context, "pregame.js");
+			addChatJavascript(context, game.getId(), game.getOwner().equals(context.getUser()));
 			if(context.getPostParams() != null) {
 				if(context.getUser().equals(game.getOwner())) {
 					if(context.getPostParams().getFirst("startgame") != null && game.getPlayers().size() == game.getMap().getPlayers()) {
