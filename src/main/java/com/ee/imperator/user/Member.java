@@ -65,4 +65,9 @@ public class Member implements User {
 		}
 		return false;
 	}
+
+	public boolean canDeleteMessages() {
+		//TODO
+		return false;
+	}
 }

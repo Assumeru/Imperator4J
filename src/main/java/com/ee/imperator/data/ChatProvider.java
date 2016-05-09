@@ -10,4 +10,6 @@ public interface ChatProvider {
 	boolean hasChatMessages(int id, long time);
 
 	boolean addMessage(ChatMessage message);
+
+	boolean deleteMessage(int gid, long time);
 }

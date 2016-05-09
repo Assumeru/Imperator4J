@@ -82,4 +82,19 @@ public class SqlChatProvider implements ChatProvider {
 		}
 		return false;
 	}
+
+	@Override
+	public boolean deleteMessage(int gid, long time) {
+		try(Connection conn = dataSource.getConnection()) {
+			PreparedStatement statement = conn.prepareStatement("DELETE FROM `chat` WHERE `gid` = ? AND `time` = ?");
+			statement.setInt(1, gid);
+			statement.setLong(2, time);
+			statement.execute();
+			conn.commit();
+			return true;
+		} catch(SQLException e) {
+			LOG.e("Failed to delete chat message", e);
+		}
+		return false;
+	}
 }

@@ -26,4 +26,6 @@ public interface GameProvider extends Closeable {
 	void updateGameTime(Game game);
 
 	List<LogEntry> getCombatLogs(Game game, long time);
+
+	void setAutoRoll(Player player, boolean autoroll);
 }

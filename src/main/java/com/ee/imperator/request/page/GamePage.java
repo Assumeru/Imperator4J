@@ -68,7 +68,7 @@ public class GamePage extends AbstractVariablePage {
 			context.setVariable("colors", colors);
 		} else {
 			PageContext.VARIABLE_JAVASCRIPT.add(context, "pregame.js");
-			addChatJavascript(context, game.getId(), game.getOwner().equals(context.getUser()));
+			addChatJavascript(context, game.getId(), context.getUser().canDeleteMessages() || game.getOwner().equals(context.getUser()));
 			if(context.getPostParams() != null) {
 				if(context.getUser().equals(game.getOwner())) {
 					if(context.getPostParams().getFirst("startgame") != null && game.getPlayers().size() == game.getMap().getPlayers()) {

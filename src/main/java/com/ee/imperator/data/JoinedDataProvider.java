@@ -71,6 +71,11 @@ public class JoinedDataProvider implements DataProvider {
 	}
 
 	@Override
+	public void setAutoRoll(Player player, boolean autoroll) {
+		gameProvider.setAutoRoll(player, autoroll);
+	}
+
+	@Override
 	public Member getMember(int id) {
 		return memberProvider.getMember(id);
 	}
@@ -121,5 +126,10 @@ public class JoinedDataProvider implements DataProvider {
 	@Override
 	public boolean addMessage(ChatMessage message) {
 		return chatProvider.addMessage(message);
+	}
+
+	@Override
+	public boolean deleteMessage(int gid, long time) {
+		return chatProvider.deleteMessage(gid, time);
 	}
 }

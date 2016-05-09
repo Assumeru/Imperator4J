@@ -129,4 +129,9 @@ public class CachedGameProvider implements GameProvider {
 	public List<LogEntry> getCombatLogs(Game game, long time) {
 		return gameProvider.getCombatLogs(game, time);
 	}
+
+	@Override
+	public void setAutoRoll(Player player, boolean autoroll) {
+		gameProvider.setAutoRoll(player, autoroll);
+	}
 }

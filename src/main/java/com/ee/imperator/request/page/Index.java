@@ -14,7 +14,7 @@ public class Index extends ImperatorPage {
 	@Override
 	protected void setVariables(PageContext context) {
 		if(context.getUser().isLoggedIn()) {
-			addChatJavascript(context, 0, false);
+			addChatJavascript(context, 0, context.getUser().canDeleteMessages());
 			PageContext.VARIABLE_JAVASCRIPT.add(context, "gamelist-filter.js");
 			context.setVariable(PageContext.VARIABLE_BODY, "gamelist");
 			context.setVariable("games", Imperator.getData().getGames());

@@ -379,4 +379,19 @@ public class SqlGameProvider implements BatchGameProvider {
 		}
 		return entries;
 	}
+
+	@Override
+	public void setAutoRoll(Player player, boolean autoroll) {
+		try(Connection conn = dataSource.getConnection()) {
+			PreparedStatement statement = conn.prepareStatement("UPDATE `gamesjoined` SET `autoroll` = ? WHERE `gid` = ? AND `uid` = ?");
+			statement.setBoolean(1, autoroll);
+			statement.setInt(2, player.getGame().getId());
+			statement.setInt(3, player.getId());
+			statement.execute();
+			conn.commit();
+			player.setAutoRoll(autoroll);
+		} catch (SQLException e) {
+			LOG.e("Failed to set autoroll", e);
+		}
+	}
 }
