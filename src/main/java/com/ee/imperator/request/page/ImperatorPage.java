@@ -81,7 +81,7 @@ public abstract class ImperatorPage extends AbstractWebPage {
 	static void addApiJavascript(PageContext context, int gid) {
 		PageContext.VARIABLE_JAVASCRIPT.addAll(context, "store.js", "api.js", "dialog.js");
 		PageContext.VARIABLE_JAVASCRIPT_SETTINGS.put(context, "gid", gid);
-		PageContext.VARIABLE_JAVASCRIPT_SETTINGS.put(context, "API", new MapBuilder<>().put("longpollingURL", Imperator.getUrlBuilder().buildLink(Ajax.PATH)).build());
+		PageContext.VARIABLE_JAVASCRIPT_SETTINGS.put(context, "API", new MapBuilder<>().put("longpollingURL", Imperator.getUrlBuilder().buildLink("/" + Ajax.PATH)).build());
 	}
 
 	static void addChatJavascript(PageContext context, int gid, boolean canDelete) {

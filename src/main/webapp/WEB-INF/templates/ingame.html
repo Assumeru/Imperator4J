@@ -1,8 +1,195 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <body th:fragment="fragment">
-<section>
-	<h1 th:text="${i18n.__(title)}"></h1>
-</section>
+<nav>
+	<ul class="nav nav-tabs nav-justified">
+		<li style="display: none;"><a href="#tab-territory"></a></li>
+		<li class="active"><a href="#tab-players" th:text="${i18n.__('Players')}"></a></li>
+		<li><a href="#tab-territories" th:text="${i18n.__('Territories')}"></a></li>
+		<li><a href="#tab-regions" th:text="${i18n.__('Regions')}"></a></li>
+		<li class="player-only"><a href="#tab-cards" th:text="${i18n.__('Cards')}"></a></li>
+		<li class="player-only"><a href="#tab-chatbox"><span th:text="${i18n.__('Chat')}"></span> <aside class="number"></aside></a></li>
+		<li><a href="#tab-log"><span th:text="${i18n.__('Combat Log')}"></span> <aside class="number"></aside></a></li>
+		<li><a href="#tab-settings" th:text="${i18n.__('Settings')}"></a></li>
+		<li class="mobile-only"><a href="#tab-map" th:text="${i18n.__('Map')}"></a></li>
+	</ul>
+</nav>
+<div class="row swipe-panes">
+	<div class="col-sm-6">
+		<section id="territory" class="swipe-pane">
+			<h2><img data-value="flag" src="" alt="" /> <span data-value="name">---</span></h2>
+			<table class="table">
+				<thead>
+					<tr>
+						<th th:text="${i18n.__('Player')}"></th>
+						<th th:text="${i18n.__('Units')}"></th>
+						<th th:text="${i18n.__('Regions')}"></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td data-value="owner"></td>
+						<td data-value="units"></td>
+						<td data-value="regions"></td>
+					</tr>
+				</tbody>
+			</table>
+			<h3 th:text="${i18n.__('Borders')}"></h3>
+			<div data-value="borders">
+				<div class="row" data-value="border">
+					<div class="col-xs-1"><img data-value="border-flag" src="" alt="" /></div>
+					<div class="col-xs-11"><a href="" data-value="border-name"></a></div>
+				</div>
+			</div>
+		</section>
+		<section id="players" class="swipe-pane active">
+			<table class="table">
+				<thead>
+					<tr>
+						<th th:text="${i18n.__('Player')}"></th>
+						<th th:text="${i18n.__('Territories')}"></th>
+						<th th:text="${i18n.__('Units')}"></th>
+						<th th:text="${i18n.__('Units per turn')}"></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="player : ${game.players}" th:attr="data-player=${player.id}">
+						<td data-value="name"><span class="user" th:text="${player.name}" th:style="${'color: #' + player.color}"></span></td>
+						<td data-value="territories">-</td>
+						<td data-value="units">-</td>
+						<td>
+							<span data-value="unitsperturn"></span>
+							(<span data-value="unitsperturn-regions" th:title="${i18n.__('Units gained from regions')}"></span>
+							+
+							<span data-value="unitsperturn-territories" th:title="${i18n.__('Units gained from territories')}"></span>)
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<div class="player-only">
+				<h2 data-value="mission-name"></h2>
+				<p data-value="mission-description"></p>
+			</div>
+		</section>
+		<section id="territories" class="swipe-pane">
+			<table class="table">
+				<thead>
+					<tr>
+						<th th:text="${i18n.__('Flag')}"></th>
+						<th th:text="${i18n.__('Territory')}"></th>
+						<th th:text="${i18n.__('Player')}"></th>
+						<th th:text="${i18n.__('Units')}"></th>
+						<th th:text="${i18n.__('Regions')}"></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="territory : ${game.map.territories.values}" th:attr="data-territory=${territory.id}">
+						<td>
+							<img th:src="@{${url.flag(territory)}}" th:alt="${i18n.__('Flag of %1$s', territory.name)}" data-value="flag" />
+						</td>
+						<td>
+							game_territory_link
+						</td>
+						<td><span class="user" th:text="${territory.owner.name}" th:style="${'color: #' + territory.owner.color}"></span></td>
+						<td data-value="units" th:text="${territory.units}"></td>
+						<td data-value="regions" th:each="region : ${territory.regions}">
+							<img th:src="@{${url.flag(region)}}" th:alt="${i18n.__(region.name)}" />
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</section>
+		<section id="regions" class="swipe-pane">
+			<div th:each="region : ${game.map.regions.values}">
+				<h2>
+					<img th:src="@{${url.flag(region)}}" alt="" /> <span th:text="${i18n.__(region.name)}"></span>
+					<button data-toggle="collapse" th:attr="data-target=${'#region-' + region.id}" class="btn collapsed">
+						<span class="glyphicon glyphicon-chevron-up"></span>
+						<span class="glyphicon glyphicon-chevron-down"></span>
+					</button>
+					<button class="btn" data-button="highlight" th:attr="data-region=${region.id}" th:text="${i18n.__('Highlight')}"></button>
+				</h2>
+				<p th:text="${i18n.__(i18n.resolve('%1$d territories, one unit per turn', '%1$d territories, %2$d units per turn', region.units), region.territories.size, region.units)}"></p>
+				<div class="region-division" th:attr="data-region=${region.id}"></div>
+				<div th:id="${'region-' + region.id}" class="collapse">
+					<div th:each="territory : ${region.territories}" class="row" th:attr="data-territory=${territory.id}">
+						<div class="col-xs-1">
+							<img th:src="@{${url.flag(territory)}}" alt="" />
+						</div>
+						<div class="col-xs-11">
+							<a th:href="${'#tab-territory-' + territory.id}" th:style="${'color: #' + territory.owner.color}" th:text="${i18n.__(territory.name)}"></a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+		<section id="cards" class="swipe-pane player-only">
+			<div data-value="card-list" class="text-center">
+				<img th:each="card : ${player.cards}" class="card" th:src="@{${url.image('cards/' + card.ordinal() + '.png')}}" th:alt="${i18n.__(card.name)}" />
+			</div>
+			<div id="card-controls">
+				<button class="btn btn-success" data-button="cards" data-value="4" th:text="${i18n.__('Place %1$d units', 4)}"></button>
+				<button class="btn btn-success" data-button="cards" data-value="6" th:text="${i18n.__('Place %1$d units', 6)}"></button>
+				<button class="btn btn-success" data-button="cards" data-value="8" th:text="${i18n.__('Place %1$d units', 8)}"></button>
+				<button class="btn btn-success" data-button="cards" data-value="10" th:text="${i18n.__('Place %1$d units', 10)}"></button>
+			</div>
+		</section>
+		<section id="chatbox" class="swipe-pane player-only" th:include="chat::fragment">
+		</section>
+		<section id="log" class="swipe-pane">
+			<div class="form-control" id="combatlog">
+				<div>
+					<p class="loading" th:text="${i18n.__('Loading...')}"></p>
+				</div>
+				<label th:title="${i18n.__('Enable this to automatically scroll down to the latest message')}" class="btn log-scrolling">
+					<input type="checkbox" name="logscrolling" checked />
+					<span>
+						<span class="glyphicon glyphicon-play"></span>
+						<span class="glyphicon glyphicon-pause"></span>
+					</span>
+				</label>
+			</div>
+		</section>
+		<section id="settings" class="swipe-pane">
+			<div class="player-only">
+				<label>
+					<input type="checkbox" name="autoroll" />
+					<span th:text="${i18n.__('Autoroll')}"></span>
+				</label>
+				<p th:text="${i18n.__('Disable autoroll to stop the game from automatically choosing the number of dice to defend with. Two dice will be used if the average of the highest two attacking dice is less than or equal to 3.5.')}"></p>
+				<hr />
+			</div>
+			<label>
+				<input type="radio" name="unitgraphics" value="default" />
+				<span th:text="${i18n.__('Default unit graphics')}"></span>
+			</label>
+			<p th:text="${i18n.__('Select this to use unit icons.')}"></p>
+			<label>
+				<input type="radio" name="unitgraphics" value="numeric" />
+				<span th:text="${i18n.__('Numeric unit graphics')}"></span>
+			</label>
+			<p th:text="${i18n.__('Select this to use unit numbers.')}"></p>
+			<label>
+				<input type="radio" name="unitgraphics" value="none" />
+				<span th:text="${i18n.__('No unit graphics')}"></span>
+			</label>
+			<p th:text="${i18n.__('Select this to disable units.')}"></p>
+		</section>
+	</div><!--
+	--><div class="col-sm-6">
+		<section id="map" class="swipe-pane active">
+			<div class="map-square">
+				<div class="map-controls">
+					<button class="btn btn-default zoom-in" th:title="${i18n.__('Zoom in')}">+</button>
+					<button class="btn btn-default zoom-out" th:title="${i18n.__('Zoom out')}">-</button>
+				</div>
+				<div class="map-container">
+					<img th:src="@{${url.image('maps/image_' + game.map.id + '.svg')}}" th:alt="${i18n.__('Map of %1$s', game.map.name)}" th:attr="data-unit-graphics=${unitgraphics}" />
+				</div>
+			</div>
+		</section>
+	</div>
+</div>
+<!-- TODO controls+ -->
 </body>
 </html>

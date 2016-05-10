@@ -9,6 +9,7 @@
 		Imperator.API.onMessage(parseGameUpdate);
 		Imperator.API.onOpen(sendUpdateRequest);
 		addKickListeners();
+		$('#owner-controls input[name="startgame"]').removeClass('hidden').hide();
 	}
 
 	function parseErrorMessage($msg) {

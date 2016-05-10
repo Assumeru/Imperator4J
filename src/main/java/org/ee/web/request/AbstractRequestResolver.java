@@ -34,6 +34,7 @@ import org.reflections.util.ConfigurationBuilder;
 
 public abstract class AbstractRequestResolver {
 	private static final Logger LOG = LogManager.createLogger();
+	private static final Object MUTEX = new Object();
 	private static List<WebPage> navigation;
 	private static Set<RequestHandler> requestHandlers;
 	@Context
@@ -126,7 +127,9 @@ public abstract class AbstractRequestResolver {
 
 	private RequestHandler getHandler(String path) {
 		if(requestHandlers == null) {
-			initRequestHandlers();
+			synchronized(MUTEX) {
+				initRequestHandlers();
+			}
 		}
 		if(path.contains("../")) {
 			//Is this even possible?

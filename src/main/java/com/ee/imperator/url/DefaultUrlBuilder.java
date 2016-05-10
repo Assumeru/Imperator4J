@@ -14,9 +14,9 @@ public class DefaultUrlBuilder implements UrlBuilder {
 	public DefaultUrlBuilder() {
 		String contextPath = Imperator.getContext().getContextPath();
 		if(contextPath.endsWith("/")) {
-			this.contextPath = contextPath;
+			this.contextPath = contextPath.substring(0, contextPath.length() - 1);
 		} else {
-			this.contextPath = contextPath + "/";
+			this.contextPath = contextPath;
 		}
 	}
 

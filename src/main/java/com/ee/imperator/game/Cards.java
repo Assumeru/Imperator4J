@@ -9,11 +9,17 @@ import com.ee.imperator.game.Cards.Card;
 
 public class Cards extends AbstractCollection<Card> {
 	public enum Card {
-		ARTILLERY(14 / 44d), CAVALRY(14 / 44d), INFANTRY(14 / 44d), JOKER(1 / 22d);
+		ARTILLERY(14 / 44d, "Artillery"), CAVALRY(14 / 44d, "Cavalry"), INFANTRY(14 / 44d, "Infantry"), JOKER(1 / 22d, "Joker");
 		private double chance;
+		private String name;
 
-		private Card(double chance) {
+		private Card(double chance, String name) {
 			this.chance = chance;
+			this.name = name;
+		}
+
+		public String getName() {
+			return name;
 		}
 
 		public static Card valueOf(int ordinal) {
@@ -118,11 +124,11 @@ public class Cards extends AbstractCollection<Card> {
 		for(int i = 0; index < cards.length && i < artillery; i++, index++) {
 			cards[index] = Card.ARTILLERY;
 		}
-		for(int i = 0; index < cards.length && i < cavalry; i++, index++) {
-			cards[index] = Card.CAVALRY;
-		}
 		for(int i = 0; index < cards.length && i < infantry; i++, index++) {
 			cards[index] = Card.INFANTRY;
+		}
+		for(int i = 0; index < cards.length && i < cavalry; i++, index++) {
+			cards[index] = Card.CAVALRY;
 		}
 		for(int i = 0; index < cards.length && i < jokers; i++, index++) {
 			cards[index] = Card.JOKER;
