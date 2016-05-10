@@ -95,30 +95,9 @@ public class FixedSizeList<T> extends AbstractList<T> implements RandomAccess {
 		Arrays.sort((T[]) values, 0, size, c);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Iterator<T> iterator() {
-		return new Itr();
-	}
-
-	private class Itr implements Iterator<T> {
-		private int index;
-
-		@Override
-		public boolean hasNext() {
-			return index < size;
-		}
-
-		@Override
-		public T next() {
-			return get(index++);
-		}
-
-		@Override
-		public void remove() {
-			if(index < 1) {
-				throw new IllegalStateException("remove() called before next()");
-			}
-			FixedSizeList.this.remove(--index);
-		}
+		return new ArrayIterator<>((T[]) toArray());
 	}
 }

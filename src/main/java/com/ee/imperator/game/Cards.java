@@ -9,8 +9,37 @@ import com.ee.imperator.game.Cards.Card;
 
 public class Cards extends AbstractCollection<Card> {
 	public enum Card {
-		ARTILLERY, CAVALRY, INFANTRY, JOKER
+		ARTILLERY(14 / 44d), CAVALRY(14 / 44d), INFANTRY(14 / 44d), JOKER(1 / 22d);
+		private double chance;
+
+		private Card(double chance) {
+			this.chance = chance;
+		}
+
+		public static Card valueOf(int ordinal) {
+			if(ordinal < 0 || ordinal >= values().length) {
+				return null;
+			}
+			return values()[ordinal];
+		}
+
+		public static Card getRandom(Cards cards) {
+			double r = Math.random();
+			double p = 0;
+			for(int i = 0; i < Card.values().length - 1; i++) {
+				p += Card.values()[i].chance;
+				if(r < p) {
+					return Card.values()[i];
+				}
+			}
+			if(cards.getJokers() < Cards.MAX_JOKERS) {
+				return Card.JOKER;
+			}
+			return Card.values()[(int) (Math.random() * 3)];
+		}
 	}
+	public static final int MAX_CARDS = 5;
+	public static final int MAX_JOKERS = 2;
 	private int artillery;
 	private int cavalry;
 	private int infantry;
@@ -111,6 +140,8 @@ public class Cards extends AbstractCollection<Card> {
 			infantry++;
 		} else if(e == Card.JOKER) {
 			jokers++;
+		} else {
+			return false;
 		}
 		return true;
 	}

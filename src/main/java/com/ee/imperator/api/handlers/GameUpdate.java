@@ -58,10 +58,10 @@ public class GameUpdate {
 			Player player = game.getPlayerById(member.getId());
 			output.put("autoroll", player.getAutoRoll())
 					.put("cards", new JSONObject()
-							.put(String.valueOf(Cards.Card.ARTILLERY), player.getCards().getArtillery())
-							.put(String.valueOf(Cards.Card.INFANTRY), player.getCards().getInfantry())
-							.put(String.valueOf(Cards.Card.CAVALRY), player.getCards().getCavalry())
-							.put(String.valueOf(Cards.Card.JOKER), player.getCards().getJokers()))
+							.put(String.valueOf(Cards.Card.ARTILLERY.ordinal()), player.getCards().getArtillery())
+							.put(String.valueOf(Cards.Card.INFANTRY.ordinal()), player.getCards().getInfantry())
+							.put(String.valueOf(Cards.Card.CAVALRY.ordinal()), player.getCards().getCavalry())
+							.put(String.valueOf(Cards.Card.JOKER.ordinal()), player.getCards().getJokers()))
 					.put("mission", new JSONObject()
 							.put("name", player.getMission().getName())
 							.put("description", player.getMission().getDescription(member.getLanguage())));

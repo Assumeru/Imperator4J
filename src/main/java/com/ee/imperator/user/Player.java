@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.ee.imperator.game.Cards;
 import com.ee.imperator.game.Game;
+import com.ee.imperator.map.Region;
 import com.ee.imperator.map.Territory;
 import com.ee.imperator.mission.PlayerMission;
 
@@ -115,5 +116,15 @@ public class Player implements User, Comparable<Player> {
 
 	public Cards getCards() {
 		return cards;
+	}
+
+	public int getUnitsFromRegionsPerTurn() {
+		int sum = 0;
+		for(Region region : game.getMap().getRegions().values()) {
+			if(region.isOwnedBy(this)) {
+				sum += region.getUnits();
+			}
+		}
+		return sum;
 	}
 }

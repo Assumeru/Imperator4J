@@ -16,7 +16,8 @@ public class TestVariableSizeList {
 		for(Integer i : list) {
 			list.remove(i);
 		}
-		Assert.assertEquals(500, list.size());
+		Assert.assertTrue(list.isEmpty());
+		list.add(2);
 		list.clear();
 		Assert.assertTrue(list.isEmpty());
 	}

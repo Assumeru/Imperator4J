@@ -1,7 +1,6 @@
 package org.ee.collection;
 
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 import org.junit.Assert;
@@ -22,11 +21,6 @@ public class TestFixedSizeList {
 		Assert.assertArrayEquals(values, list.toArray());
 		for(String v : list) {
 			list.remove(v);
-		}
-		Assert.assertEquals(5, list.size());
-		for(Iterator<String> it = list.iterator(); it.hasNext();) {
-			it.next();
-			it.remove();
 		}
 		Assert.assertTrue(list.isEmpty());
 	}

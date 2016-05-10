@@ -14,6 +14,7 @@ import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
 
 import com.ee.imperator.Imperator;
+import com.ee.imperator.game.Cards.Card;
 import com.ee.imperator.map.Map;
 import com.ee.imperator.map.Territory;
 import com.ee.imperator.mission.Mission;
@@ -24,7 +25,7 @@ public class Game implements Comparable<Game> {
 	private static final Logger LOG = LogManager.createLogger();
 
 	public enum State {
-		TURN_START, FORTIFY, POST_COMBAT, FINISHED
+		TURN_START, FORTIFY, COMBAT, POST_COMBAT, FINISHED
 	}
 
 	private int id;
@@ -178,12 +179,28 @@ public class Game implements Comparable<Game> {
 		return state;
 	}
 
+	public List<Attack> getAttacks() {
+		return attacks;
+	}
+
 	public void setTime(long time) {
 		this.time = time;
 	}
 
-	public List<Attack> getAttacks() {
-		return attacks;
+	public void setCurrentTurn(Player currentTurn) {
+		this.currentTurn = currentTurn;
+	}
+
+	public void setConquered(boolean conquered) {
+		this.conquered = conquered;
+	}
+
+	public void setState(State state) {
+		this.state = state;
+	}
+
+	public void setUnits(int units) {
+		this.units = units;
 	}
 
 	@Override
@@ -231,5 +248,38 @@ public class Game implements Comparable<Game> {
 			}
 			player.setMission(new PlayerMission(mission, player, target));
 		}
+	}
+
+	public Card giveCard(Player player, Card card) {
+		if(card != null && player.getCards().contains(card) || player.getCards().size() < Cards.MAX_CARDS) {
+			Card random = Card.getRandom(player.getCards());
+			if(Imperator.getData().addCards(player, random, 1)) {
+				return random;
+			}
+		}
+		return null;
+	}
+
+	public void nextTurn() {
+		if(currentTurn.getMission().hasBeenCompleted()) {
+			victory(currentTurn);
+			return;
+		}
+		Player next;
+		for(int i = (players.indexOf(currentTurn) + 1) % players.size();; i = (i + 1) % players.size()) {
+			Player player = players.get(i);
+			if(player.equals(currentTurn)) {
+				victory(currentTurn);
+				return;
+			} else if(player.getState() != Player.State.GAME_OVER) {
+				next = player;
+				break;
+			}
+		}
+		Imperator.getData().startTurn(next);
+	}
+
+	private void victory(Player player) {
+		//TODO
 	}
 }

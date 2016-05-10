@@ -12,6 +12,7 @@ import org.ee.cache.SoftReferenceCache;
 import com.ee.imperator.Imperator;
 import com.ee.imperator.data.BatchGameProvider;
 import com.ee.imperator.data.GameProvider;
+import com.ee.imperator.game.Cards.Card;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.game.log.LogEntry;
 import com.ee.imperator.user.Player;
@@ -133,5 +134,15 @@ public class CachedGameProvider implements GameProvider {
 	@Override
 	public void setAutoRoll(Player player, boolean autoroll) {
 		gameProvider.setAutoRoll(player, autoroll);
+	}
+
+	@Override
+	public boolean addCards(Player player, Card card, int amount) {
+		return gameProvider.addCards(player, card, amount);
+	}
+
+	@Override
+	public void startTurn(Player player) {
+		gameProvider.startTurn(player);
 	}
 }

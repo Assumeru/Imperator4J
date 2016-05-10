@@ -3,6 +3,7 @@ package com.ee.imperator.data;
 import java.io.Closeable;
 import java.util.List;
 
+import com.ee.imperator.game.Cards.Card;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.game.log.LogEntry;
 import com.ee.imperator.map.Map;
@@ -28,4 +29,8 @@ public interface GameProvider extends Closeable {
 	List<LogEntry> getCombatLogs(Game game, long time);
 
 	void setAutoRoll(Player player, boolean autoroll);
+
+	boolean addCards(Player player, Card card, int amount);
+
+	void startTurn(Player player);
 }

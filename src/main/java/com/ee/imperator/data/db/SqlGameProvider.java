@@ -21,6 +21,7 @@ import org.ee.sql.PreparedStatementBuilder;
 import com.ee.imperator.Imperator;
 import com.ee.imperator.data.BatchGameProvider;
 import com.ee.imperator.game.Attack;
+import com.ee.imperator.game.Cards.Card;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.game.log.AttackedEntry;
 import com.ee.imperator.game.log.CardsPlayedEntry;
@@ -36,6 +37,13 @@ import com.mysql.cj.api.jdbc.Statement;
 
 public class SqlGameProvider implements BatchGameProvider {
 	private static final Logger LOG = LogManager.createLogger();
+	private static final String[] CARD_COLUMNS = new String[Card.values().length];
+	static {
+		CARD_COLUMNS[Card.ARTILLERY.ordinal()] = "c_art";
+		CARD_COLUMNS[Card.INFANTRY.ordinal()] = "c_inf";
+		CARD_COLUMNS[Card.CAVALRY.ordinal()] = "c_cav";
+		CARD_COLUMNS[Card.JOKER.ordinal()] = "c_jok";
+	}
 	private final DataSource dataSource;
 
 	public SqlGameProvider(DataSource dataSource) {
@@ -392,6 +400,57 @@ public class SqlGameProvider implements BatchGameProvider {
 			player.setAutoRoll(autoroll);
 		} catch (SQLException e) {
 			LOG.e("Failed to set autoroll", e);
+		}
+	}
+
+	@Override
+	public boolean addCards(Player player, Card card, int amount) {
+		try(Connection conn = dataSource.getConnection()) {
+			String col = CARD_COLUMNS[card.ordinal()];
+			PreparedStatement statement = conn.prepareStatement("UPDATE `gamesjoined` SET `" + col + "` = `" + col + "` + ? WHERE `gid` = ? AND `uid` = ?");
+			statement.setInt(1, amount);
+			statement.setInt(2, player.getGame().getId());
+			statement.setInt(3, player.getId());
+			statement.execute();
+			conn.commit();
+			while(amount > 0) {
+				player.getCards().add(card);
+				amount--;
+			}
+			while(amount < 0) {
+				player.getCards().remove(card);
+				amount++;
+			}
+			return true;
+		} catch (SQLException e) {
+			LOG.e("Failed to add card", e);
+		}
+		return false;
+	}
+
+	@Override
+	public void startTurn(Player player) {
+		try(Connection conn = dataSource.getConnection()) {
+			boolean conquered = false;
+			Game.State state = Game.State.TURN_START;
+			long time = System.currentTimeMillis();
+			int units = player.getUnitsFromRegionsPerTurn();
+			PreparedStatement statement = conn.prepareStatement("UPDATE `games` SET `state` = ?, `time` = ?, `units` = ?, `conquered` = ?, `turn` = ? WHERE `gid` = ?");
+			statement.setInt(1, state.ordinal());
+			statement.setLong(2, time);
+			statement.setInt(3, units);
+			statement.setBoolean(4, conquered);
+			statement.setInt(5, player.getId());
+			statement.setInt(6, player.getGame().getId());
+			conn.commit();
+			Game game = player.getGame();
+			game.setTime(time);
+			game.setCurrentTurn(player);
+			game.setConquered(conquered);
+			game.setState(state);
+			game.setUnits(units);
+		} catch (SQLException e) {
+			LOG.e("Failed to start turn", e);
 		}
 	}
 }
