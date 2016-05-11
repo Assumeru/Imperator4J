@@ -165,6 +165,12 @@ Imperator.Cards.CARD_CAVALRY = 1;
 Imperator.Cards.CARD_INFANTRY = 2;
 Imperator.Cards.CARD_JOKER = 3;
 Imperator.Cards.MAX_CARDS = 5;
+Imperator.Cards.NAMES = {};
+Imperator.Cards.NAMES[Imperator.Cards.CARD_NONE] = 'None';
+Imperator.Cards.NAMES[Imperator.Cards.CARD_ARTILLERY] = 'Artillery';
+Imperator.Cards.NAMES[Imperator.Cards.CARD_CAVALRY] = 'Cavalry';
+Imperator.Cards.NAMES[Imperator.Cards.CARD_INFANTRY] = 'Infantry';
+Imperator.Cards.NAMES[Imperator.Cards.CARD_JOKER] = 'Joker';
 Imperator.Cards.prototype.setCard = function($card, $amount) {
 	if($card == Imperator.Cards.CARD_ARTILLERY) {
 		this.artillery = $amount;

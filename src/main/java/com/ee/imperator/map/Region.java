@@ -1,7 +1,7 @@
 package com.ee.imperator.map;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.ee.imperator.user.User;
 
@@ -9,13 +9,13 @@ public class Region implements Comparable<Region>, HasFlag, Cloneable {
 	private final String id;
 	private final String name;
 	private final int units;
-	private final Set<Territory> territories;
+	private final List<Territory> territories;
 
 	public Region(String id, String name, int units) {
 		this.id = id;
 		this.name = name;
 		this.units = units;
-		this.territories = new HashSet<>();
+		this.territories = new ArrayList<>();
 	}
 
 	@Override
@@ -31,7 +31,7 @@ public class Region implements Comparable<Region>, HasFlag, Cloneable {
 		return units;
 	}
 
-	public Set<Territory> getTerritories() {
+	public List<Territory> getTerritories() {
 		return territories;
 	}
 

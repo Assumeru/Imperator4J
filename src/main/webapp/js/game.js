@@ -397,7 +397,7 @@
 		$attackTo = $menu.find('[data-button="attack-to"]'),
 		$attackFrom = $menu.find('[data-button="attack-from"]'),
 		$territory = $game.map.territories[$id];
-		$menu.find('g').attr('class', 'disabled');
+		$menu.find('[data-button]').attr('class', 'disabled');
 		if(($game.state === Imperator.Game.STATE_TURN_START || $game.state === Imperator.Game.STATE_FORTIFY) && $game.units > 0) {
 			$stack.attr('class', '');
 		}
@@ -762,6 +762,11 @@
 		}
 	}
 
+	function getCardTemplate($card) {
+		var $template = $('#template-card');
+		return $template.find('.card').clone().attr('alt', __(Imperator.Cards.NAMES[$card])).attr('src', $template.attr('data-src').replace('-card-number-', $card));
+	}
+
 	function updateCards($newCard) {
 		var $n, $ok, $dialog,
 		$cards = $('#cards [data-value="card-list"]'),
@@ -771,15 +776,11 @@
 			6: $controls.find('[data-button="cards"][data-value="6"]'),
 			8: $controls.find('[data-button="cards"][data-value="8"]'),
 			10: $controls.find('[data-button="cards"][data-value="10"]')
-		},
-		$artillery = Imperator.settings.templates.card.replace('%1$s', Imperator.Cards.CARD_ARTILLERY).replace('%2$s', Imperator.settings.language.card[Imperator.Cards.CARD_ARTILLERY]),
-		$infantry = Imperator.settings.templates.card.replace('%1$s', Imperator.Cards.CARD_INFANTRY).replace('%2$s', Imperator.settings.language.card[Imperator.Cards.CARD_INFANTRY]),
-		$cavalry = Imperator.settings.templates.card.replace('%1$s', Imperator.Cards.CARD_CAVALRY).replace('%2$s', Imperator.settings.language.card[Imperator.Cards.CARD_CAVALRY]),
-		$joker = Imperator.settings.templates.card.replace('%1$s', Imperator.Cards.CARD_JOKER).replace('%2$s', Imperator.settings.language.card[Imperator.Cards.CARD_JOKER]);
+		};
 		if($newCard !== Imperator.Cards.CARD_NONE) {
 			$ok = $(Imperator.settings.templates.okbutton);
 			$dialog = Imperator.Dialog.showDialogForm(__('You have received a new card!'),
-				Imperator.settings.templates.card.replace('%1$s', $newCard).replace('%2$s', Imperator.settings.language.card[$newCard]),
+				getCardTemplate($newCard),
 				$ok, true, 'text-center');
 			$ok.click(function($e) {
 				$e.preventDefault();
@@ -793,16 +794,16 @@
 		}
 		$cards.empty();
 		for($n = 0; $n < $game.cards.artillery; $n++) {
-			$cards.append($artillery);
+			$cards.append(getCardTemplate(Imperator.Cards.CARD_ARTILLERY));
 		}
 		for($n = 0; $n < $game.cards.infantry; $n++) {
-			$cards.append($infantry);
+			$cards.append(getCardTemplate(Imperator.Cards.CARD_INFANTRY));
 		}
 		for($n = 0; $n < $game.cards.cavalry; $n++) {
-			$cards.append($cavalry);
+			$cards.append(getCardTemplate(Imperator.Cards.CARD_CAVALRY));
 		}
 		for($n = 0; $n < $game.cards.jokers; $n++) {
-			$cards.append($joker);
+			$cards.append(getCardTemplate(Imperator.Cards.CARD_JOKER));
 		}
 		for($n in $buttons) {
 			if($game.cards.canPlayCombination($n) && ($game.state === Imperator.Game.STATE_TURN_START || $game.state === Imperator.Game.STATE_FORTIFY)) {
@@ -984,7 +985,7 @@
 		var $n, $border, $bordering,
 		$tab = $('#territory'),
 		$territory = $game.map.territories[$currentTab[1]],
-		$a = $('<a></a>').attr('href', $territory.owner.link).css('color', '#'+$territory.owner.color).text($territory.owner.name),
+		$a = $('<span></span>').css('color', '#'+$territory.owner.color).text($territory.owner.name),
 		$borders = $tab.find('[data-value="borders"]');
 		$tab.find('[data-value="name"]').text($territory.name);
 		$tab.find('[data-value="units"]').text($territory.units);

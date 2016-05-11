@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -37,8 +39,8 @@ public class MapParser {
 	private String name;
 	private int players;
 	private java.util.Map<String, String> descriptions;
-	private java.util.Map<String, Territory> territories;
-	private java.util.Map<String, Region> regions;
+	private SortedMap<String, Territory> territories;
+	private SortedMap<String, Region> regions;
 	private java.util.Map<Integer, Mission> missions;
 	private List<Integer> missionDistribution;
 
@@ -164,7 +166,7 @@ public class MapParser {
 	}
 
 	private void parseRegions(NodeList children) throws MapParseException {
-		regions = new HashMap<>();
+		regions = new TreeMap<>();
 		index++;
 		if(nextIs(children, "regions")) {
 			NodeList regions = ((Element) children.item(index)).getElementsByTagName("region");
@@ -182,7 +184,7 @@ public class MapParser {
 	}
 
 	private void parseTerritories(Element item) throws MapParseException {
-		this.territories = new HashMap<>();
+		this.territories = new TreeMap<>();
 		NodeList territories = item.getElementsByTagName("territory");
 		for(int i = 0; i < territories.getLength(); i++) {
 			parseTerritory((Element) territories.item(i));
@@ -226,6 +228,7 @@ public class MapParser {
 			}
 			territory.getBorders().add(border);
 		}
+		territory.getBorders().sort(null);
 	}
 
 	private void parseMissions(Element item) throws MapParseException {

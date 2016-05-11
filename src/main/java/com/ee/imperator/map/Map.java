@@ -1,10 +1,11 @@
 package com.ee.imperator.map;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import com.ee.imperator.mission.Mission;
 
@@ -13,12 +14,12 @@ public class Map implements Comparable<Map>, Cloneable {
 	private String name;
 	private int players;
 	private java.util.Map<String, String> descriptions;
-	private java.util.Map<String, Territory> territories;
-	private java.util.Map<String, Region> regions;
+	private SortedMap<String, Territory> territories;
+	private SortedMap<String, Region> regions;
 	private java.util.Map<Integer, Mission> missions;
 	private List<Integer> missionDistribution;
 
-	public Map(int id, String name, int players, java.util.Map<String, String> descriptions, java.util.Map<String, Territory> territories, java.util.Map<String, Region> regions, java.util.Map<Integer, Mission> missions, List<Integer> missionDistribution) {
+	public Map(int id, String name, int players, java.util.Map<String, String> descriptions, SortedMap<String, Territory> territories, SortedMap<String, Region> regions, java.util.Map<Integer, Mission> missions, List<Integer> missionDistribution) {
 		this.id = id;
 		this.name = name;
 		this.players = players;
@@ -128,7 +129,7 @@ public class Map implements Comparable<Map>, Cloneable {
 		} catch (CloneNotSupportedException e) {
 			//Not going to happen
 		}
-		map.territories = new HashMap<>(territories.size());
+		map.territories = new TreeMap<>();
 		for(Territory territory : territories.values()) {
 			map.territories.put(territory.getId(), territory.clone());
 		}
@@ -138,13 +139,18 @@ public class Map implements Comparable<Map>, Cloneable {
 				clone.getBorders().add(map.territories.get(border.getId()));
 			}
 		}
-		map.regions = new HashMap<>(regions.size());
+		map.regions = new TreeMap<>();
 		for(Region region : regions.values()) {
 			Region clone = region.clone();
 			map.regions.put(region.getId(), clone);
 			for(Territory territory : region.getTerritories()) {
-				clone.getTerritories().add(map.territories.get(territory.getId()));
+				Territory clonedTerritory = map.territories.get(territory.getId());
+				clone.getTerritories().add(clonedTerritory);
+				clonedTerritory.getRegions().add(clone);
 			}
+		}
+		for(Territory territory : map.territories.values()) {
+			territory.getRegions().sort(null);
 		}
 		return map;
 	}

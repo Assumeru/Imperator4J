@@ -8,8 +8,8 @@
 		<li><a href="#tab-territories" th:text="${i18n.__('Territories')}"></a></li>
 		<li><a href="#tab-regions" th:text="${i18n.__('Regions')}"></a></li>
 		<li class="player-only"><a href="#tab-cards" th:text="${i18n.__('Cards')}"></a></li>
-		<li class="player-only"><a href="#tab-chatbox"><span th:text="${i18n.__('Chat')}"></span> <aside class="number"></aside></a></li>
-		<li><a href="#tab-log"><span th:text="${i18n.__('Combat Log')}"></span> <aside class="number"></aside></a></li>
+		<li class="player-only"><a href="#tab-chatbox"><span th:text="${i18n.__('Chat')}"></span> <span class="number"></span></a></li>
+		<li><a href="#tab-log"><span th:text="${i18n.__('Combat Log')}"></span> <span class="number"></span></a></li>
 		<li><a href="#tab-settings" th:text="${i18n.__('Settings')}"></a></li>
 		<li class="mobile-only"><a href="#tab-map" th:text="${i18n.__('Map')}"></a></li>
 	</ul>
@@ -17,7 +17,7 @@
 <div class="row swipe-panes">
 	<div class="col-sm-6">
 		<section id="territory" class="swipe-pane">
-			<h2><img data-value="flag" src="" alt="" /> <span data-value="name">---</span></h2>
+			<h2><img data-value="flag" src="" alt="" /> <span data-value="name"></span></h2>
 			<table class="table">
 				<thead>
 					<tr>
@@ -88,12 +88,12 @@
 							<img th:src="@{${url.flag(territory)}}" th:alt="${i18n.__('Flag of %1$s', territory.name)}" data-value="flag" />
 						</td>
 						<td>
-							game_territory_link
+							<a th:href="${'#tab-territory-' + territory.id}" th:style="${'color: #' + territory.owner.color}" th:text="${i18n.__(territory.name)}"></a>
 						</td>
 						<td><span class="user" th:text="${territory.owner.name}" th:style="${'color: #' + territory.owner.color}"></span></td>
 						<td data-value="units" th:text="${territory.units}"></td>
-						<td data-value="regions" th:each="region : ${territory.regions}">
-							<img th:src="@{${url.flag(region)}}" th:alt="${i18n.__(region.name)}" />
+						<td data-value="regions">
+							<img th:each="region : ${territory.regions}" th:src="@{${url.flag(region)}}" th:alt="${i18n.__(region.name)}" />
 						</td>
 					</tr>
 				</tbody>
@@ -184,12 +184,70 @@
 					<button class="btn btn-default zoom-out" th:title="${i18n.__('Zoom out')}">-</button>
 				</div>
 				<div class="map-container">
-					<img th:src="@{${url.image('maps/image_' + game.map.id + '.svg')}}" th:alt="${i18n.__('Map of %1$s', game.map.name)}" th:attr="data-unit-graphics=${unitgraphics}" />
+					<img th:src="@{${url.image('maps/map_' + game.map.id + '.svg')}}" th:alt="${i18n.__('Map of %1$s', game.map.name)}" th:attr="data-unit-graphics=@{${url.image('game/units.svg')}}" />
 				</div>
 			</div>
 		</section>
 	</div>
 </div>
-<!-- TODO controls+ -->
+<div id="turn-controls">
+	<button class="btn btn-default collapsed" data-toggle="collapse" data-target="#controls-box">
+		<span class="glyphicon glyphicon-chevron-up"></span>
+		<span class="glyphicon glyphicon-chevron-down"></span>
+	</button>
+	<div class="collapse container-fluid" id="controls-box">
+		<span class="user" th:text="${game.currentPlayer.name}" th:style="${'color: #' + game.currentPlayer.color}"></span>
+		<button class="btn btn-default player-only" data-value="units-left-fortify" disabled th:title="${i18n.__('Number of units left to place')}"><span class="number">0</span></button>
+		<button class="btn btn-default player-only" data-value="units-left-move" disabled th:title="${i18n.__('Number of units left to move')}"><span class="number">0</span></button>
+		<button class="btn btn-primary player-only" data-button="stack" th:title="${i18n.__('Place new units instead of attacking')}"><span th:text="${i18n.__('Stack')}"></span> <span class="number">0</span></button>
+		<button class="btn btn-warning player-only" data-button="move" th:title="${i18n.__('Stop attacking and start moving units')}"><span th:text="${i18n.__('Move')}"></span></button>
+		<button class="btn btn-warning player-only" data-button="endturn" th:title="${i18n.__('Cede control and end your turn')}"><span th:text="${i18n.__('End turn')}"></span></button>
+		<button class="btn btn-danger player-only pull-right" data-button="forfeit" th:title="${i18n.__('Surrender the game')}"><span th:text="${i18n.__('Forfeit')}"></span></button>
+	</div>
+</div>
+<div id="radial-menu">
+	<svg svg:version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svg="http://www.w3.org/2000/svg" svg:viewBox="0 0 150 150">
+		<svg:defs>
+			<svg:path d="M 0 125 Q 0 25 75 25 V 0 L 125 50 75 100 V 75 Q 25 75 0 125 Z" fill="lime" id="pattern-img-arrow-green" />
+			<svg:path d="M 0 125 Q 0 25 75 25 V 0 L 125 50 75 100 V 75 Q 25 75 0 125 Z" fill="red" id="pattern-img-arrow-red" />
+			<svg:pattern viewBox="0 0 125 125" height="1" width="1" id="pattern-arrow-green">
+				<svg:use xlink:href="#pattern-img-arrow-green" />
+			</svg:pattern>
+			<svg:pattern viewBox="0 0 125 125" height="1" width="1" id="pattern-arrow-red">
+				<svg:use xlink:href="#pattern-img-arrow-red" />
+			</svg:pattern>
+		</svg:defs>
+		<svg:circle class="outer" r="50" cy="75" cx="75" />
+		<svg:circle class="inner" r="20" cy="75" cx="75" />
+		<svg:g data-button="move-from" th:title="${i18n.__('Move units from this territory')}">
+			<svg:path class="slice" d="M 81.18 94.021 L 90.451 122.553 A 50 50 0 0 0 125 75 L 95 75 A 20 20 0 0 1 81.18 94.021 Z" />
+			<svg:rect height="30" width="30" fill="url(#pattern-units-1)" x="88.316" y="80.572" />
+			<svg:rect height="13" width="13" y="82" x="108" fill="url(#pattern-arrow-green)" />
+		</svg:g>
+		<svg:g data-button="move-to" th:title="${i18n.__('Move units to this territory')}">
+			<svg:path class="slice" d="M 58.82 86.756 L 34.549 104.389 A 50 50 0 0 0 90.451 122.553 L 81.18 94.021 A 20 20 0 0 1 58.82 86.756 Z" />
+			<svg:rect height="30" width="30" fill="url(#pattern-units-1)" x="49.184" y="93.287" />
+			<svg:rect height="13" width="13" y="97" x="50" transform="rotate(90, 57.5, 102.5)" fill="url(#pattern-arrow-green)" />
+		</svg:g>
+		<svg:g data-button="stack" th:title="${i18n.__('Fortify this territory')}">
+			<svg:path class="slice" d="M 58.82 63.244 L 34.549 45.611 A 50 50 0 0 0 34.549 104.389 L 58.82 86.756 A 20 20 0 0 1 58.82 63.244 Z" />
+			<svg:rect height="30" width="30" fill="url(#pattern-units-1)" x="25" y="60" />
+			<svg:path d="M47 60 h 3 v 5 h 5 v 3 h -5 v 5 h -3 v -5 h -5 v -3 h 5 Z" fill="lime" />
+		</svg:g>
+		<svg:g data-button="attack-to" th:title="${i18n.__('Attack this territory')}">
+			<svg:path class="slice" d="M 81.18 55.979 L 90.451 27.447 A 50 50 0 0 0 34.549 45.611 L 58.82 63.244 A 20 20 0 0 1 81.18 55.979 Z" />
+			<svg:rect height="30" width="30" fill="url(#pattern-units-1)" x="49.184" y="26.713" />
+			<svg:rect height="13" width="13" y="30" x="50" transform="rotate(90, 57.5, 37.5)" fill="url(#pattern-arrow-red)" />
+		</svg:g>
+		<svg:g data-button="attack-from" th:title="${i18n.__('Attack from this territory')}">
+			<svg:path class="slice" d="M 95 75 L 125 75 A 50 50 0 0 0 90.451 27.447 L 81.18 55.979 A 20 20 0 0 1 95 75 Z" />
+			<svg:rect height="30" width="30" fill="url(#pattern-units-1)" x="88.316" y="39.428" />
+			<svg:rect height="13" width="13" y="44" x="105" fill="url(#pattern-arrow-red)" />
+		</svg:g>
+	</svg>
+</div>
+<div class="hidden" id="template-card" th:attr="data-src=@{${url.image('cards/-card-number-.png')}}">
+	<img class="card" />
+</div>
 </body>
 </html>
