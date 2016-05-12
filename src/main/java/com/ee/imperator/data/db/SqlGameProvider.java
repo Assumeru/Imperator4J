@@ -443,6 +443,8 @@ public class SqlGameProvider implements BatchGameProvider {
 			statement.setBoolean(4, conquered);
 			statement.setInt(5, player.getId());
 			statement.setInt(6, player.getGame().getId());
+			statement.execute();
+			saveLogEntry(conn, new EndedTurnEntry(player.getGame().getCurrentPlayer(), time));
 			conn.commit();
 			Game game = player.getGame();
 			game.setTime(time);
@@ -453,6 +455,16 @@ public class SqlGameProvider implements BatchGameProvider {
 		} catch (SQLException e) {
 			LOG.e("Failed to start turn", e);
 		}
+	}
+
+	private void saveLogEntry(Connection conn, LogEntry entry) throws SQLException {
+		PreparedStatement statement = conn.prepareStatement("INSERT INTO `combatlog` (`gid`, `uid`, `type`, `time`) VALUES(?, ?, ?, ?)");
+		statement.setInt(1, entry.getPlayer().getGame().getId());
+		statement.setInt(2, entry.getPlayer().getId());
+		statement.setInt(3, entry.getType().ordinal());
+		statement.setLong(4, entry.getTime());
+		statement.execute();
+		//TODO subclasses
 	}
 
 	@Override
@@ -478,7 +490,7 @@ public class SqlGameProvider implements BatchGameProvider {
 	public void placeUnits(Game game, Territory territory, int units) {
 		try(Connection conn = dataSource.getConnection()) {
 			long time = System.currentTimeMillis();
-			PreparedStatement statement = conn.prepareStatement("UPDATE `game` SET `units` = `units` - ?, `time` = ? WHERE `gid` = ?");
+			PreparedStatement statement = conn.prepareStatement("UPDATE `games` SET `units` = `units` - ?, `time` = ? WHERE `gid` = ?");
 			statement.setInt(1, units);
 			statement.setLong(2, time);
 			statement.setInt(3, game.getId());

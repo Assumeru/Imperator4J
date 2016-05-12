@@ -249,5 +249,110 @@
 <div class="hidden" id="template-card" th:attr="data-src=@{${url.image('cards/-card-number-.png')}}">
 	<img class="card" />
 </div>
+<div class="hidden" id="template-dialog-button-max">
+	<button class="btn btn-primary" th:text="${i18n.__('Maximum')}"></button>
+</div>
+<div class="hidden" id="template-dialog-button-attack-again">
+	<button class="btn btn-primary" th:text="${i18n.__('Attack again')}"></button>
+</div>
+<div class="hidden" id="template-dialog-form-move">
+	<div class="clearfix">
+		<div class="col-md-4">
+			<strong th:text="${i18n.__('Select a territory to move from')}"></strong>
+			<select class="form-control" name="from"></select>
+		</div>
+		<div class="col-md-4">
+			<strong th:text="${i18n.__('Select a territory to move to')}"></strong>
+			<select class="form-control" name="to"></select>
+		</div>
+		<div class="col-md-4">
+			<strong th:text="${i18n.__('Enter the number of units to move')}"></strong>
+			<div class="input-group">
+				<div class="input-group-addon" th:include="uniticon::fragment"></div>
+				<input class="form-control" type="number" name="move" value="1" min="1" th:placeholder="${i18n.__('Enter the number of units to move')}" required />
+			</div>
+		</div>
+	</div>
+</div>
+<div class="hidden" id="template-dialog-form-attack">
+	<div class="clearfix">
+		<div class="col-md-6">
+			<strong th:text="${i18n.__('Select a territory to attack from')}"></strong>
+			<select class="form-control" name="from"></select>
+		</div>
+		<div class="col-md-6">
+			<strong th:text="${i18n.__('Select a territory to attack')}"></strong>
+			<select class="form-control" name="to"></select>
+		</div>
+	</div>
+	<div class="clearfix">
+		<div class="col-md-6">
+			<strong th:text="${i18n.__('Enter the number of units to attack with')}"></strong>
+			<div class="input-group">
+				<div class="input-group-addon" th:include="uniticon::fragment"></div>
+				<input class="form-control" type="number" name="attack" value="3" min="1" th:placeholder="${i18n.__('Enter the number of units to attack with')}" required />
+			</div>
+		</div>
+		<div class="col-md-6">
+			<div data-value="move">
+				<strong th:text="${i18n.__('Enter the number of units to move with')}"></strong>
+				<div class="input-group">
+					<div class="input-group-addon" th:include="uniticon::fragment"></div>
+					<input class="form-control" type="number" name="move" value="1" min="1" th:placeholder="${i18n.__('Enter the number of units to move with')}" required />
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="hidden" id="template-dialog-form-fortify">
+	<p th:text="${i18n.__('How many units would you like to place?')}"></p>
+	<div class="input-group">
+		<div class="input-group-addon" th:include="uniticon::fragment"></div>
+		<input class="form-control" type="number" name="stack" value="1" min="1" th:placeholder="${i18n.__('Units to place')}" required />
+	</div>
+</div>
+<div class="hidden" id="template-dialog-form-discard">
+	<p th:text="${i18n.__('You have reached the maximum of 5 cards. Either discard one of your current cards or forgo receiving a new card.')}"></p>
+	<div class="clearfix text-center">
+		<div class="col-sm-3" data-card="-1">
+			<label>
+				<strong th:text="${i18n.__('Keep current cards')}"></strong>
+				<input type="radio" name="discard" value="-1" checked />
+			</label>
+		</div>
+		<div th:each="card : ${@com.ee.imperator.game.Cards$Card@values()}" class="col-sm-3" th:attr="data-card=${card.ordinal()}">
+			<label>
+				<img th:src="@{${url.image('cards/' + card.ordinal() + '.png')}}" th:alt="${i18n.__(card.name)}" class="card" />
+				<input type="radio" name="discard" th:value="${card.ordinal()}" />
+				<span class="number"></span>
+			</label>
+		</div>
+	</div>
+</div>
+<div class="hidden" id="template-combatlog-entry">
+	<div class="log-entry">
+		<time></time>
+		<span class="message"></span>
+	</div>
+</div>
+<div class="hidden" id="template-dialog-attack-result">
+	<div>
+		<p th:text="${i18n.__('Attacker rolled:')}"></p>
+		<div data-value="attack-roll"></div>
+		<div data-value="defend">
+			<p th:text="${i18n.__('Defender rolled:')}"></p>
+			<div data-value="defend-roll"></div>
+		</div>
+	</div>
+</div>
+<div class="hidden" id="template-dialog-form-defend">
+	<div>
+		<p th:text="${i18n.__('Attacker rolled:')}"></p>
+		<div data-value="attack-roll"></div>
+		<p th:text="${i18n.__('Defend with:')}"></p>
+		<label><input type="radio" name="defend" value="1" /> 1</label>
+		<label><input type="radio" name="defend" value="2" checked /> 2</label>
+	</div>
+</div>
 </body>
 </html>

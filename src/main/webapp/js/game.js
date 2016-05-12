@@ -171,11 +171,11 @@
 
 	function showMoveDialog($from, $to) {
 		var $n, $territory,
-		$ok = $(Imperator.settings.templates.okbutton),
-		$cancel = $(Imperator.settings.templates.cancelbutton),
+		$ok = Imperator.Dialog.getButton('ok'),
+		$cancel = Imperator.Dialog.getButton('cancel'),
 		$dialog = Imperator.Dialog.showDialogForm(
 			__('Move'),
-			Imperator.settings.templates.dialogformmove,
+			$('#template-dialog-form-move > div').clone(),
 			$('<div>').append($ok).append(' ').append($cancel), true),
 		$inputM = $dialog.message.find('[name="move"]'),
 		$selectF = $dialog.message.find('[name="from"]'),
@@ -254,11 +254,11 @@
 
 	function showAttackDialog($from, $to, $prevUnits, $prevMove) {
 		var $territory, $n,
-		$ok = $(Imperator.settings.templates.okbutton),
-		$cancel = $(Imperator.settings.templates.cancelbutton),
+		$ok = Imperator.Dialog.getButton('ok'),
+		$cancel = Imperator.Dialog.getButton('cancel'),
 		$dialog = Imperator.Dialog.showDialogForm(
 			__('Attack'),
-			Imperator.settings.templates.dialogformattack,
+			$('#template-dialog-form-attack > div').clone(),
 			$('<div>').append($ok).append(' ').append($cancel), true),
 		$selectF = $dialog.message.find('[name="from"]'),
 		$selectT = $dialog.message.find('[name="to"]'),
@@ -348,15 +348,15 @@
 	function showFortifyFor($id) {
 		var $input,
 		$territory = $game.map.territories[$id],
-		$ok = $(Imperator.settings.templates.okbutton),
-		$cancel = $(Imperator.settings.templates.cancelbutton),
-		$max = $(Imperator.settings.templates.maxbutton);
+		$ok = Imperator.Dialog.getButton('ok'),
+		$cancel = Imperator.Dialog.getButton('cancel'),
+		$max = Imperator.Dialog.getButton('max');
 		if($dialogs.stackInput !== undefined) {
 			$dialogs.stackInput.close();
 		}
 		$dialogs.stackInput = Imperator.Dialog.showDialogForm(
 			__('Fortify %1$s', $territory.name),
-			Imperator.settings.templates.dialogformfortify,
+			$('#template-dialog-form-fortify > div').clone(),
 			$('<div>').append($ok).append(' ').append($max).append(' ').append($cancel), true);
 		$input = $dialogs.stackInput.message.find('[name="stack"]');
 		$input.attr('max', $game.units);
@@ -468,7 +468,7 @@
 			if($game.cards.getNumberOfCards() >= Imperator.Cards.MAX_CARDS && $game.conquered) {
 				$dialog = Imperator.Dialog.showConfirmDialog(
 					__('End turn'),
-					Imperator.settings.templates.discardcard,
+					$('#template-dialog-form-discard > div').clone(),
 					'discard-dialog',
 					function($dialog) {
 						send($dialog.message.find('[name="discard"]:checked').val());
@@ -662,13 +662,13 @@
 		var $n, $entry, $time, $date,
 		$combatlog = $('#combatlog > div');
 		for($n = 0; $n < $logs.length; $n++) {
-			$entry = $(Imperator.settings.templates.combatlogentry);
+			$entry = $('#template-combatlog-entry > div').clone();
 			$time = $entry.find('time');
 			$date = new Date($logs[$n].time);
 			$time.attr('datetime', $logs[$n].time);
 			$time.text($date.toLocaleTimeString());
 			$time.attr('title', $date.toLocaleString());
-			$entry.find('.message').html($logs[$n].message);
+			$entry.find('.message').html(getLogMessage($logs[$n]));
 			$combatlog.append($entry);
 		}
 		if($('#log [name="logscrolling"]').prop('checked')) {
@@ -679,8 +679,22 @@
 		}
 	}
 
+	function getLogMessage($entry) {
+		if($entry.type === 0) {
+			//TODO conquered
+		} else if($entry.type === 1) {
+			//TODO attacked
+		} else if($entry.type == 2) {
+			return __($entry.message.message, $('#players [data-player="' + $entry.message.uid + '"] [data-value="name"]').html());
+		} else if($entry.type == 3) {
+			//TODO forfeited
+		} else {
+			//TODO cards played
+		}
+	}
+
 	function showGameOverDialog() {
-		var $dialog = Imperator.Dialog.showDialogForm(__('Game Over'), __('This game has ended.'), $(Imperator.settings.templates.okbutton), false);
+		var $dialog = Imperator.Dialog.showDialogForm(__('Game Over'), __('This game has ended.'), Imperator.Dialog.getButton('ok'), false);
 		$dialog.message.find('form').submit(function($e) {
 			$e.preventDefault();
 			window.location.reload();
@@ -691,9 +705,9 @@
 		var $ok, $dialog, $again,
 		$attacker = $game.map.territories[$attack.attacker],
 		$defender = $game.map.territories[$attack.defender],
-		$message = $(Imperator.settings.templates.dialogattackresult);
+		$message = $('#template-dialog-attack-result > div').clone();
 		$message.find('[data-value="attack-roll"]').html(getDice('attack', $attack.attackroll));
-		$ok = $(Imperator.settings.templates.okbutton);
+		$ok = Imperator.Dialog.getButton('ok');
 		if($attack.defendroll === undefined) {
 			$message.find('[data-value="defend"]').hide();
 			$dialog = Imperator.Dialog.showDialogForm(__('%1$s has disabled Autoroll', $defender.owner.name), $message, $ok, true);
@@ -702,7 +716,7 @@
 			if($attacker.owner == $defender.owner) {
 				$dialog = Imperator.Dialog.showDialogForm(__('%1$s has been conquered', $defender.name), $message, $ok, true);
 			} else {
-				$again = $(Imperator.settings.templates.attackagainbutton).hide();
+				$again = Imperator.Dialog.getButton('attack-again').hide();
 				$dialog = Imperator.Dialog.showDialogForm('', $message, $('<div>').append($again).append(' ').append($ok), true);
 				$dialog.header.html(getVS($attacker, $defender));
 				if($attacker.canAttack($defender) && $attacker.owner == $game.player) {
@@ -725,7 +739,7 @@
 	function getDice($type, $roll) {
 		var $out = '', $n;
 		for($n = 0; $n < $roll.length; $n++) {
-			$out += Imperator.settings.templates.die.replace('{$type}', $type).replace(/\{\$roll\}/g, $roll[$n]);
+			$out += '<div class="die d' + $roll[$n] + ' ' + $type + '">' + $roll[$n] + '</div>';
 		}
 		return $out;
 	}
@@ -739,7 +753,7 @@
 		for($n = 0; $n < $game.attacks.length && $dialogs.attack === undefined; $n++) {
 			$attack = $game.attacks[$n];
 			if($attack.defender.owner == $game.player) {
-				$dialogs.attack = Imperator.Dialog.showDialogForm('', Imperator.settings.templates.dialogformdefend, Imperator.settings.templates.okbutton, false);
+				$dialogs.attack = Imperator.Dialog.showDialogForm('', $('#template-dialog-form-defend > div').clone(), Imperator.Dialog.getButton('ok'), false);
 				$dialogs.attack.header.html(getVS($attack.attacker, $attack.defender));
 				$dialogs.attack.message.find('[data-value="attack-roll"]').html(getDice('attack', $attack.roll));
 				$dialogs.attack.message.find('form').submit(function($e) {
@@ -778,7 +792,7 @@
 			10: $controls.find('[data-button="cards"][data-value="10"]')
 		};
 		if($newCard !== Imperator.Cards.CARD_NONE) {
-			$ok = $(Imperator.settings.templates.okbutton);
+			$ok = Imperator.Dialog.getButton('ok');
 			$dialog = Imperator.Dialog.showDialogForm(__('You have received a new card!'),
 				getCardTemplate($newCard),
 				$ok, true, 'text-center');

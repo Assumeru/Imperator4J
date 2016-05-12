@@ -36,7 +36,7 @@
 		<input class="btn btn-warning" type="submit" name="leavegame" th:value="${i18n.__('Leave game')}" />
 	</form>
 </section>
-<section id="join-game" th:if="${!game.players.contains(ctx.user) &amp;&amp; game.players.size < game.map.players}">
+<section id="join-game" th:if="${!game.players.contains(ctx.user) &amp;&amp; game.players.size &lt; game.map.players}">
 	<form method="post">
 		<span class="help-inline" th:if="${colorError != null}" th:text="${i18n.__(colorError)}"></span>
 		<div th:class="${'input-group' + (colorError == null ? '' : ' has-error')}" id="game-color">

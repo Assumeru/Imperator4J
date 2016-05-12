@@ -26,9 +26,9 @@ public class EndTurn {
 			out.put("card", card == null ? -1 : card.ordinal());
 		}
 		game.nextTurn();
-		out.put("turn", game.getCurrentPlayer().getId());
-		out.put("update", game.getTime());
-		out.put("state", game.getState().ordinal());
+		out.put("turn", game.getCurrentPlayer().getId())
+				.put("update", game.getTime())
+				.put("state", game.getState().ordinal());
 		return out;
 	}
 }

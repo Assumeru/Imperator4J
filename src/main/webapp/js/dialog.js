@@ -63,9 +63,13 @@ Imperator.Dialog = (function($) {
 		return showDialog(Imperator.Language.__('Please wait...'), $('<p class="loading"></p>').text(Imperator.Language.__('Contacting server.')), false, 'loading');
 	}
 
+	function getButton($button) {
+		return $('#template-dialog-button-' + $button + ' > button').clone();;
+	}
+
 	function showConfirmDialog($header, $message, $class, $okListener, $cancelListener) {
-		var $ok = $('#template-dialog-button-ok > button').clone(),
-		$cancel = $('#template-dialog-button-cancel > button').clone(),
+		var $ok = getButton('ok'),
+		$cancel = getButton('cancel'),
 		$dialog = showDialogForm($header, $message, $('<div>').append($ok).append(' ').append($cancel), false, $class);
 		$ok.click(function($e) {
 			$e.preventDefault();
@@ -88,6 +92,7 @@ Imperator.Dialog = (function($) {
 		showDialogForm: showDialogForm,
 		closeDialog: closeDialog,
 		showWaitDialog: showWaitDialog,
-		showConfirmDialog: showConfirmDialog
+		showConfirmDialog: showConfirmDialog,
+		getButton: getButton
 	};
 })(jQuery);
