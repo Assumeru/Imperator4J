@@ -458,16 +458,42 @@ public class SqlGameProvider implements BatchGameProvider {
 	@Override
 	public void updateUnitsAndState(Game game, State state, int units) {
 		try(Connection conn = dataSource.getConnection()) {
-			PreparedStatement statement = conn.prepareStatement("UPDATE `games` SET `units` = `units` + ?, `state` = ? WHERE `gid` = ?");
+			long time = System.currentTimeMillis();
+			PreparedStatement statement = conn.prepareStatement("UPDATE `games` SET `units` = `units` + ?, `state` = ?, `time` = ? WHERE `gid` = ?");
 			statement.setInt(1, units);
 			statement.setInt(2, state.ordinal());
-			statement.setInt(3, game.getId());
+			statement.setLong(3, time);
+			statement.setInt(4, game.getId());
 			statement.execute();
 			conn.commit();
 			game.setUnits(game.getUnits() + units);
 			game.setState(state);
+			game.setTime(time);
 		} catch (SQLException e) {
 			LOG.e("Failed to update state and units", e);
+		}
+	}
+
+	@Override
+	public void placeUnits(Game game, Territory territory, int units) {
+		try(Connection conn = dataSource.getConnection()) {
+			long time = System.currentTimeMillis();
+			PreparedStatement statement = conn.prepareStatement("UPDATE `game` SET `units` = `units` - ?, `time` = ? WHERE `gid` = ?");
+			statement.setInt(1, units);
+			statement.setLong(2, time);
+			statement.setInt(3, game.getId());
+			statement.execute();
+			statement = conn.prepareStatement("UPDATE `territories` SET `units` = `units` + ? WHERE `gid` = ? AND `territory` = ?");
+			statement.setInt(1, units);
+			statement.setInt(2, game.getId());
+			statement.setString(3, territory.getId());
+			statement.execute();
+			conn.commit();
+			game.setUnits(game.getUnits() - units);
+			game.setTime(time);
+			territory.setUnits(territory.getUnits() + units);
+		} catch (SQLException e) {
+			LOG.e("Failed to place units", e);
 		}
 	}
 }

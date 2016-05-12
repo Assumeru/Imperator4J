@@ -7,6 +7,7 @@ import com.ee.imperator.game.Cards.Card;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.game.log.LogEntry;
 import com.ee.imperator.map.Map;
+import com.ee.imperator.map.Territory;
 import com.ee.imperator.user.Player;
 
 public interface GameProvider extends Closeable {
@@ -35,4 +36,6 @@ public interface GameProvider extends Closeable {
 	void startTurn(Player player);
 
 	void updateUnitsAndState(Game game, Game.State state, int units);
+
+	void placeUnits(Game game, Territory territory, int units);
 }

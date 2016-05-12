@@ -20,6 +20,9 @@ public class Fortify {
 			throw new InvalidRequestException("Cannot fortify after attacking.", "game", "fortify");
 		}
 		Imperator.getData().updateUnitsAndState(game, Game.State.FORTIFY, game.getPlayerById(member.getId()).getUnitsFromTerritoriesPerTurn());
-		return new JSONObject().put("units", game.getUnits()).put("state", game.getState().ordinal());
+		return new JSONObject()
+				.put("units", game.getUnits())
+				.put("state", game.getState().ordinal())
+				.put("update", game.getTime());
 	}
 }

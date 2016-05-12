@@ -16,6 +16,7 @@ import com.ee.imperator.game.Cards.Card;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.game.Game.State;
 import com.ee.imperator.game.log.LogEntry;
+import com.ee.imperator.map.Territory;
 import com.ee.imperator.user.Player;
 
 public class CachedGameProvider implements GameProvider {
@@ -150,5 +151,10 @@ public class CachedGameProvider implements GameProvider {
 	@Override
 	public void updateUnitsAndState(Game game, State state, int units) {
 		gameProvider.updateUnitsAndState(game, state, units);
+	}
+
+	@Override
+	public void placeUnits(Game game, Territory territory, int units) {
+		gameProvider.placeUnits(game, territory, units);
 	}
 }
