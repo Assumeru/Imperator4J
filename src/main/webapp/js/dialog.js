@@ -24,14 +24,14 @@ Imperator.Dialog = (function($) {
 	}
 
 	function showDialogForm($header, $message, $buttons, $canBeClosed, $class) {
-		var $dialog = showDialog($header, Imperator.settings.templates.dialogform, $canBeClosed, $class);
+		var $dialog = showDialog($header, $('#template-dialog-form > form').clone(), $canBeClosed, $class);
 		$dialog.message.find('[data-value="dialog-form-message"]').append($message);
 		$dialog.message.find('[data-value="dialog-form-controls"]').append($buttons);
 		return $dialog;
 	}
 
 	function showDialog($header, $message, $canBeClosed, $class) {
-		var $dialog = $(Imperator.settings.templates.dialog),
+		var $dialog = $('#template-dialog > div').clone(),
 		$closeButton = $dialog.find('[data-value="close-button"]');
 		$dialog.find('[data-value="header"]').text($header);
 		if($class) {
@@ -64,8 +64,8 @@ Imperator.Dialog = (function($) {
 	}
 
 	function showConfirmDialog($header, $message, $class, $okListener, $cancelListener) {
-		var $ok = $(Imperator.settings.templates.okbutton),
-		$cancel = $(Imperator.settings.templates.cancelbutton),
+		var $ok = $('#template-dialog-button-ok > button').clone(),
+		$cancel = $('#template-dialog-button-cancel > button').clone(),
 		$dialog = showDialogForm($header, $message, $('<div>').append($ok).append(' ').append($cancel), false, $class);
 		$ok.click(function($e) {
 			$e.preventDefault();

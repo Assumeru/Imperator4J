@@ -8,6 +8,7 @@ import org.ee.web.request.Request;
 import com.ee.imperator.chat.ChatMessage;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.game.Cards.Card;
+import com.ee.imperator.game.Game.State;
 import com.ee.imperator.game.log.LogEntry;
 import com.ee.imperator.map.Map;
 import com.ee.imperator.user.Member;
@@ -84,6 +85,11 @@ public class JoinedDataProvider implements DataProvider {
 	@Override
 	public void startTurn(Player player) {
 		gameProvider.startTurn(player);
+	}
+
+	@Override
+	public void updateUnitsAndState(Game game, State state, int units) {
+		gameProvider.updateUnitsAndState(game, state, units);
 	}
 
 	@Override

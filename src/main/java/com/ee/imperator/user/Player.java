@@ -127,4 +127,14 @@ public class Player implements User, Comparable<Player> {
 		}
 		return sum;
 	}
+
+	public int getUnitsFromTerritoriesPerTurn() {
+		int territories = 0;
+		for(Territory territory : game.getMap().getTerritories().values()) {
+			if(equals(territory.getOwner())) {
+				territories++;
+			}
+		}
+		return Math.max(3, territories / 3);
+	}
 }

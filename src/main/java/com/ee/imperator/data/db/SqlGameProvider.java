@@ -23,6 +23,7 @@ import com.ee.imperator.data.BatchGameProvider;
 import com.ee.imperator.game.Attack;
 import com.ee.imperator.game.Cards.Card;
 import com.ee.imperator.game.Game;
+import com.ee.imperator.game.Game.State;
 import com.ee.imperator.game.log.AttackedEntry;
 import com.ee.imperator.game.log.CardsPlayedEntry;
 import com.ee.imperator.game.log.ConqueredEntry;
@@ -451,6 +452,22 @@ public class SqlGameProvider implements BatchGameProvider {
 			game.setUnits(units);
 		} catch (SQLException e) {
 			LOG.e("Failed to start turn", e);
+		}
+	}
+
+	@Override
+	public void updateUnitsAndState(Game game, State state, int units) {
+		try(Connection conn = dataSource.getConnection()) {
+			PreparedStatement statement = conn.prepareStatement("UPDATE `games` SET `units` = `units` + ?, `state` = ? WHERE `gid` = ?");
+			statement.setInt(1, units);
+			statement.setInt(2, state.ordinal());
+			statement.setInt(3, game.getId());
+			statement.execute();
+			conn.commit();
+			game.setUnits(game.getUnits() + units);
+			game.setState(state);
+		} catch (SQLException e) {
+			LOG.e("Failed to update state and units", e);
 		}
 	}
 }

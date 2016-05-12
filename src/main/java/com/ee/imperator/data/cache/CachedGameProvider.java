@@ -14,6 +14,7 @@ import com.ee.imperator.data.BatchGameProvider;
 import com.ee.imperator.data.GameProvider;
 import com.ee.imperator.game.Cards.Card;
 import com.ee.imperator.game.Game;
+import com.ee.imperator.game.Game.State;
 import com.ee.imperator.game.log.LogEntry;
 import com.ee.imperator.user.Player;
 
@@ -144,5 +145,10 @@ public class CachedGameProvider implements GameProvider {
 	@Override
 	public void startTurn(Player player) {
 		gameProvider.startTurn(player);
+	}
+
+	@Override
+	public void updateUnitsAndState(Game game, State state, int units) {
+		gameProvider.updateUnitsAndState(game, state, units);
 	}
 }

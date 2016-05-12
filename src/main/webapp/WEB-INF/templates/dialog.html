@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body th:fragment="fragment">
+<div class="hidden" id="template-dialog-form">
+	<form method="post">
+		<div data-value="dialog-form-message"></div>
+		<hr />
+		<div data-value="dialog-form-controls" class="text-center"></div>
+	</form>
+</div>
+<div class="hidden" id="template-dialog">
+	<div class="dialog-background">
+		<div class="dialog">
+			<div class="dialog-window" data-value="window">
+				<h1 data-value="header"></h1>
+				<div data-value="message"></div>
+			</div>
+			<button class="btn btn-danger" data-value="close-button" th:title="${i18n.__('Close window')}">
+				<span class="glyphicon glyphicon-remove"></span>
+			</button>
+		</div>
+	</div>
+</div>
+<div class="hidden" id="template-dialog-button-ok">
+	<button class="btn btn-success" th:text="${i18n.__('Ok')}"></button>
+</div>
+<div class="hidden" id="template-dialog-button-cancel">
+	<button class="btn btn-danger" th:text="${i18n.__('Cancel')}"></button>
+</div>
+</body>
+</html>

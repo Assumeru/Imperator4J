@@ -33,4 +33,6 @@ public interface GameProvider extends Closeable {
 	boolean addCards(Player player, Card card, int amount);
 
 	void startTurn(Player player);
+
+	void updateUnitsAndState(Game game, Game.State state, int units);
 }
