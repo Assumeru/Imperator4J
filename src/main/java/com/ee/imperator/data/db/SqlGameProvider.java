@@ -508,4 +508,53 @@ public class SqlGameProvider implements BatchGameProvider {
 			LOG.e("Failed to place units", e);
 		}
 	}
+
+	@Override
+	public void forfeit(Player player) {
+		try(Connection conn = dataSource.getConnection()) {
+			Player.State state = Player.State.GAME_OVER;
+			PreparedStatement statement = conn.prepareStatement("UPDATES `gamesjoined` SET `autoroll` = ?, `state` = ? WHERE `gid` = ? AND `uid` = ?");
+			statement.setBoolean(1, true);
+			statement.setInt(2, state.ordinal());
+			statement.setInt(3, player.getGame().getId());
+			statement.setInt(4, player.getId());
+			statement.execute();
+			saveLogEntry(conn, new ForfeitedEntry(player, System.currentTimeMillis()));
+			conn.commit();
+			player.setState(state);
+			player.setAutoRoll(true);
+		} catch (SQLException e) {
+			LOG.e("Failed to surrender", e);
+		}
+	}
+
+	@Override
+	public void saveAttack(Game game, Attack attack) {
+		try(Connection conn = dataSource.getConnection()) {
+			Game.State state = Game.State.COMBAT;
+			long time = System.currentTimeMillis();
+			PreparedStatement statement = conn.prepareStatement("UPDATE `games` SET `state` = ?, `time` = ? WHERE `gid` = ?");
+			statement.setInt(1, state.ordinal());
+			statement.setLong(2, time);
+			statement.setInt(3, game.getId());
+			statement.execute();
+			statement = conn.prepareStatement("INSERT INTO `attacks` (`gid`, `a_territory`, `d_territory`, `a_roll`, `transfer`) VALUES(?, ?, ?, ?, ?)");
+			statement.setInt(1, game.getId());
+			statement.setString(2, attack.getAttacker().getId());
+			statement.setString(3, attack.getDefender().getId());
+			StringBuilder sb = new StringBuilder();
+			for(int d : attack.getAttackRoll()) {
+				sb.append(String.valueOf(d));
+			}
+			statement.setString(4, sb.toString());
+			statement.setInt(5, attack.getMove());
+			statement.execute();
+			conn.commit();
+			game.getAttacks().add(attack);
+			game.setState(state);
+			game.setTime(time);
+		} catch (SQLException e) {
+			LOG.e("Failed to surrender", e);
+		}
+	}
 }

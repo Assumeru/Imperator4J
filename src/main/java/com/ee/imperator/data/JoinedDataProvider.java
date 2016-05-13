@@ -6,6 +6,7 @@ import java.util.List;
 import org.ee.web.request.Request;
 
 import com.ee.imperator.chat.ChatMessage;
+import com.ee.imperator.game.Attack;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.game.Cards.Card;
 import com.ee.imperator.game.Game.State;
@@ -96,6 +97,16 @@ public class JoinedDataProvider implements DataProvider {
 	@Override
 	public void placeUnits(Game game, Territory territory, int units) {
 		gameProvider.placeUnits(game, territory, units);
+	}
+
+	@Override
+	public void forfeit(Player player) {
+		gameProvider.forfeit(player);
+	}
+
+	@Override
+	public void saveAttack(Game game, Attack attack) {
+		gameProvider.saveAttack(game, attack);
 	}
 
 	@Override

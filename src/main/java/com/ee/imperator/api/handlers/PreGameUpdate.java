@@ -14,11 +14,11 @@ public class PreGameUpdate extends GameUpdate {
 	@Override
 	protected void fillOutput(long time, Game game, Member member, JSONObject output) {
 		if(!game.getPlayers().contains(member)) {
-			output.put("gameState", "You have been kicked from this game.")
+			output.put("gameState", member.getLanguage().translate("You have been kicked from this game."))
 					.put("redirect", Imperator.getUrlBuilder().buildLink(""));
 		} else if(game.hasStarted()) {
 			UrlBuilder url = Imperator.getUrlBuilder();
-			output.put("gameState", "This game has started.")
+			output.put("gameState", member.getLanguage().translate("This game has started."))
 					.put("redirect", url.buildLink(url.game(game)));
 		} else {
 			JSONArray players = new JSONArray();

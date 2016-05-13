@@ -169,6 +169,10 @@
 		});
 	}
 
+	function getTerritoryOption($territory) {
+		return $('<option></option>').attr('value', $territory.id).text($territory.name + ' (' + $territory.units + ')');
+	}
+
 	function showMoveDialog($from, $to) {
 		var $n, $territory,
 		$ok = Imperator.Dialog.getButton('ok'),
@@ -190,21 +194,21 @@
 		}
 		if($from !== undefined) {
 			$territory = $game.map.territories[$from];
-			$selectF.append('<option value="'+$from+'">'+$territory.name+' ('+$territory.units+')</option>');
+			$selectF.append(getTerritoryOption($territory));
 			$selectF.prop('disabled', true);
 			for($n = 0; $n < $territory.borders.length; $n++) {
 				if($territory.borders[$n].owner == $territory.owner) {
-					$selectT.append('<option value="'+$territory.borders[$n].id+'">'+$territory.borders[$n].name+' ('+$territory.borders[$n].units+')</option>');
+					$selectT.append(getTerritoryOption($territory.borders[$n]));
 				}
 			}
 			$selectT.focus();
 		} else {
 			$territory = $game.map.territories[$to];
-			$selectT.append('<option value="'+$to+'">'+$territory.name+' ('+$territory.units+')</option>');
+			$selectT.append(getTerritoryOption($territory));
 			$selectT.prop('disabled', true);
 			for($n = 0; $n < $territory.borders.length; $n++) {
 				if($territory.borders[$n].owner == $territory.owner && $territory.borders[$n].units > 1) {
-					$selectF.append('<option value="'+$territory.borders[$n].id+'">'+$territory.borders[$n].name+' ('+$territory.borders[$n].units+')</option>');
+					$selectF.append(getTerritoryOption($territory.borders[$n]));
 				}
 			}
 			$selectF.focus();
@@ -286,9 +290,9 @@
 			}
 		}
 		if($from !== undefined && $to !== undefined) {
-			$selectF.append('<option value="'+$from+'">'+$game.map.territories[$from].name+' ('+$game.map.territories[$from].units+')</option>');
+			$selectF.append(getTerritoryOption($game.map.territories[$from]));
 			$selectF.prop('disabled', true);
-			$selectT.append('<option value="'+$to+'">'+$game.map.territories[$to].name+' ('+$game.map.territories[$to].units+')</option>');
+			$selectT.append(getTerritoryOption($game.map.territories[$to]));
 			$selectT.prop('disabled', true);
 			if($prevMove !== undefined) {
 				$inputM.val($prevMove);
@@ -299,22 +303,22 @@
 			$ok.focus();
 		} else if($from !== undefined) {
 			$territory = $game.map.territories[$from];
-			$selectF.append('<option value="'+$from+'">'+$territory.name+' ('+$territory.units+')</option>');
+			$selectF.append(getTerritoryOption($territory));
 			$selectF.prop('disabled', true);
 			for($n = 0; $n < $territory.borders.length; $n++) {
 				if($territory.borders[$n].owner != $game.player) {
-					$selectT.append('<option value="'+$territory.borders[$n].id+'" style="color: #'+$territory.borders[$n].owner.color+';">'+$territory.borders[$n].name+' ('+$territory.borders[$n].units+')</option>');
+					$selectT.append(getTerritoryOption($territory.borders[$n]));
 				}
 			}
 			$inputM.val($territory.units - 1);
 			$selectT.focus();
 		} else {
 			$territory = $game.map.territories[$to];
-			$selectT.append('<option value="'+$to+'">'+$territory.name+' ('+$territory.units+')</option>');
+			$selectT.append(getTerritoryOption($territory));
 			$selectT.prop('disabled', true);
 			for($n = 0; $n < $territory.borders.length; $n++) {
 				if($territory.borders[$n].owner == $game.player && $territory.borders[$n].units > 1) {
-					$selectF.append('<option value="'+$territory.borders[$n].id+'" style="color: #'+$territory.borders[$n].owner.color+';">'+$territory.borders[$n].name+' ('+$territory.borders[$n].units+')</option>');
+					$selectF.append(getTerritoryOption($territory.borders[$n]));
 				}
 			}
 			$selectF.focus();
@@ -679,15 +683,23 @@
 		}
 	}
 
+	function getTerritoryEntry($territory, $owner) {
+		return $('<a></a>').attr('href', $territory.id).css('color', $owner.color).text($territory.name).prop('outerHTML');
+	}
+
 	function getLogMessage($entry) {
 		if($entry.type === 0) {
-			//TODO conquered
+			return __($entry.message.message,
+					$('#players [data-player="' + $entry.message.uid + '"] [data-value="name"]').html(),
+					getTerritoryEntry($game.map.territories[$entry.message.territory], $game.players[$entry.message.uid]));
 		} else if($entry.type === 1) {
-			//TODO attacked
-		} else if($entry.type == 2) {
+			return __($entry.message.message,
+					getTerritoryEntry($game.map.territories[$entry.message.attacking], $game.players[$entry.message.attacker]),
+					getTerritoryEntry($game.map.territories[$entry.message.defending], $game.players[$entry.message.defender]),
+					getDice('attack', $entry.message.attackRoll),
+					getDice('defend', $entry.message.defendRoll));
+		} else if($entry.type == 2 || $entry.type == 3) {
 			return __($entry.message.message, $('#players [data-player="' + $entry.message.uid + '"] [data-value="name"]').html());
-		} else if($entry.type == 3) {
-			//TODO forfeited
 		} else {
 			//TODO cards played
 		}
@@ -744,8 +756,12 @@
 		return $out;
 	}
 
+	function getSpan($text, $color) {
+		return $('<span></span>').css('color', '#' + $color).text($text).prop('outerHTML');
+	}
+
 	function getVS($attacker, $defender) {
-		return __('%1$s vs. %2$s', '<span style="color: #'+$attacker.owner.color+';">'+$attacker.name+'</span>', '<span style="color: #'+$defender.owner.color+';">'+$defender.name+'</span>');
+		return __('%1$s vs. %2$s', getSpan($attacker.name, $attacker.owner.color), getSpan($defender.name, $defender.owner.color));
 	}
 
 	function updateAttacks() {

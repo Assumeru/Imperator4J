@@ -18,7 +18,7 @@ public class EndTurn {
 		} else if(!game.getCurrentPlayer().equals(member)) {
 			throw new InvalidRequestException("Not your turn", "game", "end-turn");
 		} else if(game.getState() == Game.State.COMBAT && !game.getAttacks().isEmpty()) {
-			throw new InvalidRequestException("You cannot end your turn without finishing all battles.", "game", "end-turn");
+			throw new InvalidRequestException(String.valueOf(member.getLanguage().translate("You cannot end your turn without finishing all battles.")), "game", "end-turn");
 		}
 		JSONObject out = new JSONObject();
 		if(game.hasConquered()) {

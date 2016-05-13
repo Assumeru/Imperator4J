@@ -280,6 +280,27 @@ public class Game implements Comparable<Game> {
 	}
 
 	private void victory(Player player) {
-		//TODO
+		//TODO victory
+	}
+
+	public void forfeit(Player player) {
+		Imperator.getData().forfeit(player);
+		int numRemaining = 0;
+		Player last = null;
+		for(Player remaining : players) {
+			if(remaining.getState() != Player.State.GAME_OVER) {
+				numRemaining++;
+				last = remaining;
+			}
+		}
+		if(numRemaining < 2) {
+			victory(last);
+		} else if(currentTurn.equals(player)) {
+			nextTurn();
+		}
+	}
+
+	public void executeAttack(Attack attack) {
+		//TODO attack
 	}
 }

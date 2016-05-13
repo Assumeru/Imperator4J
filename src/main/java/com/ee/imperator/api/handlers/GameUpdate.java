@@ -10,7 +10,6 @@ import org.json.JSONObject;
 
 import com.ee.imperator.Imperator;
 import com.ee.imperator.api.Api;
-import com.ee.imperator.game.Attack;
 import com.ee.imperator.game.Cards;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.game.log.LogEntry;
@@ -53,7 +52,7 @@ public class GameUpdate {
 		output.put("conquered", game.hasConquered())
 				.put("turn", game.getCurrentPlayer().getId())
 				.put("units", game.getUnits())
-				.put("attacks", getAttacks(game));
+				.put("attacks", Attack.getAttacks(game));
 		if(game.getPlayers().contains(member)) {
 			Player player = game.getPlayerById(member.getId());
 			output.put("autoroll", player.getAutoRoll())
@@ -130,25 +129,5 @@ public class GameUpdate {
 			return game.getPlayers().contains(user);
 		}
 		return false;
-	}
-
-	static JSONArray getAttacks(Game game) {
-		JSONArray attacks = new JSONArray();
-		for(Attack attack : game.getAttacks()) {
-			attacks.put(getAttackJSON(attack));
-		}
-		return attacks;
-	}
-
-	static JSONObject getAttackJSON(Attack attack) {
-		JSONObject out = new JSONObject()
-				.put("attack", attack.getAttacker().getId())
-				.put("defender", attack.getDefender().getId())
-				.put("attackroll", attack.getAttackRoll())
-				.put("move", attack.getMove());
-		if(attack.getDefendRoll() != null) {
-			out.put("defendroll", attack.getDefendRoll());
-		}
-		return out;
 	}
 }

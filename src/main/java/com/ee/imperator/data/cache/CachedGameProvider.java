@@ -13,6 +13,7 @@ import com.ee.imperator.Imperator;
 import com.ee.imperator.data.BatchGameProvider;
 import com.ee.imperator.data.GameProvider;
 import com.ee.imperator.game.Cards.Card;
+import com.ee.imperator.game.Attack;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.game.Game.State;
 import com.ee.imperator.game.log.LogEntry;
@@ -156,5 +157,15 @@ public class CachedGameProvider implements GameProvider {
 	@Override
 	public void placeUnits(Game game, Territory territory, int units) {
 		gameProvider.placeUnits(game, territory, units);
+	}
+
+	@Override
+	public void forfeit(Player player) {
+		gameProvider.forfeit(player);
+	}
+
+	@Override
+	public void saveAttack(Game game, Attack attack) {
+		gameProvider.saveAttack(game, attack);
 	}
 }

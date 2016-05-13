@@ -3,6 +3,7 @@ package com.ee.imperator.data;
 import java.io.Closeable;
 import java.util.List;
 
+import com.ee.imperator.game.Attack;
 import com.ee.imperator.game.Cards.Card;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.game.log.LogEntry;
@@ -38,4 +39,8 @@ public interface GameProvider extends Closeable {
 	void updateUnitsAndState(Game game, Game.State state, int units);
 
 	void placeUnits(Game game, Territory territory, int units);
+
+	void forfeit(Player player);
+
+	void saveAttack(Game game, Attack attack);
 }
