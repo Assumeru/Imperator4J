@@ -458,11 +458,24 @@ public class SqlGameProvider implements BatchGameProvider {
 	}
 
 	private void saveLogEntry(Connection conn, LogEntry entry) throws SQLException {
-		PreparedStatement statement = conn.prepareStatement("INSERT INTO `combatlog` (`gid`, `uid`, `type`, `time`) VALUES(?, ?, ?, ?)");
+		PreparedStatement statement;
+		if(entry.getType() == LogEntry.Type.ATTACKED) {
+			statement = conn.prepareStatement("INSERT INTO `combatlog` (`gid`, `uid`, `type`, `time`, `num`, `char_three`, `d_roll`, `territory`, `d_territory`) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		} else {
+			statement = conn.prepareStatement("INSERT INTO `combatlog` (`gid`, `uid`, `type`, `time`) VALUES(?, ?, ?, ?)");
+		}
 		statement.setInt(1, entry.getPlayer().getGame().getId());
 		statement.setInt(2, entry.getPlayer().getId());
 		statement.setInt(3, entry.getType().ordinal());
 		statement.setLong(4, entry.getTime());
+		if(entry instanceof AttackedEntry) {
+			AttackedEntry attack = (AttackedEntry) entry;
+			statement.setInt(4, attack.getDefender().getId());
+			statement.setString(5, toString(attack.getAttackRoll()));
+			statement.setString(6, toString(attack.getDefendRoll()));
+			statement.setString(7, attack.getAttacking().getId());
+			statement.setString(8, attack.getDefending().getId());
+		}
 		statement.execute();
 		//TODO subclasses
 	}
@@ -528,6 +541,14 @@ public class SqlGameProvider implements BatchGameProvider {
 		}
 	}
 
+	private static String toString(int[] roll) {
+		StringBuilder sb = new StringBuilder();
+		for(int d : roll) {
+			sb.append(String.valueOf(d));
+		}
+		return sb.toString();
+	}
+
 	@Override
 	public void saveAttack(Game game, Attack attack) {
 		try(Connection conn = dataSource.getConnection()) {
@@ -542,11 +563,7 @@ public class SqlGameProvider implements BatchGameProvider {
 			statement.setInt(1, game.getId());
 			statement.setString(2, attack.getAttacker().getId());
 			statement.setString(3, attack.getDefender().getId());
-			StringBuilder sb = new StringBuilder();
-			for(int d : attack.getAttackRoll()) {
-				sb.append(String.valueOf(d));
-			}
-			statement.setString(4, sb.toString());
+			statement.setString(4, toString(attack.getAttackRoll()));
 			statement.setInt(5, attack.getMove());
 			statement.execute();
 			conn.commit();
@@ -555,6 +572,81 @@ public class SqlGameProvider implements BatchGameProvider {
 			game.setTime(time);
 		} catch (SQLException e) {
 			LOG.e("Failed to surrender", e);
+		}
+	}
+
+	@Override
+	public void attack(Game game, Attack attack) {
+		try(Connection conn = dataSource.getConnection()) {
+			long time = System.currentTimeMillis();
+			saveLogEntry(conn, new AttackedEntry(time, attack.getAttacker().getOwner(), attack.getDefender().getOwner(), attack.getAttackRoll(), attack.getDefendRoll(), attack.getAttacker(), attack.getDefender()));
+			int attackerUnits = attack.getAttacker().getUnits() - attack.getAttackLosses();
+			int defenderUnits = attack.getDefender().getUnits() - attack.getDefendLosses();
+			Player dOwner = attack.getDefender().getOwner();
+			PreparedStatement statement;
+			boolean conquered = defenderUnits < 1;
+			if(conquered) {
+				dOwner = attack.getAttacker().getOwner();
+				int move = attack.getMove();
+				if(move >= attackerUnits) {
+					move = attackerUnits - 1;
+				}
+				attackerUnits -= move;
+				defenderUnits = move;
+				statement = conn.prepareStatement("UPDATE `games` SET `conquered` = ?, `time` = ? WHERE `gid` = ?");
+				statement.setBoolean(1, conquered);
+				statement.setLong(2, time);
+				statement.setInt(3, game.getId());
+				statement.execute();
+			}
+			if(attackerUnits != attack.getAttacker().getUnits()) {
+				statement = conn.prepareStatement("UPDATE `territories` SET `units` = ? WHERE `territory` = ? AND `gid` = ?");
+				statement.setInt(1, attackerUnits);
+				statement.setString(2, attack.getAttacker().getId());
+				statement.setInt(3, game.getId());
+				statement.execute();
+			}
+			if(defenderUnits != attack.getDefender().getUnits() || dOwner != attack.getDefender().getOwner()) {
+				statement = conn.prepareStatement("UPDATE `territories` SET `units` = ?, `uid` = ? WHERE `territory` = ? AND `gid` = ?");
+				statement.setInt(1, defenderUnits);
+				statement.setInt(2, dOwner.getId());
+				statement.setString(3, attack.getDefender().getId());
+				statement.setInt(4, game.getId());
+				statement.execute();
+			}
+			conn.commit();
+			attack.getAttacker().setUnits(attackerUnits);
+			attack.getDefender().setUnits(defenderUnits);
+			attack.getDefender().setOwner(dOwner);
+			game.setConquered(game.hasConquered() || conquered);
+			game.setTime(time);
+		} catch (SQLException e) {
+			LOG.e("Failed to attack", e);
+		}
+	}
+
+	@Override
+	public void setState(Player player, Player.State state) {
+		try(Connection conn = dataSource.getConnection()) {
+			PreparedStatement statement = conn.prepareStatement("UPDATE `gamesjoined` SET `state` = ? WHERE `gid` = ? AND `uid` = ?");
+			statement.setInt(1, state.ordinal());
+			statement.setInt(2, player.getGame().getId());
+			statement.setInt(3, player.getId());
+			statement.execute();
+			conn.commit();
+			player.setState(state);
+		} catch (SQLException e) {
+			LOG.e("Failed to save player state", e);
+		}
+	}
+
+	@Override
+	public void saveMissions(Game game) {
+		try(Connection conn = dataSource.getConnection()) {
+			saveMissions(conn, game);
+			conn.commit();
+		} catch (SQLException e) {
+			LOG.e("Failed to save missions", e);
 		}
 	}
 }

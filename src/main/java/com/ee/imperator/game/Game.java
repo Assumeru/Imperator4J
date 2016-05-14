@@ -301,6 +301,29 @@ public class Game implements Comparable<Game> {
 	}
 
 	public void executeAttack(Attack attack) {
-		//TODO attack
+		Player defender = attack.getDefender().getOwner();
+		Imperator.getData().attack(this, attack);
+		if(attack.getAttacker().getOwner().equals(attack.getDefender().getOwner())) {
+			for(Territory territory : map.getTerritories().values()) {
+				if(territory.getOwner().equals(defender)) {
+					return;
+				}
+			}
+			boolean newMissions = false;
+			Imperator.getData().setState(defender, Player.State.GAME_OVER);
+			for(Player player : players) {
+				if(player.getMission().containsEliminate() && defender.equals(player.getMission().getTarget())) {
+					if(player.equals(attack.getAttacker().getOwner())) {
+						Imperator.getData().setState(player, Player.State.DESTROYED_RIVAL);
+					} else {
+						player.setMission(new PlayerMission(map.getMissions().get(player.getMission().getFallback()), player, 0));
+						newMissions = true;
+					}
+				}
+			}
+			if(newMissions) {
+				Imperator.getData().saveMissions(this);
+			}
+		}
 	}
 }

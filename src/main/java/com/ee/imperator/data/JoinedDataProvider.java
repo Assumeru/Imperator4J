@@ -7,8 +7,8 @@ import org.ee.web.request.Request;
 
 import com.ee.imperator.chat.ChatMessage;
 import com.ee.imperator.game.Attack;
-import com.ee.imperator.game.Game;
 import com.ee.imperator.game.Cards.Card;
+import com.ee.imperator.game.Game;
 import com.ee.imperator.game.Game.State;
 import com.ee.imperator.game.log.LogEntry;
 import com.ee.imperator.map.Map;
@@ -107,6 +107,21 @@ public class JoinedDataProvider implements DataProvider {
 	@Override
 	public void saveAttack(Game game, Attack attack) {
 		gameProvider.saveAttack(game, attack);
+	}
+
+	@Override
+	public void attack(Game game, Attack attack) {
+		gameProvider.attack(game, attack);
+	}
+
+	@Override
+	public void setState(Player player, Player.State state) {
+		gameProvider.setState(player, state);
+	}
+
+	@Override
+	public void saveMissions(Game game) {
+		gameProvider.saveMissions(game);
 	}
 
 	@Override

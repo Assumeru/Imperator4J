@@ -12,8 +12,8 @@ import org.ee.cache.SoftReferenceCache;
 import com.ee.imperator.Imperator;
 import com.ee.imperator.data.BatchGameProvider;
 import com.ee.imperator.data.GameProvider;
-import com.ee.imperator.game.Cards.Card;
 import com.ee.imperator.game.Attack;
+import com.ee.imperator.game.Cards.Card;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.game.Game.State;
 import com.ee.imperator.game.log.LogEntry;
@@ -167,5 +167,20 @@ public class CachedGameProvider implements GameProvider {
 	@Override
 	public void saveAttack(Game game, Attack attack) {
 		gameProvider.saveAttack(game, attack);
+	}
+
+	@Override
+	public void attack(Game game, Attack attack) {
+		gameProvider.attack(game, attack);
+	}
+
+	@Override
+	public void setState(Player player, Player.State state) {
+		gameProvider.setState(player, state);
+	}
+
+	@Override
+	public void saveMissions(Game game) {
+		gameProvider.saveMissions(game);
 	}
 }

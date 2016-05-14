@@ -43,4 +43,10 @@ public interface GameProvider extends Closeable {
 	void forfeit(Player player);
 
 	void saveAttack(Game game, Attack attack);
+
+	void attack(Game game, Attack attack);
+
+	void setState(Player player, Player.State state);
+
+	void saveMissions(Game game);
 }
