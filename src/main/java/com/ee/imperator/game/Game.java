@@ -23,7 +23,9 @@ import com.ee.imperator.user.Player;
 
 public class Game implements Comparable<Game> {
 	private static final Logger LOG = LogManager.createLogger();
-
+	public static final int MAX_MOVE_UNITS = 7;
+	public static final int MIN_FORTIFY = 3;
+	public static final int MAX_ATTACKERS = 3;
 	public enum State {
 		TURN_START, FORTIFY, COMBAT, POST_COMBAT, FINISHED
 	}

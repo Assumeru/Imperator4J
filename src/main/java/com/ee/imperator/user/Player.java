@@ -136,6 +136,6 @@ public class Player implements User, Comparable<Player> {
 				territories++;
 			}
 		}
-		return Math.max(3, territories / 3);
+		return Math.max(Game.MIN_FORTIFY, territories / 3);
 	}
 }

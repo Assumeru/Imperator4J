@@ -18,6 +18,10 @@ public class Attack {
 			throw new InvalidRequestException("Game does not exist", "game", "attack");
 		} else if(!game.getCurrentPlayer().equals(member)) {
 			throw new InvalidRequestException("Not your turn", "game", "attack");
+		} else if(game.getState() != Game.State.COMBAT && game.getState() != Game.State.TURN_START) {
+			throw new InvalidRequestException("Cannot attack now", "game", "attack");
+		} else if(units < 1 || units > Game.MAX_ATTACKERS) {
+			throw new InvalidRequestException("Invalid amount of attackers", "game", "attack");
 		}
 		Territory to = game.getMap().getTerritories().get(tid);
 		Territory from = game.getMap().getTerritories().get(fid);
@@ -32,7 +36,7 @@ public class Attack {
 			}
 		}
 		Imperator.getData().setState(game, Game.State.COMBAT);
-		com.ee.imperator.game.Attack attack = new com.ee.imperator.game.Attack(from, to, move);
+		com.ee.imperator.game.Attack attack = new com.ee.imperator.game.Attack(from, to, Math.max(1, move));
 		attack.rollAttack(units);
 		if(to.getUnits() == 1 || to.getOwner().getAutoRoll() || attack.attackerCannotWin()) {
 			attack.autoRollDefence();
