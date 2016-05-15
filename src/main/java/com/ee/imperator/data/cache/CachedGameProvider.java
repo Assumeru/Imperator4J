@@ -183,4 +183,9 @@ public class CachedGameProvider implements GameProvider {
 	public void saveMissions(Game game) {
 		gameProvider.saveMissions(game);
 	}
+
+	@Override
+	public void setState(Game game, State state) {
+		gameProvider.setState(game, state);
+	}
 }

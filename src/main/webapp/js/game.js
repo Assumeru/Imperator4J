@@ -684,7 +684,7 @@
 	}
 
 	function getTerritoryEntry($territory, $owner) {
-		return $('<a></a>').attr('href', $territory.id).css('color', $owner.color).text($territory.name).prop('outerHTML');
+		return $('<a></a>').attr('href', '#' + $territory.id).css('color', '#' + $owner.color).text($territory.name).prop('outerHTML');
 	}
 
 	function getLogMessage($entry) {
@@ -1095,5 +1095,5 @@
 		}
 	}
 
-	$(init);
+	Imperator.Map.onLoad(init);
 })(jQuery);

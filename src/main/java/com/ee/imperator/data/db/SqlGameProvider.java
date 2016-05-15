@@ -470,11 +470,11 @@ public class SqlGameProvider implements BatchGameProvider {
 		statement.setLong(4, entry.getTime());
 		if(entry instanceof AttackedEntry) {
 			AttackedEntry attack = (AttackedEntry) entry;
-			statement.setInt(4, attack.getDefender().getId());
-			statement.setString(5, toString(attack.getAttackRoll()));
-			statement.setString(6, toString(attack.getDefendRoll()));
-			statement.setString(7, attack.getAttacking().getId());
-			statement.setString(8, attack.getDefending().getId());
+			statement.setInt(5, attack.getDefender().getId());
+			statement.setString(6, toString(attack.getAttackRoll()));
+			statement.setString(7, toString(attack.getDefendRoll()));
+			statement.setString(8, attack.getAttacking().getId());
+			statement.setString(9, attack.getDefending().getId());
 		}
 		statement.execute();
 		//TODO subclasses
@@ -550,16 +550,26 @@ public class SqlGameProvider implements BatchGameProvider {
 	}
 
 	@Override
-	public void saveAttack(Game game, Attack attack) {
+	public void setState(Game game, State state) {
 		try(Connection conn = dataSource.getConnection()) {
-			Game.State state = Game.State.COMBAT;
 			long time = System.currentTimeMillis();
 			PreparedStatement statement = conn.prepareStatement("UPDATE `games` SET `state` = ?, `time` = ? WHERE `gid` = ?");
 			statement.setInt(1, state.ordinal());
 			statement.setLong(2, time);
 			statement.setInt(3, game.getId());
 			statement.execute();
-			statement = conn.prepareStatement("INSERT INTO `attacks` (`gid`, `a_territory`, `d_territory`, `a_roll`, `transfer`) VALUES(?, ?, ?, ?, ?)");
+			conn.commit();
+			game.setState(state);
+			game.setTime(time);
+		} catch (SQLException e) {
+			LOG.e("Failed to set state", e);
+		}
+	}
+
+	@Override
+	public void saveAttack(Game game, Attack attack) {
+		try(Connection conn = dataSource.getConnection()) {
+			PreparedStatement statement = conn.prepareStatement("INSERT INTO `attacks` (`gid`, `a_territory`, `d_territory`, `a_roll`, `transfer`) VALUES(?, ?, ?, ?, ?)");
 			statement.setInt(1, game.getId());
 			statement.setString(2, attack.getAttacker().getId());
 			statement.setString(3, attack.getDefender().getId());
@@ -568,10 +578,8 @@ public class SqlGameProvider implements BatchGameProvider {
 			statement.execute();
 			conn.commit();
 			game.getAttacks().add(attack);
-			game.setState(state);
-			game.setTime(time);
 		} catch (SQLException e) {
-			LOG.e("Failed to surrender", e);
+			LOG.e("Failed to attack", e);
 		}
 	}
 

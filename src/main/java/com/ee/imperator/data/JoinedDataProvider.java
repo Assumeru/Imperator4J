@@ -125,6 +125,11 @@ public class JoinedDataProvider implements DataProvider {
 	}
 
 	@Override
+	public void setState(Game game, State state) {
+		gameProvider.setState(game, state);
+	}
+
+	@Override
 	public Member getMember(int id) {
 		return memberProvider.getMember(id);
 	}

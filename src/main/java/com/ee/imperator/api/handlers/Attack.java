@@ -31,6 +31,7 @@ public class Attack {
 				throw new InvalidRequestException(String.valueOf(member.getLanguage().translate("One of these territories is already engaged in combat.")), "game", "attack");
 			}
 		}
+		Imperator.getData().setState(game, Game.State.COMBAT);
 		com.ee.imperator.game.Attack attack = new com.ee.imperator.game.Attack(from, to, move);
 		attack.rollAttack(units);
 		if(to.getUnits() == 1 || to.getOwner().getAutoRoll() || attack.attackerCannotWin()) {
@@ -64,7 +65,7 @@ public class Attack {
 
 	static JSONObject getAttackJSON(com.ee.imperator.game.Attack attack) {
 		JSONObject out = new JSONObject()
-				.put("attack", attack.getAttacker().getId())
+				.put("attacker", attack.getAttacker().getId())
 				.put("defender", attack.getDefender().getId())
 				.put("attackroll", attack.getAttackRoll())
 				.put("move", attack.getMove());

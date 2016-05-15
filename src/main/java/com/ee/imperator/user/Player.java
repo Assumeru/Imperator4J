@@ -30,6 +30,7 @@ public class Player implements User, Comparable<Player> {
 		this.game = game;
 		state = State.PLAYING;
 		cards = new Cards();
+		autoroll = true;
 	}
 
 	@Override

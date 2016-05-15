@@ -124,7 +124,7 @@
 			</div>
 		</section>
 		<section id="cards" class="swipe-pane player-only">
-			<div data-value="card-list" class="text-center">
+			<div data-value="card-list" class="text-center" th:if="${player != null}">
 				<img th:each="card : ${player.cards}" class="card" th:src="@{${url.image('cards/' + card.ordinal() + '.png')}}" th:alt="${i18n.__(card.name)}" />
 			</div>
 			<div id="card-controls">

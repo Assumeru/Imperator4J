@@ -49,4 +49,6 @@ public interface GameProvider extends Closeable {
 	void setState(Player player, Player.State state);
 
 	void saveMissions(Game game);
+
+	void setState(Game game, Game.State state);
 }

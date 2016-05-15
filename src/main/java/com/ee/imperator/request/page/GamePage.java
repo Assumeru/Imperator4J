@@ -56,6 +56,7 @@ public class GamePage extends AbstractVariablePage {
 			context.setVariable("player", game.getPlayerById(context.getUser().getId()));
 			addChatJavascript(context, game.getId(), context.getUser().canDeleteMessages() || game.getOwner().equals(context.getUser()));
 		} else {
+			addApiJavascript(context, game.getId());
 			context.setVariable(PageContext.VARIABLE_MAIN_CLASS, "container-fluid not-player");
 		}
 		PageContext.VARIABLE_JAVASCRIPT_SETTINGS.put(context, "uid", context.getUser().getId());
