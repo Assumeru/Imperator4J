@@ -185,4 +185,62 @@ public class Cards extends AbstractCollection<Card> {
 		infantry = 0;
 		jokers = 0;
 	}
+
+	public boolean canPlay(int units) {
+		if(units == 4) {
+			return artillery + jokers >= 3;
+		} else if(units == 6) {
+			return infantry + jokers >= 3;
+		} else if(units == 8) {
+			return cavalry + jokers >= 3;
+		} else if(units == 10) {
+			return (artillery + cavalry + infantry >= 1 && jokers >= 2)
+					|| (artillery >= 1 && cavalry >= 1 && infantry >= 1)
+					|| (jokers >= 1 && (
+							(artillery >= 1 && cavalry >= 1)
+							|| (cavalry >= 1 && infantry >= 1)
+							|| (artillery >= 1 && infantry >= 1)));
+		}
+		return false;
+	}
+
+	public Cards getCombination(int units) {
+		if(units == 4) {
+			return getBestCombination(Card.ARTILLERY, artillery);
+		} else if(units == 6) {
+			return getBestCombination(Card.INFANTRY, infantry);
+		} else if(units == 8) {
+			return getBestCombination(Card.CAVALRY, cavalry);
+		} else if(artillery >= 1 && cavalry >= 1 && infantry >= 1) {
+			return new Cards(1, 1, 1, 0);
+		} else if(artillery >= 1 && cavalry >= 1) {
+			return new Cards(1, 1, 0, 1);
+		} else if(infantry >= 1 && cavalry >= 1) {
+			return new Cards(0, 1, 1, 1);
+		} else if(infantry >= 1 && artillery >= 1) {
+			return new Cards(1, 0, 1, 1);
+		} else if(artillery >= 1) {
+			return new Cards(1, 0, 0, 2);
+		} else if(cavalry >= 1) {
+			return new Cards(0, 1, 0, 2);
+		}
+		return new Cards(0, 0, 1, 2);
+	}
+
+	private Cards getBestCombination(Card type, int amount) {
+		Cards out = new Cards();
+		if(amount >= 3) {
+			out.add(type);
+			out.add(type);
+			out.add(type);
+		} else if(amount == 2) {
+			out.add(type);
+			out.add(type);
+			out.setJokers(1);
+		} else {
+			out.add(type);
+			out.setJokers(2);
+		}
+		return out;
+	}
 }

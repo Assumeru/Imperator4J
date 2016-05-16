@@ -130,6 +130,16 @@ public class JoinedDataProvider implements DataProvider {
 	}
 
 	@Override
+	public void moveUnits(Game game, Territory from, Territory to, int move) {
+		gameProvider.moveUnits(game, from, to, move);
+	}
+
+	@Override
+	public void playCards(Player player, int units) {
+		gameProvider.playCards(player, units);
+	}
+
+	@Override
 	public Member getMember(int id) {
 		return memberProvider.getMember(id);
 	}

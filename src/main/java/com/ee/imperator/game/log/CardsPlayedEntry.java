@@ -29,6 +29,14 @@ public class CardsPlayedEntry extends LogEntry {
 		return out;
 	}
 
+	public int[] getCards() {
+		return cards;
+	}
+
+	public int getUnits() {
+		return units;
+	}
+
 	@Override
 	public Map<String, Object> getMessage() {
 		return new MapBuilder<String, Object>()

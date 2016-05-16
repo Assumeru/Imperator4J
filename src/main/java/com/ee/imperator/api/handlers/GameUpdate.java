@@ -10,7 +10,6 @@ import org.json.JSONObject;
 
 import com.ee.imperator.Imperator;
 import com.ee.imperator.api.Api;
-import com.ee.imperator.game.Cards;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.game.log.LogEntry;
 import com.ee.imperator.map.Region;
@@ -56,11 +55,7 @@ public class GameUpdate {
 		if(game.getPlayers().contains(member)) {
 			Player player = game.getPlayerById(member.getId());
 			output.put("autoroll", player.getAutoRoll())
-					.put("cards", new JSONObject()
-							.put(String.valueOf(Cards.Card.ARTILLERY.ordinal()), player.getCards().getArtillery())
-							.put(String.valueOf(Cards.Card.INFANTRY.ordinal()), player.getCards().getInfantry())
-							.put(String.valueOf(Cards.Card.CAVALRY.ordinal()), player.getCards().getCavalry())
-							.put(String.valueOf(Cards.Card.JOKER.ordinal()), player.getCards().getJokers()))
+					.put("cards", PlayCards.getCards(player.getCards()))
 					.put("mission", new JSONObject()
 							.put("name", player.getMission().getName())
 							.put("description", player.getMission().getDescription(member.getLanguage())));

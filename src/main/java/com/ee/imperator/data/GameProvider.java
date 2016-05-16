@@ -51,4 +51,8 @@ public interface GameProvider extends Closeable {
 	void saveMissions(Game game);
 
 	void setState(Game game, Game.State state);
+
+	void moveUnits(Game game, Territory from, Territory to, int move);
+
+	void playCards(Player player, int units);
 }

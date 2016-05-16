@@ -30,7 +30,7 @@ public class PlaceUnits {
 		} else if(!territory.getOwner().equals(member)) {
 			throw new InvalidRequestException("Not your territory", "game", "place-units");
 		}
-		Imperator.getData().placeUnits(game, territory, units);
+		Imperator.getData().placeUnits(game, territory, Math.max(1, units));
 		return new JSONObject()
 				.put("update", game.getTime())
 				.put("units", game.getUnits())

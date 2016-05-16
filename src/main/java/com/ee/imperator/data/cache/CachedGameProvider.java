@@ -188,4 +188,14 @@ public class CachedGameProvider implements GameProvider {
 	public void setState(Game game, State state) {
 		gameProvider.setState(game, state);
 	}
+
+	@Override
+	public void moveUnits(Game game, Territory from, Territory to, int move) {
+		gameProvider.moveUnits(game, from, to, move);
+	}
+
+	@Override
+	public void playCards(Player player, int units) {
+		gameProvider.playCards(player, units);
+	}
 }

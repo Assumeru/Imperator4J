@@ -15,6 +15,10 @@ public class ConqueredEntry extends LogEntry {
 		this.territory = territory;
 	}
 
+	public Territory getTerritory() {
+		return territory;
+	}
+
 	@Override
 	public Map<String, Object> getMessage() {
 		return new MapBuilder<String, Object>()

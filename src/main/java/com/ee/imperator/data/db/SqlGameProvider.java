@@ -21,6 +21,7 @@ import org.ee.sql.PreparedStatementBuilder;
 import com.ee.imperator.Imperator;
 import com.ee.imperator.data.BatchGameProvider;
 import com.ee.imperator.game.Attack;
+import com.ee.imperator.game.Cards;
 import com.ee.imperator.game.Cards.Card;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.game.Game.State;
@@ -169,18 +170,18 @@ public class SqlGameProvider implements BatchGameProvider {
 		statement.setInt(1, game.getId());
 		ResultSet result = statement.executeQuery();
 		while(result.next()) {
-			game.getAttacks().add(new Attack(game.getMap().getTerritories().get(result.getString(1)), game.getMap().getTerritories().get(result.getString(2)), result.getInt(4), getRoll(result.getString(3))));
+			game.getAttacks().add(new Attack(game.getMap().getTerritories().get(result.getString(1)), game.getMap().getTerritories().get(result.getString(2)), result.getInt(4), getInts(result.getString(3))));
 		}
 	}
 
-	private static int[] getRoll(String rollString) {
-		int[] roll = rollString != null ? new int[rollString.length()] : null;
-		if(rollString != null) {
-			for(int i = 0; i < roll.length; i++) {
-				roll[i] = rollString.charAt(i) - '0';
+	private static int[] getInts(String input) {
+		int[] output = input != null ? new int[input.length()] : null;
+		if(input != null) {
+			for(int i = 0; i < output.length; i++) {
+				output[i] = input.charAt(i) - '0';
 			}
 		}
-		return roll;
+		return output;
 	}
 
 	@Override
@@ -368,12 +369,12 @@ public class SqlGameProvider implements BatchGameProvider {
 				if(type == LogEntry.Type.ATTACKED) {
 					entry = new AttackedEntry(time, player,
 							game.getPlayerById(result.getInt(4)),
-							getRoll(result.getString(5)),
-							getRoll(result.getString(6)),
+							getInts(result.getString(5)),
+							getInts(result.getString(6)),
 							game.getMap().getTerritories().get(result.getString(8)),
 							game.getMap().getTerritories().get(result.getString(9)));
 				} else if(type == LogEntry.Type.CARDS_PLAYED) {
-					entry = new CardsPlayedEntry(player, time, getRoll(result.getString(5)), result.getInt(7));
+					entry = new CardsPlayedEntry(player, time, getInts(result.getString(5)), result.getInt(7));
 				} else if(type == LogEntry.Type.CONQUERED) {
 					entry = new ConqueredEntry(player, time, game.getMap().getTerritories().get(result.getString(8)));
 				} else if(type == LogEntry.Type.ENDED_TURN) {
@@ -461,6 +462,10 @@ public class SqlGameProvider implements BatchGameProvider {
 		PreparedStatement statement;
 		if(entry.getType() == LogEntry.Type.ATTACKED) {
 			statement = conn.prepareStatement("INSERT INTO `combatlog` (`gid`, `uid`, `type`, `time`, `num`, `char_three`, `d_roll`, `territory`, `d_territory`) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		} else if(entry.getType() == LogEntry.Type.CONQUERED) {
+			statement = conn.prepareStatement("INSERT INTO `combatlog` (`gid`, `uid`, `type`, `time`, `territory`) VALUES(?, ?, ?, ?, ?)");
+		} else if(entry.getType() == LogEntry.Type.CARDS_PLAYED) {
+			statement = conn.prepareStatement("INSERT INTO `combatlog` (`gid`, `uid`, `type`, `time`, `char_three`, `units`) VALUES(?, ?, ?, ?, ?, ?)");
 		} else {
 			statement = conn.prepareStatement("INSERT INTO `combatlog` (`gid`, `uid`, `type`, `time`) VALUES(?, ?, ?, ?)");
 		}
@@ -475,9 +480,14 @@ public class SqlGameProvider implements BatchGameProvider {
 			statement.setString(7, toString(attack.getDefendRoll()));
 			statement.setString(8, attack.getAttacking().getId());
 			statement.setString(9, attack.getDefending().getId());
+		} else if(entry instanceof ConqueredEntry) {
+			statement.setString(5, ((ConqueredEntry) entry).getTerritory().getId());
+		} else if(entry instanceof CardsPlayedEntry) {
+			CardsPlayedEntry cards = (CardsPlayedEntry) entry;
+			statement.setString(3, toString(cards.getCards()));
+			statement.setInt(4, cards.getUnits());
 		}
 		statement.execute();
-		//TODO subclasses
 	}
 
 	@Override
@@ -594,6 +604,7 @@ public class SqlGameProvider implements BatchGameProvider {
 			PreparedStatement statement;
 			boolean conquered = defenderUnits < 1;
 			if(conquered) {
+				saveLogEntry(conn, new ConqueredEntry(attack.getAttacker().getOwner(), time, attack.getDefender()));
 				dOwner = attack.getAttacker().getOwner();
 				int move = attack.getMove();
 				if(move >= attackerUnits) {
@@ -655,6 +666,60 @@ public class SqlGameProvider implements BatchGameProvider {
 			conn.commit();
 		} catch (SQLException e) {
 			LOG.e("Failed to save missions", e);
+		}
+	}
+
+	@Override
+	public void moveUnits(Game game, Territory from, Territory to, int move) {
+		try(Connection conn = dataSource.getConnection()) {
+			PreparedStatement statement = conn.prepareStatement("UPDATE `games` SET `units` = `units` - ? WHERE `gid` = ?");
+			statement.setInt(1, move);
+			statement.setInt(2, game.getId());
+			statement.execute();
+			statement = conn.prepareStatement("UPDATE `territories` SET `units` = `units` + ? WHERE `gid` = ? AND `territory` = ?");
+			statement.setInt(1, move);
+			statement.setInt(2, game.getId());
+			statement.setString(3, to.getId());
+			statement.execute();
+			statement = conn.prepareStatement("UPDATE `territories` SET `units` = `units` - ? WHERE `gid` = ? AND `territory` = ?");
+			statement.setInt(1, move);
+			statement.setInt(2, game.getId());
+			statement.setString(3, from.getId());
+			statement.execute();
+			conn.commit();
+			game.setUnits(game.getUnits() - move);
+			from.setUnits(from.getUnits() - move);
+			to.setUnits(to.getUnits() + move);
+		} catch (SQLException e) {
+			LOG.e("Failed to move units", e);
+		}
+	}
+
+	@Override
+	public void playCards(Player player, int units) {
+		try(Connection conn = dataSource.getConnection()) {
+			long time = System.currentTimeMillis();
+			Cards combo = player.getCards().getCombination(units);
+			PreparedStatement statement = conn.prepareStatement("UPDATE `gamesjoined` SET `c_art` = `c_art` - ?, `c_cav` = `c_cav` - ?, `c_inf` = `c_inf` - ?, `c_jok` = `c_jok` - ? WHERE `gid` = ? AND `uid` = ?");
+			statement.setInt(1, combo.getArtillery());
+			statement.setInt(2, combo.getCavalry());
+			statement.setInt(3, combo.getInfantry());
+			statement.setInt(4, combo.getJokers());
+			statement.setInt(5, player.getGame().getId());
+			statement.setInt(6, player.getId());
+			statement.execute();
+			statement = conn.prepareStatement("UPDATE `games` SET `units` = `units` + ?, `time` = ? WHERE `gid` = ?");
+			statement.setInt(1, units);
+			statement.setLong(2, time);
+			statement.setInt(3, player.getGame().getId());
+			statement.execute();
+			saveLogEntry(conn, new CardsPlayedEntry(player, time, combo.toArray(), units));
+			conn.commit();
+			player.getCards().removeAll(combo);
+			player.getGame().setUnits(player.getGame().getUnits() + units);
+			player.getGame().setTime(time);
+		} catch (SQLException e) {
+			LOG.e("Failed to play cards", e);
 		}
 	}
 }
