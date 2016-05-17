@@ -1,7 +1,10 @@
 package com.ee.imperator.user;
 
+import java.util.Locale;
+
 import org.ee.i18n.Language;
-import org.ee.i18n.LanguageManager;
+
+import com.ee.imperator.Imperator;
 
 public class Member implements User {
 	private final int id;
@@ -13,7 +16,7 @@ public class Member implements User {
 	private final int losses;
 
 	public Member() {
-		this(0, "Guest", LanguageManager.createLanguage("en", "us"), false, 0, 0, 0);
+		this(0, "Guest", Imperator.getLanguageProvider().getLanguage(Locale.US), false, 0, 0, 0);
 	}
 
 	public Member(int id, String name, Language language, boolean loggedIn, int score, int wins, int losses) {

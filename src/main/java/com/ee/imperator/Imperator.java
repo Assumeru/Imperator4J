@@ -4,7 +4,6 @@ import javax.servlet.ServletContext;
 import javax.ws.rs.core.Context;
 
 import org.ee.config.Config;
-import org.ee.i18n.LanguageManager;
 import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
 import org.ee.reflection.ReflectionUtils;
@@ -93,7 +92,6 @@ public class Imperator extends WebApplication {
 	private void initLanguage() {
 		try {
 			languageProvider = ReflectionUtils.getSubclass(getConfig().getClass(ClientSideLanguageProvider.class, null), ClientSideLanguageProvider.class).newInstance();
-			LanguageManager.setLanguageProvider(languageProvider);
 		} catch(Exception e) {
 			LOG.e("Failed to init language provider, falling back on default implementation", e);
 		}

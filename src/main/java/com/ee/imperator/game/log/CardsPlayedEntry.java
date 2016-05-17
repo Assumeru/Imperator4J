@@ -40,7 +40,8 @@ public class CardsPlayedEntry extends LogEntry {
 	@Override
 	public Map<String, Object> getMessage() {
 		return new MapBuilder<String, Object>()
-				.put("message", "%1$s played %2$s for %3$d units.")
+				.put("plural", "%1$s played %2$s for %3$d units.")
+				.put("singular", "%1$s played %2$s for one unit.")
 				.put("uid", getPlayer().getId())
 				.put("cards", cards)
 				.put("units", units)

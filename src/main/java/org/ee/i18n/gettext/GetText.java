@@ -1,14 +1,15 @@
 package org.ee.i18n.gettext;
 
 import java.util.Arrays;
+import java.util.Locale;
 
 import org.ee.i18n.AbstractLanguage;
 
 public class GetText extends AbstractLanguage {
 	private final Mo mo;
 
-	public GetText(Mo mo, String lang, String locale, TextDirection direction) {
-		super(lang, locale, direction);
+	public GetText(Mo mo, Locale locale, TextDirection direction) {
+		super(locale, direction);
 		this.mo = mo;
 	}
 

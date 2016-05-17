@@ -1,5 +1,7 @@
 package org.ee.i18n;
 
+import java.util.Locale;
+
 public interface Language {
 	static enum TextDirection {
 		LTR, RTL;
@@ -10,11 +12,7 @@ public interface Language {
 		}
 	}
 
-	String getLang();
-
-	String getLocale();
-
-	String getHtmlLang();
+	Locale getLocale();
 
 	TextDirection getDirection();
 

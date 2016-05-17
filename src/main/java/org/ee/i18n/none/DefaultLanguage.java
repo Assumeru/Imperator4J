@@ -1,12 +1,13 @@
 package org.ee.i18n.none;
 
 import java.util.Arrays;
+import java.util.Locale;
 
 import org.ee.i18n.AbstractLanguage;
 
 public class DefaultLanguage extends AbstractLanguage {
-	public DefaultLanguage(String lang, String locale, TextDirection direction) {
-		super(lang, locale, direction);
+	public DefaultLanguage(Locale locale, TextDirection direction) {
+		super(locale, direction);
 	}
 
 	@Override

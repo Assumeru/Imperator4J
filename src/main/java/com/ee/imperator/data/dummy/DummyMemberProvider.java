@@ -1,11 +1,12 @@
 package com.ee.imperator.data.dummy;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Objects;
 
-import org.ee.i18n.LanguageManager;
 import org.ee.web.request.Request;
 
+import com.ee.imperator.Imperator;
 import com.ee.imperator.data.MemberProvider;
 import com.ee.imperator.data.cache.CachedMemberProvider;
 import com.ee.imperator.user.Member;
@@ -24,7 +25,7 @@ public class DummyMemberProvider extends CachedMemberProvider {
 
 			@Override
 			public Member getMember(int id) {
-				return new Member(id, "Dummy user #" + id, LanguageManager.createLanguage("en", "us"), true, 0, 0, 0);
+				return new Member(id, "Dummy user #" + id, Imperator.getLanguageProvider().getLanguage(Locale.US), true, 0, 0, 0);
 			}
 
 			@Override

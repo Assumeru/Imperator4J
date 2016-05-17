@@ -688,6 +688,7 @@
 	}
 
 	function getLogMessage($entry) {
+		var $cards, $n;
 		if($entry.type === 0) {
 			return __($entry.message.message,
 					$('#players [data-player="' + $entry.message.uid + '"] [data-value="name"]').html(),
@@ -700,9 +701,14 @@
 					getDice('defend', $entry.message.defendRoll));
 		} else if($entry.type == 2 || $entry.type == 3) {
 			return __($entry.message.message, $('#players [data-player="' + $entry.message.uid + '"] [data-value="name"]').html());
-		} else {
-			//TODO cards played
 		}
+		$cards = $('<div></div>');
+		for($n = 0; $n < $entry.message.cards.length; $n++) {
+			$cards.append(getCardTemplate($entry.message.cards[$n]));
+		}
+		return __(Imperator.Language.resolve($entry.message.singular, $entry.message.plural, $entry.message.units),
+				$('#players [data-player="' + $entry.message.uid + '"] [data-value="name"]').html(),
+				$cards.html(), $entry.message.units);
 	}
 
 	function showGameOverDialog() {

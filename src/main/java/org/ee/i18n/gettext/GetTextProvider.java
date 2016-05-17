@@ -20,19 +20,20 @@ public class GetTextProvider implements LanguageProvider {
 	}
 
 	@Override
-	public GetText createLanguage(String lang, String locale, TextDirection direction) {
-		return new GetText(loadMos(lang, locale), lang, locale, direction);
+	public GetText getLanguage(Locale locale, TextDirection direction) {
+		return new GetText(loadMos(locale), locale, direction);
 	}
 
-	private Mo loadMos(String lang, String locale) {
-		String langLocale = (lang + "-" + locale).toLowerCase(Locale.US);
-		File dir = new File(path, langLocale);
-		if(!dir.exists() || !dir.isDirectory()) {
-			LOG.i(langLocale + " not found, falling back on " + lang);
-			dir = new File(path, lang);
-			if(!dir.exists() || !dir.isDirectory()) {
-				LOG.w("No translations found for " + lang);
-				return null;
+	private Mo loadMos(Locale locale) {
+		String[] depth = locale.toLanguageTag().toLowerCase(Locale.US).split("-");
+		File dir = new File(path, depth[0]);
+		for(int i = 1; i < depth.length; i++) {
+			File sub = new File(dir, depth[i]);
+			if(sub.exists()) {
+				dir = sub;
+			} else {
+				LOG.i(sub + " not found, falling back on " + dir);
+				break;
 			}
 		}
 		File[] files = dir.listFiles((file, name) -> name.toLowerCase().endsWith(".mo"));
