@@ -41,21 +41,25 @@ public class Attack {
 		if(to.getUnits() == 1 || to.getOwner().getAutoRoll() || attack.attackerCannotWin()) {
 			attack.autoRollDefence();
 			game.executeAttack(attack);
-			return new JSONObject()
-					.put("territories", new JSONObject()
-							.put(to.getId(), new JSONObject()
-									.put("uid", to.getOwner().getId())
-									.put("units", to.getUnits()))
-							.put(from.getId(), new JSONObject()
-									.put("uid", from.getOwner().getId())
-									.put("units", from.getUnits())))
-					.put("state", game.getState().ordinal())
-					.put("update", game.getTime())
-					.put("attack", getAttackJSON(attack));
+			return getAttackResponse(game, to, from, attack);
 		}
 		Imperator.getData().saveAttack(game, attack);
 		return new JSONObject()
 				.put("attacks", game.getAttacks())
+				.put("attack", getAttackJSON(attack));
+	}
+
+	static JSONObject getAttackResponse(Game game, Territory to, Territory from, com.ee.imperator.game.Attack attack) {
+		return new JSONObject()
+				.put("territories", new JSONObject()
+						.put(to.getId(), new JSONObject()
+								.put("uid", to.getOwner().getId())
+								.put("units", to.getUnits()))
+						.put(from.getId(), new JSONObject()
+								.put("uid", from.getOwner().getId())
+								.put("units", from.getUnits())))
+				.put("state", game.getState().ordinal())
+				.put("update", game.getTime())
 				.put("attack", getAttackJSON(attack));
 	}
 

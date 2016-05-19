@@ -17,6 +17,8 @@ public class Kick {
 			throw new InvalidRequestException("Only the game owner can kick players.", "game", "kick");
 		} else if(member.getId() == uid) {
 			throw new InvalidRequestException("You cannot kick yourself.", "game", "kick");
+		} else if(game.hasStarted() || game.hasEnded()) {
+			throw new InvalidRequestException("Cannot kick after starting", "game", "kick");
 		}
 		Player player = game.getPlayerById(uid);
 		if(player != null) {
