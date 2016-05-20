@@ -1,6 +1,5 @@
 package com.ee.imperator.map;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
@@ -62,10 +61,6 @@ public class Map implements Comparable<Map>, Cloneable {
 		return id;
 	}
 
-	public String getDescription() {
-		return getDescription("en-us");
-	}
-
 	public String getDescription(String lang) {
 		lang = lang.toLowerCase(Locale.US);
 		if(descriptions.containsKey(lang)) {
@@ -98,18 +93,6 @@ public class Map implements Comparable<Map>, Cloneable {
 			return bestMatch;
 		}
 		return null;
-	}
-
-	public List<Territory> getSortedTerritories() {
-		List<Territory> out = new ArrayList<>(territories.values());
-		out.sort(null);
-		return out;
-	}
-
-	public List<Region> getSortedRegions() {
-		List<Region> out = new ArrayList<>(regions.values());
-		out.sort(null);
-		return out;
 	}
 
 	@Override
