@@ -19,9 +19,9 @@ public class ImperatorApplicationListener implements ServletContextListener {
 
 	@Override
 	public void contextDestroyed(ServletContextEvent sce) {
-		if(Imperator.getData() != null) {
+		if(Imperator.getState() != null) {
 			try {
-				Imperator.getData().close();
+				Imperator.getState().close();
 			} catch (IOException e) {
 				LOG.e("Failed to close dataProvider", e);
 			}

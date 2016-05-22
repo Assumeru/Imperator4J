@@ -15,7 +15,7 @@ public class Defend {
 		if(units < 1 || units > Game.MAX_DEFENDERS) {
 			throw new InvalidRequestException("Invalid number of defenders", "game", "defend");
 		}
-		Game game = Imperator.getData().getGame(gid);
+		Game game = Imperator.getState().getGame(gid);
 		if(game == null) {
 			throw new InvalidRequestException("Game does not exist", "game", "defend");
 		}

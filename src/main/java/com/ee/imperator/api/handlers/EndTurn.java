@@ -12,7 +12,7 @@ import com.ee.imperator.user.Member;
 @Request(mode = "game", type = "end-turn")
 public class EndTurn {
 	public JSONObject handle(Member member, @Param("gid") int gid, @Param("card") int cid) throws RequestException {
-		Game game = Imperator.getData().getGame(gid);
+		Game game = Imperator.getState().getGame(gid);
 		if(game == null) {
 			throw new InvalidRequestException("Game does not exist", "game", "end-turn");
 		} else if(!game.getCurrentPlayer().equals(member)) {

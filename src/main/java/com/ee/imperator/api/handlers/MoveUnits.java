@@ -13,7 +13,7 @@ import com.ee.imperator.user.Member;
 @Request(mode = "game", type = "move")
 public class MoveUnits {
 	public JSONObject handle(Member member, @Param("gid") int gid, @Param("to") String tid, @Param("from") String fid, @Param("move") int move) throws RequestException {
-		Game game = Imperator.getData().getGame(gid);
+		Game game = Imperator.getState().getGame(gid);
 		if(game == null) {
 			throw new InvalidRequestException("Game does not exist", "game", "move");
 		} else if(!game.getCurrentPlayer().equals(member)) {
@@ -31,7 +31,7 @@ public class MoveUnits {
 		} else if(!from.getOwner().equals(member) || !to.getOwner().equals(member) || move >= from.getUnits() || move < 1 || !from.getBorders().contains(to)) {
 			throw new InvalidRequestException("Invalid move", "game", "move");
 		}
-		Imperator.getData().moveUnits(game, from, to, move);
+		Imperator.getState().moveUnits(game, from, to, move);
 		return new JSONObject()
 				.put("territories", new JSONObject()
 						.put(to.getId(), new JSONObject()

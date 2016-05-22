@@ -11,7 +11,7 @@ import com.ee.imperator.user.Member;
 @Request(mode = "game", type = "fortify")
 public class Fortify {
 	public JSONObject handle(Member member, @Param("gid") int gid) throws RequestException {
-		Game game = Imperator.getData().getGame(gid);
+		Game game = Imperator.getState().getGame(gid);
 		if(game == null) {
 			throw new InvalidRequestException("Game does not exist", "game", "fortify");
 		} else if(!game.getCurrentPlayer().equals(member)) {
@@ -19,7 +19,7 @@ public class Fortify {
 		} else if(game.getState() != Game.State.TURN_START) {
 			throw new InvalidRequestException("Cannot fortify after attacking.", "game", "fortify");
 		}
-		Imperator.getData().updateUnitsAndState(game, Game.State.FORTIFY, game.getPlayerById(member.getId()).getUnitsFromTerritoriesPerTurn());
+		Imperator.getState().updateUnitsAndState(game, Game.State.FORTIFY, game.getPlayerById(member.getId()).getUnitsFromTerritoriesPerTurn());
 		return new JSONObject()
 				.put("units", game.getUnits())
 				.put("state", game.getState().ordinal())

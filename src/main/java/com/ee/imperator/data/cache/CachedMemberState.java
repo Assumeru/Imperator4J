@@ -6,20 +6,20 @@ import org.ee.cache.SoftReferenceCache;
 import org.ee.web.request.Request;
 
 import com.ee.imperator.Imperator;
-import com.ee.imperator.data.MemberProvider;
+import com.ee.imperator.data.MemberState;
 import com.ee.imperator.user.Member;
 
-public class CachedMemberProvider implements MemberProvider {
-	private final MemberProvider memberProvider;
+public class CachedMemberState implements MemberState {
+	private final MemberState memberProvider;
 	private final SoftReferenceCache<Integer, Member> cache;
 
-	public CachedMemberProvider(MemberProvider memberProvider, long timeToKeep) {
+	public CachedMemberState(MemberState memberProvider, long timeToKeep) {
 		this.memberProvider = memberProvider;
 		cache = new SoftReferenceCache<>(timeToKeep);
 	}
 
-	public CachedMemberProvider(MemberProvider memberProvider) {
-		this(memberProvider, Imperator.getConfig().getLong(CachedMemberProvider.class, "timeToKeep"));
+	public CachedMemberState(MemberState memberProvider) {
+		this(memberProvider, Imperator.getConfig().getLong(CachedMemberState.class, "timeToKeep"));
 	}
 
 	@Override
@@ -56,5 +56,15 @@ public class CachedMemberProvider implements MemberProvider {
 	@Override
 	public void close() throws IOException {
 		memberProvider.close();
+	}
+
+	@Override
+	public void addWin(Member member, int points) {
+		memberProvider.addWin(member, points);
+	}
+
+	@Override
+	public void addLoss(Member member) {
+		memberProvider.addLoss(member);
 	}
 }

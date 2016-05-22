@@ -43,7 +43,7 @@ public class NewGamePage extends ImperatorPage {
 			}
 		}
 		context.setVariable(PageContext.VARIABLE_CSS, Arrays.asList("newgame.css"));
-		context.setVariable("maps", Imperator.getData().getMaps());
+		context.setVariable("maps", Imperator.getState().getMaps());
 		context.setVariable("colors", getColors());
 		context.setVariable("name", context.getUser().getLanguage().translate("%1$s's game", context.getUser().getName()));
 	}
@@ -55,7 +55,7 @@ public class NewGamePage extends ImperatorPage {
 		if(password != null) {
 			password = Imperator.getHasher().hash(password);
 		}
-		Game game = Imperator.getData().createGame(owner, form.getMap(), form.getName(), password);
+		Game game = Imperator.getState().createGame(owner, form.getMap(), form.getName(), password);
 		redirect(Imperator.getUrlBuilder().game(game));
 	}
 

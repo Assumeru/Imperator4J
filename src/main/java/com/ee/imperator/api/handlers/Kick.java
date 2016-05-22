@@ -10,7 +10,7 @@ import com.ee.imperator.user.Player;
 @Request(mode = "game", type = "kick")
 public class Kick {
 	public void handle(Member member, @Param("gid") int gid, @Param("uid") int uid) throws RequestException {
-		Game game = Imperator.getData().getGame(gid);
+		Game game = Imperator.getState().getGame(gid);
 		if(game == null) {
 			throw new InvalidRequestException("Game does not exist", "game", "kick");
 		} else if(!game.getOwner().equals(member)) {
@@ -22,7 +22,7 @@ public class Kick {
 		}
 		Player player = game.getPlayerById(uid);
 		if(player != null) {
-			Imperator.getData().removePlayerFromGame(player, game);
+			Imperator.getState().removePlayerFromGame(player, game);
 		}
 	}
 }

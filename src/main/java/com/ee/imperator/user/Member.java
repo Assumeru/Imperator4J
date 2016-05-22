@@ -11,12 +11,16 @@ public class Member implements User {
 	private final String name;
 	private final Language language;
 	private final boolean loggedIn;
-	private final int score;
-	private final int wins;
-	private final int losses;
+	private int score;
+	private int wins;
+	private int losses;
 
 	public Member() {
-		this(0, "Guest", Imperator.getLanguageProvider().getLanguage(Locale.US), false, 0, 0, 0);
+		this(0);
+	}
+
+	public Member(int id) {
+		this(id, "Guest", Imperator.getLanguageProvider().getLanguage(Locale.US), false, 0, 0, 0);
 	}
 
 	public Member(int id, String name, Language language, boolean loggedIn, int score, int wins, int losses) {
@@ -67,6 +71,18 @@ public class Member implements User {
 			return ((User) obj).getId() == getId();
 		}
 		return false;
+	}
+
+	public void setLosses(int losses) {
+		this.losses = losses;
+	}
+
+	public void setScore(int score) {
+		this.score = score;
+	}
+
+	public void setWins(int wins) {
+		this.wins = wins;
 	}
 
 	public boolean canDeleteMessages() {

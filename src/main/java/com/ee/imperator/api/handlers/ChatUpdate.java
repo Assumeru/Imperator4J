@@ -32,7 +32,7 @@ public class ChatUpdate {
 	static JSONArray getMessages(int gid, long time) {
 		DateFormat format = new SimpleDateFormat(Api.DATE_ATOM, Locale.US);
 		JSONArray out = new JSONArray();
-		for(ChatMessage message : Imperator.getData().getChatMessages(gid, time)) {
+		for(ChatMessage message : Imperator.getState().getChatMessages(gid, time)) {
 			JSONObject user = new JSONObject()
 					.put("id", message.getUser().getId())
 					.put("name", message.getUser().getName());

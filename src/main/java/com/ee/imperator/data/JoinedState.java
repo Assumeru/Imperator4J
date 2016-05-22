@@ -9,20 +9,19 @@ import com.ee.imperator.chat.ChatMessage;
 import com.ee.imperator.game.Attack;
 import com.ee.imperator.game.Cards.Card;
 import com.ee.imperator.game.Game;
-import com.ee.imperator.game.Game.State;
 import com.ee.imperator.game.log.LogEntry;
 import com.ee.imperator.map.Map;
 import com.ee.imperator.map.Territory;
 import com.ee.imperator.user.Member;
 import com.ee.imperator.user.Player;
 
-public class JoinedDataProvider implements DataProvider {
-	private final GameProvider gameProvider;
-	private final MemberProvider memberProvider;
+public class JoinedState implements State {
+	private final GameState gameProvider;
+	private final MemberState memberProvider;
 	private final MapProvider mapProvider;
-	private final ChatProvider chatProvider;
+	private final ChatState chatProvider;
 
-	public JoinedDataProvider(GameProvider gameProvider, MemberProvider memberProvider, MapProvider mapProvider, ChatProvider chatProvider) {
+	public JoinedState(GameState gameProvider, MemberState memberProvider, MapProvider mapProvider, ChatState chatProvider) {
 		this.gameProvider = gameProvider;
 		this.memberProvider = memberProvider;
 		this.mapProvider = mapProvider;
@@ -65,11 +64,6 @@ public class JoinedDataProvider implements DataProvider {
 	}
 
 	@Override
-	public void updateGameTime(Game game) {
-		gameProvider.updateGameTime(game);
-	}
-
-	@Override
 	public List<LogEntry> getCombatLogs(Game game, long time) {
 		return gameProvider.getCombatLogs(game, time);
 	}
@@ -90,7 +84,7 @@ public class JoinedDataProvider implements DataProvider {
 	}
 
 	@Override
-	public void updateUnitsAndState(Game game, State state, int units) {
+	public void updateUnitsAndState(Game game, Game.State state, int units) {
 		gameProvider.updateUnitsAndState(game, state, units);
 	}
 
@@ -125,7 +119,7 @@ public class JoinedDataProvider implements DataProvider {
 	}
 
 	@Override
-	public void setState(Game game, State state) {
+	public void setState(Game game, Game.State state) {
 		gameProvider.setState(game, state);
 	}
 
@@ -137,6 +131,11 @@ public class JoinedDataProvider implements DataProvider {
 	@Override
 	public void playCards(Player player, int units) {
 		gameProvider.playCards(player, units);
+	}
+
+	@Override
+	public boolean victory(Player player) {
+		return gameProvider.victory(player);
 	}
 
 	@Override
@@ -152,6 +151,16 @@ public class JoinedDataProvider implements DataProvider {
 	@Override
 	public Integer getId(Request request) {
 		return memberProvider.getId(request);
+	}
+
+	@Override
+	public void addWin(Member member, int points) {
+		memberProvider.addWin(member, points);
+	}
+
+	@Override
+	public void addLoss(Member member) {
+		memberProvider.addLoss(member);
 	}
 
 	@Override
@@ -172,7 +181,11 @@ public class JoinedDataProvider implements DataProvider {
 			try {
 				mapProvider.close();
 			} finally {
-				memberProvider.close();
+				try {
+					memberProvider.close();
+				} finally {
+					chatProvider.close();
+				}
 			}
 		}
 	}

@@ -11,12 +11,12 @@ import org.ee.web.WebApplication;
 
 import com.ee.imperator.crypt.PasswordHasher;
 import com.ee.imperator.crypt.bcrypt.BCryptHasher;
-import com.ee.imperator.data.ChatProvider;
-import com.ee.imperator.data.DataProvider;
-import com.ee.imperator.data.GameProvider;
-import com.ee.imperator.data.JoinedDataProvider;
+import com.ee.imperator.data.ChatState;
+import com.ee.imperator.data.State;
+import com.ee.imperator.data.GameState;
+import com.ee.imperator.data.JoinedState;
 import com.ee.imperator.data.MapProvider;
-import com.ee.imperator.data.MemberProvider;
+import com.ee.imperator.data.MemberState;
 import com.ee.imperator.exception.ConfigurationException;
 import com.ee.imperator.i18n.ClientSideLanguageProvider;
 import com.ee.imperator.request.RequestResolver;
@@ -25,7 +25,7 @@ import com.ee.imperator.url.UrlBuilder;
 
 public class Imperator extends WebApplication {
 	private static final Logger LOG = LogManager.createLogger();
-	private static DataProvider dataProvider;
+	private static State state;
 	private static PasswordHasher hasher;
 	private static UrlBuilder urlBuilder;
 	private static ClientSideLanguageProvider languageProvider;
@@ -34,7 +34,7 @@ public class Imperator extends WebApplication {
 	public Imperator(@Context ServletContext context) {
 		super(context);
 		initConfig();
-		initDataProvider();
+		initState();
 		initHasher();
 		initUrlBuilder();
 		initLanguage();
@@ -54,14 +54,14 @@ public class Imperator extends WebApplication {
 		}
 	}
 
-	private void initDataProvider() {
+	private void initState() {
 		try {
-			dataProvider = new JoinedDataProvider(getProviderInstance(GameProvider.class),
-					getProviderInstance(MemberProvider.class),
+			state = new JoinedState(getProviderInstance(GameState.class),
+					getProviderInstance(MemberState.class),
 					getProviderInstance(MapProvider.class),
-					getProviderInstance(ChatProvider.class));
+					getProviderInstance(ChatState.class));
 		} catch(Exception e) {
-			throw new RuntimeException("Failed to init data provider", e);
+			throw new RuntimeException("Failed to init state", e);
 		}
 	}
 
@@ -110,8 +110,8 @@ public class Imperator extends WebApplication {
 		return RequestResolver.class;
 	}
 
-	public static DataProvider getData() {
-		return dataProvider;
+	public static State getState() {
+		return state;
 	}
 
 	public static PasswordHasher getHasher() {

@@ -13,9 +13,9 @@ public class ChatAdd {
 		if(!ChatUpdate.canUseChat(member, gid)) {
 			throw new InvalidRequestException(member.getId() + " cannot use chat " + gid, "update", "chat");
 		}
-		Game game = gid != 0 ? Imperator.getData().getGame(gid) : null;
+		Game game = gid != 0 ? Imperator.getState().getGame(gid) : null;
 		ChatMessage msg = new ChatMessage(game, member, System.currentTimeMillis(), message);
-		if(!Imperator.getData().addMessage(msg)) {
+		if(!Imperator.getState().addMessage(msg)) {
 			throw new RequestException("Failed to save message", "chat", "add");
 		}
 	}

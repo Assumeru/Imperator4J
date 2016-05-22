@@ -10,8 +10,8 @@ import java.util.Map;
 import org.ee.cache.SoftReferenceCache;
 
 import com.ee.imperator.Imperator;
-import com.ee.imperator.data.BatchGameProvider;
-import com.ee.imperator.data.GameProvider;
+import com.ee.imperator.data.BatchGameState;
+import com.ee.imperator.data.GameState;
 import com.ee.imperator.game.Attack;
 import com.ee.imperator.game.Cards.Card;
 import com.ee.imperator.game.Game;
@@ -20,17 +20,17 @@ import com.ee.imperator.game.log.LogEntry;
 import com.ee.imperator.map.Territory;
 import com.ee.imperator.user.Player;
 
-public class CachedGameProvider implements GameProvider {
+public class CachedGameState implements GameState {
 	private final SoftReferenceCache<Integer, Game> cache;
-	private final GameProvider gameProvider;
+	private final GameState gameProvider;
 
-	public CachedGameProvider(GameProvider gameProvider, long timeToKeep) {
+	public CachedGameState(GameState gameProvider, long timeToKeep) {
 		this.gameProvider = gameProvider;
 		cache = new SoftReferenceCache<>(timeToKeep);
 	}
 
-	public CachedGameProvider(GameProvider gameProvider) {
-		this(gameProvider, Imperator.getConfig().getLong(CachedGameProvider.class, "timeToKeep"));
+	public CachedGameState(GameState gameProvider) {
+		this(gameProvider, Imperator.getConfig().getLong(CachedGameState.class, "timeToKeep"));
 	}
 
 	private void cache(Game game) {
@@ -41,8 +41,8 @@ public class CachedGameProvider implements GameProvider {
 
 	@Override
 	public List<Game> getGames() {
-		if(gameProvider instanceof BatchGameProvider) {
-			return loadGames((BatchGameProvider) gameProvider);
+		if(gameProvider instanceof BatchGameState) {
+			return loadGames((BatchGameState) gameProvider);
 		}
 		List<Game> games = gameProvider.getGames();
 		for(Game game : games) {
@@ -51,7 +51,7 @@ public class CachedGameProvider implements GameProvider {
 		return games;
 	}
 
-	private List<Game> loadGames(BatchGameProvider gameProvider) {
+	private List<Game> loadGames(BatchGameState gameProvider) {
 		Collection<Integer> ids = gameProvider.getGameIds();
 		List<Game> games = new ArrayList<>(ids.size());
 		Map<Integer, Integer> toLoad = new HashMap<>();
@@ -108,11 +108,6 @@ public class CachedGameProvider implements GameProvider {
 	@Override
 	public boolean removePlayerFromGame(Player player, Game game) {
 		return gameProvider.removePlayerFromGame(player, game);
-	}
-
-	@Override
-	public void updateGameTime(Game game) {
-		gameProvider.updateGameTime(game);
 	}
 
 	@Override
@@ -197,5 +192,10 @@ public class CachedGameProvider implements GameProvider {
 	@Override
 	public void playCards(Player player, int units) {
 		gameProvider.playCards(player, units);
+	}
+
+	@Override
+	public boolean victory(Player player) {
+		return gameProvider.victory(player);
 	}
 }

@@ -49,7 +49,7 @@ public class LongPolling implements RequestHandler<PageContext, Response> {
 				int gid = Integer.parseInt(arguments.get("gid"));
 				int maxTries = Imperator.getConfig().getInt(getClass(), "maxTries");
 				long sleep = Imperator.getConfig().getLong(getClass(), "sleep");
-				for(int i = 0; !Imperator.getData().hasChatMessages(gid, time) && (!game || Imperator.getData().getGame(gid).getTime() <= time) && i < maxTries || maxTries == 0; i++) {
+				for(int i = 0; !Imperator.getState().hasChatMessages(gid, time) && (!game || Imperator.getState().getGame(gid).getTime() <= time) && i < maxTries || maxTries == 0; i++) {
 					Thread.sleep(sleep);
 				}
 			} catch(NumberFormatException e) {

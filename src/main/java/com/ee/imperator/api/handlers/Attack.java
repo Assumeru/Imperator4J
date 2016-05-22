@@ -13,7 +13,7 @@ import com.ee.imperator.user.Member;
 @Request(mode = "game", type = "attack")
 public class Attack {
 	public JSONObject handle(Member member, @Param("gid") int gid, @Param("units") int units, @Param("to") String tid, @Param("from") String fid, @Param("move") int move) throws RequestException {
-		Game game = Imperator.getData().getGame(gid);
+		Game game = Imperator.getState().getGame(gid);
 		if(game == null) {
 			throw new InvalidRequestException("Game does not exist", "game", "attack");
 		} else if(!game.getCurrentPlayer().equals(member)) {
@@ -35,7 +35,7 @@ public class Attack {
 				throw new InvalidRequestException(String.valueOf(member.getLanguage().translate("One of these territories is already engaged in combat.")), "game", "attack");
 			}
 		}
-		Imperator.getData().setState(game, Game.State.COMBAT);
+		Imperator.getState().setState(game, Game.State.COMBAT);
 		com.ee.imperator.game.Attack attack = new com.ee.imperator.game.Attack(from, to, Math.max(1, move));
 		attack.rollAttack(units);
 		if(to.getUnits() == 1 || to.getOwner().getAutoRoll() || attack.attackerCannotWin()) {
@@ -43,7 +43,7 @@ public class Attack {
 			game.executeAttack(attack);
 			return getAttackResponse(game, to, from, attack);
 		}
-		Imperator.getData().saveAttack(game, attack);
+		Imperator.getState().saveAttack(game, attack);
 		return new JSONObject()
 				.put("attacks", game.getAttacks())
 				.put("attack", getAttackJSON(attack));

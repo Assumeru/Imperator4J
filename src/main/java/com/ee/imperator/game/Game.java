@@ -256,7 +256,7 @@ public class Game implements Comparable<Game> {
 	public Card giveCard(Player player, Card card) {
 		if(card != null && player.getCards().contains(card) || player.getCards().size() < Cards.MAX_CARDS) {
 			Card random = Card.getRandom(player.getCards());
-			if(Imperator.getData().addCards(player, random, 1)) {
+			if(Imperator.getState().addCards(player, random, 1)) {
 				return random;
 			}
 		}
@@ -279,15 +279,23 @@ public class Game implements Comparable<Game> {
 				break;
 			}
 		}
-		Imperator.getData().startTurn(next);
+		Imperator.getState().startTurn(next);
 	}
 
-	private void victory(Player player) {
-		//TODO victory
+	private void victory(Player winner) {
+		if(Imperator.getState().victory(winner)) {
+			for(Player player : players) {
+				if(player.equals(winner)) {
+					Imperator.getState().addWin(player.getMember(), players.size() - 1);
+				} else {
+					Imperator.getState().addLoss(player.getMember());
+				}
+			}
+		}
 	}
 
 	public void forfeit(Player player) {
-		Imperator.getData().forfeit(player);
+		Imperator.getState().forfeit(player);
 		int numRemaining = 0;
 		Player last = null;
 		for(Player remaining : players) {
@@ -305,7 +313,7 @@ public class Game implements Comparable<Game> {
 
 	public void executeAttack(Attack attack) {
 		Player defender = attack.getDefender().getOwner();
-		Imperator.getData().attack(this, attack);
+		Imperator.getState().attack(this, attack);
 		if(attack.getAttacker().getOwner().equals(attack.getDefender().getOwner())) {
 			for(Territory territory : map.getTerritories().values()) {
 				if(territory.getOwner().equals(defender)) {
@@ -313,11 +321,11 @@ public class Game implements Comparable<Game> {
 				}
 			}
 			boolean newMissions = false;
-			Imperator.getData().setState(defender, Player.State.GAME_OVER);
+			Imperator.getState().setState(defender, Player.State.GAME_OVER);
 			for(Player player : players) {
 				if(player.getMission().containsEliminate() && defender.equals(player.getMission().getTarget())) {
 					if(player.equals(attack.getAttacker().getOwner())) {
-						Imperator.getData().setState(player, Player.State.DESTROYED_RIVAL);
+						Imperator.getState().setState(player, Player.State.DESTROYED_RIVAL);
 					} else {
 						player.setMission(new PlayerMission(map.getMissions().get(player.getMission().getFallback()), player, 0));
 						newMissions = true;
@@ -325,7 +333,7 @@ public class Game implements Comparable<Game> {
 				}
 			}
 			if(newMissions) {
-				Imperator.getData().saveMissions(this);
+				Imperator.getState().saveMissions(this);
 			}
 		}
 	}

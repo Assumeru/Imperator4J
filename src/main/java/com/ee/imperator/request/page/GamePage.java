@@ -32,7 +32,7 @@ public class GamePage extends AbstractVariablePage {
 		if(!context.getUser().isLoggedIn()) {
 			throw new WebApplicationException(Status.FORBIDDEN);
 		}
-		Game game = Imperator.getData().getGame(id);
+		Game game = Imperator.getState().getGame(id);
 		if(game == null) {
 			throw new WebApplicationException(Status.NOT_FOUND);
 		}
@@ -97,7 +97,7 @@ public class GamePage extends AbstractVariablePage {
 				JoinGameForm form = new JoinGameForm(context, game, colors);
 				Player player = new Player(context.getUser());
 				player.setColor(form.getColor());
-				if(Imperator.getData().addPlayerToGame(player, game)) {
+				if(Imperator.getState().addPlayerToGame(player, game)) {
 					redirect(Imperator.getUrlBuilder().game(game));
 				}
 			} catch (FormException e) {
@@ -110,20 +110,20 @@ public class GamePage extends AbstractVariablePage {
 	}
 
 	private void leaveGame(PageContext context, Game game) {
-		if(Imperator.getData().removePlayerFromGame(game.getPlayerById(context.getUser().getId()), game)) {
+		if(Imperator.getState().removePlayerFromGame(game.getPlayerById(context.getUser().getId()), game)) {
 			redirect(Imperator.getUrlBuilder().game(game));
 		}
 	}
 
 	private void deleteGame(Game game) {
-		if(Imperator.getData().deleteGame(game)) {
+		if(Imperator.getState().deleteGame(game)) {
 			redirect("/");
 		}
 	}
 
 	private synchronized void startGame(PageContext context, Game game) {
 		if(game.getPlayers().size() == game.getMap().getPlayers()) {
-			Imperator.getData().startGame(game);
+			Imperator.getState().startGame(game);
 			redirect(Imperator.getUrlBuilder().game(game));
 		}
 	}

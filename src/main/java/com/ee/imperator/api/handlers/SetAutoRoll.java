@@ -12,7 +12,7 @@ import com.ee.imperator.user.Player;
 @Request(mode = "game", type = "autoroll")
 public class SetAutoRoll {
 	public JSONObject handle(Member member, @Param("gid") int gid, @Param("autoroll") boolean autoroll) throws RequestException {
-		Game game = Imperator.getData().getGame(gid);
+		Game game = Imperator.getState().getGame(gid);
 		if(game == null) {
 			throw new InvalidRequestException("Game does not exist", "game", "autoroll");
 		}
@@ -20,7 +20,7 @@ public class SetAutoRoll {
 		if(player == null) {
 			throw new InvalidRequestException("Player not in game", "game", "autoroll");
 		}
-		Imperator.getData().setAutoRoll(player, autoroll);
+		Imperator.getState().setAutoRoll(player, autoroll);
 		return new JSONObject().put("autoroll", player.getAutoRoll());
 	}
 }

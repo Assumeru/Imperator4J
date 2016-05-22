@@ -21,7 +21,7 @@ import com.ee.imperator.user.User;
 @Request(mode = "update", type = "game")
 public class GameUpdate {
 	public JSONObject handle(Member member, @Param("gid") int gid, @Param("time") long time) {
-		Game game = Imperator.getData().getGame(gid);
+		Game game = Imperator.getState().getGame(gid);
 		JSONObject output = new JSONObject()
 				.put("update", System.currentTimeMillis());
 		if(game == null) {
@@ -63,7 +63,7 @@ public class GameUpdate {
 		JSONArray combatLog = new JSONArray();
 		output.put("combatlog", combatLog);
 		DateFormat format = new SimpleDateFormat(Api.DATE_ATOM, Locale.US);
-		for(LogEntry entry : Imperator.getData().getCombatLogs(game, time)) {
+		for(LogEntry entry : Imperator.getState().getCombatLogs(game, time)) {
 			combatLog.put(new JSONObject()
 					.put("type", entry.getType().ordinal())
 					.put("time", format.format(new Date(entry.getTime())))
@@ -119,7 +119,7 @@ public class GameUpdate {
 	}
 
 	static boolean playerInGame(User user, int gid) {
-		Game game = Imperator.getData().getGame(gid);
+		Game game = Imperator.getState().getGame(gid);
 		if(game != null) {
 			return game.getPlayers().contains(user);
 		}

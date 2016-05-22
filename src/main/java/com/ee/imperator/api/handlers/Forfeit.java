@@ -10,7 +10,7 @@ import com.ee.imperator.user.Member;
 @Request(mode = "game", type = "forfeit")
 public class Forfeit {
 	public void handle(Member member, @Param("gid") int gid) throws RequestException {
-		Game game = Imperator.getData().getGame(gid);
+		Game game = Imperator.getState().getGame(gid);
 		if(game == null) {
 			throw new InvalidRequestException("Game does not exist", "game", "forfeit");
 		} else if(!game.getPlayers().contains(member)) {

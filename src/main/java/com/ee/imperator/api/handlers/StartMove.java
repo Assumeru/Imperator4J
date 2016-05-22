@@ -11,7 +11,7 @@ import com.ee.imperator.user.Member;
 @Request(mode = "game", type = "start-move")
 public class StartMove {
 	public JSONObject handle(Member member, @Param("gid") int gid) throws RequestException {
-		Game game = Imperator.getData().getGame(gid);
+		Game game = Imperator.getState().getGame(gid);
 		if(game == null) {
 			throw new InvalidRequestException("Game does not exist", "game", "start-move");
 		} else if(!game.getCurrentPlayer().equals(member)) {
@@ -21,7 +21,7 @@ public class StartMove {
 		} else if(!game.getAttacks().isEmpty()) {
 			throw new InvalidRequestException(String.valueOf(member.getLanguage().translate("All battles need to finish before units can be moved.")), "game", "start-move");
 		}
-		Imperator.getData().updateUnitsAndState(game, Game.State.POST_COMBAT, Game.MAX_MOVE_UNITS);
+		Imperator.getState().updateUnitsAndState(game, Game.State.POST_COMBAT, Game.MAX_MOVE_UNITS);
 		return new JSONObject()
 				.put("state", game.getState().ordinal())
 				.put("units", game.getUnits());

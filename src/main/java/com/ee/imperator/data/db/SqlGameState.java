@@ -1,7 +1,5 @@
 package com.ee.imperator.data.db;
 
-import java.io.Closeable;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -19,7 +17,7 @@ import org.ee.logger.Logger;
 import org.ee.sql.PreparedStatementBuilder;
 
 import com.ee.imperator.Imperator;
-import com.ee.imperator.data.BatchGameProvider;
+import com.ee.imperator.data.BatchGameState;
 import com.ee.imperator.game.Attack;
 import com.ee.imperator.game.Cards;
 import com.ee.imperator.game.Cards.Card;
@@ -37,7 +35,7 @@ import com.ee.imperator.mission.PlayerMission;
 import com.ee.imperator.user.Player;
 import com.mysql.cj.api.jdbc.Statement;
 
-public class SqlGameProvider implements BatchGameProvider {
+public class SqlGameState extends CloseableDataSource implements BatchGameState {
 	private static final Logger LOG = LogManager.createLogger();
 	private static final String[] CARD_COLUMNS = new String[Card.values().length];
 	static {
@@ -46,10 +44,9 @@ public class SqlGameProvider implements BatchGameProvider {
 		CARD_COLUMNS[Card.CAVALRY.ordinal()] = "c_cav";
 		CARD_COLUMNS[Card.JOKER.ordinal()] = "c_jok";
 	}
-	private final DataSource dataSource;
 
-	public SqlGameProvider(DataSource dataSource) {
-		this.dataSource = dataSource;
+	public SqlGameState(DataSource dataSource) {
+		super(dataSource);
 	}
 
 	@Override
@@ -111,7 +108,7 @@ public class SqlGameProvider implements BatchGameProvider {
 		while(result.next()) {
 			try {
 				int id = result.getInt(1);
-				com.ee.imperator.map.Map map = Imperator.getData().getMap(result.getInt(2)).clone();
+				com.ee.imperator.map.Map map = Imperator.getState().getMap(result.getInt(2)).clone();
 				Map<Integer, Player> players = loadPlayers(id, map.getMissions());
 				Game game = new Game(id, map, result.getString(3), result.getInt(4), result.getInt(5), result.getLong(6), Game.State.values()[result.getInt(7)], result.getInt(8), result.getBoolean(9), result.getString(10), players.values());
 				loadTerritories(game, conn);
@@ -135,7 +132,7 @@ public class SqlGameProvider implements BatchGameProvider {
 			statement.setInt(1, id);
 			ResultSet result = statement.executeQuery();
 			while(result.next()) {
-				Player player = new Player(Imperator.getData().getMember(result.getInt(1)));
+				Player player = new Player(Imperator.getState().getMember(result.getInt(1)));
 				player.setColor(result.getString(2));
 				player.setAutoRoll(result.getBoolean(3));
 				Integer muid = result.getInt(5);
@@ -185,19 +182,6 @@ public class SqlGameProvider implements BatchGameProvider {
 	}
 
 	@Override
-	public void close() throws IOException {
-		if(dataSource instanceof Closeable) {
-			((Closeable) dataSource).close();
-		} else if(dataSource instanceof AutoCloseable) {
-			try {
-				((AutoCloseable) dataSource).close();
-			} catch (Exception e) {
-				throw new IOException("Failed to close data source", e);
-			}
-		}
-	}
-
-	@Override
 	public Game createGame(Player owner, com.ee.imperator.map.Map map, String name, String password) {
 		try(Connection conn = dataSource.getConnection()) {
 			StringBuilder query = new StringBuilder("INSERT INTO `games` (`map`, `name`, `uid`, `time`");
@@ -243,10 +227,12 @@ public class SqlGameProvider implements BatchGameProvider {
 	@Override
 	public boolean addPlayerToGame(Player player, Game game) {
 		try(Connection conn = dataSource.getConnection()) {
+			long time = System.currentTimeMillis();
 			addPlayerToGame(conn, player, game);
+			updateGameTime(conn, game, time);
 			conn.commit();
+			game.setTime(time);
 			game.addPlayer(player);
-			Imperator.getData().updateGameTime(game);
 			return true;
 		} catch (SQLException e) {
 			LOG.e("Failed to add player to game", e);
@@ -257,13 +243,15 @@ public class SqlGameProvider implements BatchGameProvider {
 	@Override
 	public boolean removePlayerFromGame(Player player, Game game) {
 		try(Connection conn = dataSource.getConnection()) {
+			long time = System.currentTimeMillis();
 			PreparedStatement statement = conn.prepareStatement("DELETE FROM `gamesjoined` WHERE `gid` = ? AND `uid` = ?");
 			statement.setInt(1, game.getId());
 			statement.setInt(2, player.getId());
 			statement.execute();
+			updateGameTime(conn, game, time);
 			conn.commit();
 			game.removePlayer(player);
-			Imperator.getData().updateGameTime(game);
+			game.setTime(time);
 			return true;
 		} catch (SQLException e) {
 			LOG.e("Failed to remove player from game", e);
@@ -339,18 +327,12 @@ public class SqlGameProvider implements BatchGameProvider {
 		statement.execute();
 	}
 
-	@Override
-	public void updateGameTime(Game game) {
-		game.setTime(System.currentTimeMillis());
-		try(Connection conn = dataSource.getConnection()) {
-			PreparedStatement statement = conn.prepareStatement("UPDATE `games` SET `time` = ? WHERE `gid` = ?");
-			statement.setLong(1, game.getTime());
-			statement.setLong(2, game.getId());
-			statement.execute();
-			conn.commit();
-		} catch (SQLException e) {
-			LOG.e("Failed to update game time", e);
-		}
+	private void updateGameTime(Connection conn, Game game, long time) throws SQLException {
+		PreparedStatement statement = conn.prepareStatement("UPDATE `games` SET `time` = ? WHERE `gid` = ?");
+		statement.setLong(1, time);
+		statement.setLong(2, game.getId());
+		statement.execute();
+		conn.commit();
 	}
 
 	@Override
@@ -647,16 +629,20 @@ public class SqlGameProvider implements BatchGameProvider {
 	@Override
 	public void setState(Player player, Player.State state) {
 		try(Connection conn = dataSource.getConnection()) {
-			PreparedStatement statement = conn.prepareStatement("UPDATE `gamesjoined` SET `state` = ? WHERE `gid` = ? AND `uid` = ?");
-			statement.setInt(1, state.ordinal());
-			statement.setInt(2, player.getGame().getId());
-			statement.setInt(3, player.getId());
-			statement.execute();
+			setState(conn, player, state);
 			conn.commit();
 			player.setState(state);
 		} catch (SQLException e) {
 			LOG.e("Failed to save player state", e);
 		}
+	}
+
+	private void setState(Connection conn, Player player, Player.State state) throws SQLException {
+		PreparedStatement statement = conn.prepareStatement("UPDATE `gamesjoined` SET `state` = ? WHERE `gid` = ? AND `uid` = ?");
+		statement.setInt(1, state.ordinal());
+		statement.setInt(2, player.getGame().getId());
+		statement.setInt(3, player.getId());
+		statement.execute();
 	}
 
 	@Override
@@ -721,5 +707,45 @@ public class SqlGameProvider implements BatchGameProvider {
 		} catch (SQLException e) {
 			LOG.e("Failed to play cards", e);
 		}
+	}
+
+	@Override
+	public boolean victory(Player player) {
+		try(Connection conn = dataSource.getConnection()) {
+			Game game = player.getGame();
+			deleteCombatLogs(conn, game);
+			deleteTerritories(conn, game);
+			Player.State playerState = Player.State.VICTORIOUS;
+			Game.State gameState = Game.State.FINISHED;
+			long time = System.currentTimeMillis();
+			setState(conn, player, playerState);
+			PreparedStatement statement = conn.prepareStatement("UPDATE `games` SET `state` = ?, `turn` = ?, `time` = ? WHERE `gid` = ?");
+			statement.setInt(1, gameState.ordinal());
+			statement.setInt(2, 0);
+			statement.setLong(3, time);
+			statement.setInt(4, game.getId());
+			statement.execute();
+			conn.commit();
+			game.setState(gameState);
+			game.setTime(time);
+			game.setCurrentTurn(null);
+			player.setState(playerState);
+			return true;
+		} catch (SQLException e) {
+			LOG.e("Failed to end game", e);
+		}
+		return false;
+	}
+
+	private void deleteCombatLogs(Connection conn, Game game) throws SQLException {
+		PreparedStatement statement = conn.prepareStatement("DELETE FROM `combatlog` WHERE `gid` = ?");
+		statement.setInt(1, game.getId());
+		statement.execute();
+	}
+
+	private void deleteTerritories(Connection conn, Game game) throws SQLException {
+		PreparedStatement statement = conn.prepareStatement("DELETE FROM `territories` WHERE `gid` = ?");
+		statement.setInt(1, game.getId());
+		statement.execute();
 	}
 }

@@ -13,7 +13,7 @@ import com.ee.imperator.user.Member;
 @Request(mode = "game", type = "place-units")
 public class PlaceUnits {
 	public JSONObject handle(Member member, @Param("gid") int gid, @Param("units") int units, @Param("territory") String tid) throws RequestException {
-		Game game = Imperator.getData().getGame(gid);
+		Game game = Imperator.getState().getGame(gid);
 		if(game == null) {
 			throw new InvalidRequestException("Game does not exist", "game", "place-units");
 		} else if(!game.getCurrentPlayer().equals(member)) {
@@ -30,7 +30,7 @@ public class PlaceUnits {
 		} else if(!territory.getOwner().equals(member)) {
 			throw new InvalidRequestException("Not your territory", "game", "place-units");
 		}
-		Imperator.getData().placeUnits(game, territory, Math.max(1, units));
+		Imperator.getState().placeUnits(game, territory, Math.max(1, units));
 		return new JSONObject()
 				.put("update", game.getTime())
 				.put("units", game.getUnits())

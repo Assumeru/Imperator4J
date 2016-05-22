@@ -11,7 +11,7 @@ import com.ee.imperator.map.Map;
 import com.ee.imperator.map.Territory;
 import com.ee.imperator.user.Player;
 
-public interface GameProvider extends Closeable {
+public interface GameState extends Closeable {
 	List<Game> getGames();
 
 	Game getGame(int id);
@@ -25,8 +25,6 @@ public interface GameProvider extends Closeable {
 	boolean deleteGame(Game game);
 
 	void startGame(Game game);
-
-	void updateGameTime(Game game);
 
 	List<LogEntry> getCombatLogs(Game game, long time);
 
@@ -55,4 +53,6 @@ public interface GameProvider extends Closeable {
 	void moveUnits(Game game, Territory from, Territory to, int move);
 
 	void playCards(Player player, int units);
+
+	boolean victory(Player player);
 }

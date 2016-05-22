@@ -14,16 +14,15 @@ import org.ee.logger.Logger;
 
 import com.ee.imperator.Imperator;
 import com.ee.imperator.chat.ChatMessage;
-import com.ee.imperator.data.ChatProvider;
+import com.ee.imperator.data.ChatState;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.user.User;
 
-public class SqlChatProvider implements ChatProvider {
+public class SqlChatState extends CloseableDataSource implements ChatState {
 	private static final Logger LOG = LogManager.createLogger();
-	private final DataSource dataSource;
 
-	public SqlChatProvider(DataSource dataSource) {
-		this.dataSource = dataSource;
+	public SqlChatState(DataSource dataSource) {
+		super(dataSource);
 	}
 
 	@Override
@@ -35,14 +34,14 @@ public class SqlChatProvider implements ChatProvider {
 			statement.setInt(2, id);
 			ResultSet result = statement.executeQuery();
 			while(result.next()) {
-				Game game = id == 0 ? null : Imperator.getData().getGame(id);
+				Game game = id == 0 ? null : Imperator.getState().getGame(id);
 				int uid = result.getInt(1);
 				User user = null;
 				if(game != null) {
 					user = game.getPlayerById(uid);
 				}
 				if(user == null) {
-					user = Imperator.getData().getMember(uid);
+					user = Imperator.getState().getMember(uid);
 				}
 				messages.add(new ChatMessage(game, user, result.getLong(2), result.getString(3)));
 			}

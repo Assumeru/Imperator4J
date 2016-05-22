@@ -25,7 +25,7 @@ public class RequestResolver extends AbstractRequestResolver {
 
 	@Override
 	protected PageContext createContext(Request request) {
-		return new DefaultPageContext(Imperator.getTemplateProvider().createTemplate("page", getRequest(), getResponse(), getServletContext()), Imperator.getData().getMember(request), getNavigation(), request);
+		return new DefaultPageContext(Imperator.getTemplateProvider().createTemplate("page", getRequest(), getResponse(), getServletContext()), Imperator.getState().getMember(request), getNavigation(), request);
 	}
 
 	@Override

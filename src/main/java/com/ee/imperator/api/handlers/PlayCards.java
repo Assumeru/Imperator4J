@@ -12,7 +12,7 @@ import com.ee.imperator.user.Member;
 @Request(mode = "game", type = "play-cards")
 public class PlayCards {
 	public JSONObject handle(Member member, @Param("gid") int gid, @Param("units") int units) throws RequestException {
-		Game game = Imperator.getData().getGame(gid);
+		Game game = Imperator.getState().getGame(gid);
 		if(game == null) {
 			throw new InvalidRequestException("Game does not exist", "game", "play-cards");
 		} else if(!game.getCurrentPlayer().equals(member)) {
@@ -22,7 +22,7 @@ public class PlayCards {
 		} else if(!game.getCurrentPlayer().getCards().canPlay(units)) {
 			throw new InvalidRequestException("Combination not playable", "game", "play-cards");
 		}
-		Imperator.getData().playCards(game.getCurrentPlayer(), units);
+		Imperator.getState().playCards(game.getCurrentPlayer(), units);
 		return new JSONObject()
 				.put("update", game.getTime())
 				.put("units", game.getUnits())
