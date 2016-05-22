@@ -39,11 +39,23 @@ public class GamePage extends AbstractVariablePage {
 		context.setVariable(PageContext.VARIABLE_TITLE, game.getName());
 		context.setVariable("game", game);
 		if(game.hasEnded()) {
-			// TODO post game
+			setPostGameVariables(context, game);
 		} else if(game.hasStarted()) {
 			setInGameVariables(context, game);
 		} else {
 			setPreGameVariables(context, game);
+		}
+	}
+
+	private void addChat(PageContext context, Game game) {
+		addChatJavascript(context, game.getId(), context.getUser().canDeleteMessages() || game.getOwner().equals(context.getUser()));
+	}
+
+	private void setPostGameVariables(PageContext context, Game game) {
+		context.setVariable(PageContext.VARIABLE_BODY, "postgame::fragment");
+		PageContext.VARIABLE_JAVASCRIPT_SETTINGS.put(context, "postgame", true);
+		if(game.getPlayers().contains(context.getUser())) {
+			addChat(context, game);
 		}
 	}
 
@@ -54,7 +66,7 @@ public class GamePage extends AbstractVariablePage {
 		if(game.getPlayers().contains(context.getUser())) {
 			context.setVariable(PageContext.VARIABLE_MAIN_CLASS, "container-fluid");
 			context.setVariable("player", game.getPlayerById(context.getUser().getId()));
-			addChatJavascript(context, game.getId(), context.getUser().canDeleteMessages() || game.getOwner().equals(context.getUser()));
+			addChat(context, game);
 		} else {
 			addApiJavascript(context, game.getId());
 			context.setVariable(PageContext.VARIABLE_MAIN_CLASS, "container-fluid not-player");
@@ -73,7 +85,7 @@ public class GamePage extends AbstractVariablePage {
 			context.setVariable("colors", colors);
 		} else {
 			PageContext.VARIABLE_JAVASCRIPT.add(context, "pregame.js");
-			addChatJavascript(context, game.getId(), context.getUser().canDeleteMessages() || game.getOwner().equals(context.getUser()));
+			addChat(context, game);
 			if(context.getPostParams() != null) {
 				if(context.getUser().equals(game.getOwner())) {
 					if(context.getPostParams().getFirst("startgame") != null && game.getPlayers().size() == game.getMap().getPlayers()) {
