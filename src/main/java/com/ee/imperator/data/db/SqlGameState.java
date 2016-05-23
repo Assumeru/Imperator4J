@@ -33,6 +33,7 @@ import com.ee.imperator.map.Territory;
 import com.ee.imperator.mission.Mission;
 import com.ee.imperator.mission.PlayerMission;
 import com.ee.imperator.user.Player;
+import com.ee.imperator.user.User;
 import com.mysql.cj.api.jdbc.Statement;
 
 public class SqlGameState extends CloseableDataSource implements BatchGameState {
@@ -61,6 +62,19 @@ public class SqlGameState extends CloseableDataSource implements BatchGameState 
 	}
 
 	@Override
+	public List<Game> getGames(User user) {
+		List<Game> games = new ArrayList<>();
+		try(Connection conn = dataSource.getConnection()) {
+			PreparedStatement statement = conn.prepareStatement("SELECT `games`.`gid`, `games`.`map`, `games`.`name`, `games`.`uid`, `games`.`turn`, `games`.`time`, `games`.`state`, `games`.`units`, `games`.`conquered`, `games`.`password` FROM `games` JOIN `gamesjoined` ON(`games`.`gid` = `gamesjoined`.`gid`) WHERE `gamesjoined`.`gid` IN(SELECT `gid` FROM `gamesjoined` WHERE `uid` = ?) GROUP BY `gamesjoined`.`gid`");
+			statement.setInt(1, user.getId());
+			loadGames(statement.executeQuery(), games, conn);
+		} catch (SQLException e) {
+			LOG.e("Error loading games", e);
+		}
+		return games;
+	}
+
+	@Override
 	public Game getGame(int id) {
 		List<Game> games = new ArrayList<>(1);
 		try(Connection conn = dataSource.getConnection()) {
@@ -78,6 +92,22 @@ public class SqlGameState extends CloseableDataSource implements BatchGameState 
 		List<Integer> ids = new ArrayList<>();
 		try(Connection conn = dataSource.getConnection()) {
 			ResultSet result = conn.prepareCall("SELECT `gid` FROM `games`").executeQuery();
+			while(result.next()) {
+				ids.add(result.getInt(1));
+			}
+		} catch (SQLException e) {
+			LOG.e("Error loading game ids", e);
+		}
+		return ids;
+	}
+
+	@Override
+	public Collection<Integer> getGameIds(User user) {
+		List<Integer> ids = new ArrayList<>();
+		try(Connection conn = dataSource.getConnection()) {
+			PreparedStatement statement = conn.prepareStatement("SELECT `games`.`gid` FROM `games` JOIN `gamesjoined` ON(`games`.`gid` = `gamesjoined`.`gid`) WHERE `gamesjoined`.`gid` IN(SELECT `gid` FROM `gamesjoined` WHERE `uid` = ?) GROUP BY `gamesjoined`.`gid`");
+			statement.setInt(1, user.getId());
+			ResultSet result = statement.executeQuery();
 			while(result.next()) {
 				ids.add(result.getInt(1));
 			}

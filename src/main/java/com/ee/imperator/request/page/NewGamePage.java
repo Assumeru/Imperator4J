@@ -4,8 +4,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.ForbiddenException;
 
 import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
@@ -30,7 +29,7 @@ public class NewGamePage extends ImperatorPage {
 	@Override
 	protected void setVariables(PageContext context) {
 		if(!context.getUser().isLoggedIn()) {
-			throw new WebApplicationException(Status.FORBIDDEN);
+			throw new ForbiddenException();
 		}
 		if(context.getPostParams() != null) {
 			try {

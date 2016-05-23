@@ -2,9 +2,8 @@ package com.ee.imperator.request.page;
 
 import java.util.Arrays;
 
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response.Status;
 
 import com.ee.imperator.Imperator;
 import com.ee.imperator.map.Map;
@@ -18,7 +17,7 @@ public class MapPage extends AbstractVariablePage {
 	public void setVariables(PageContext context, @PathParam("id") int id) {
 		Map map = Imperator.getState().getMap(id);
 		if(map == null) {
-			throw new WebApplicationException(Status.NOT_FOUND);
+			throw new NotFoundException();
 		} else {
 			context.setVariable(PageContext.VARIABLE_TITLE, map.getName());
 			context.setVariable(PageContext.VARIABLE_CSS, Arrays.asList("map.css"));

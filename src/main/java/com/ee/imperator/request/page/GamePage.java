@@ -6,9 +6,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import javax.ws.rs.ForbiddenException;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response.Status;
 
 import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
@@ -30,11 +30,11 @@ public class GamePage extends AbstractVariablePage {
 
 	public void setVariables(PageContext context, @PathParam("id") int id) {
 		if(!context.getUser().isLoggedIn()) {
-			throw new WebApplicationException(Status.FORBIDDEN);
+			throw new ForbiddenException();
 		}
 		Game game = Imperator.getState().getGame(id);
 		if(game == null) {
-			throw new WebApplicationException(Status.NOT_FOUND);
+			throw new NotFoundException();
 		}
 		context.setVariable(PageContext.VARIABLE_TITLE, game.getName());
 		context.setVariable("game", game);

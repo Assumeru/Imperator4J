@@ -10,9 +10,12 @@ import com.ee.imperator.game.log.LogEntry;
 import com.ee.imperator.map.Map;
 import com.ee.imperator.map.Territory;
 import com.ee.imperator.user.Player;
+import com.ee.imperator.user.User;
 
 public interface GameState extends Closeable {
 	List<Game> getGames();
+
+	List<Game> getGames(User user);
 
 	Game getGame(int id);
 

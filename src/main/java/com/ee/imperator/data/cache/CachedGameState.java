@@ -19,6 +19,7 @@ import com.ee.imperator.game.Game.State;
 import com.ee.imperator.game.log.LogEntry;
 import com.ee.imperator.map.Territory;
 import com.ee.imperator.user.Player;
+import com.ee.imperator.user.User;
 
 public class CachedGameState implements GameState {
 	private final SoftReferenceCache<Integer, Game> cache;
@@ -51,8 +52,27 @@ public class CachedGameState implements GameState {
 		return games;
 	}
 
+	@Override
+	public List<Game> getGames(User user) {
+		if(gameProvider instanceof BatchGameState) {
+			return loadGames((BatchGameState) gameProvider, user);
+		}
+		List<Game> games = gameProvider.getGames(user);
+		for(Game game : games) {
+			cache(game);
+		}
+		return games;
+	}
+
 	private List<Game> loadGames(BatchGameState gameProvider) {
-		Collection<Integer> ids = gameProvider.getGameIds();
+		return loadGames(gameProvider, gameProvider.getGameIds());
+	}
+
+	private List<Game> loadGames(BatchGameState gameProvider, User user) {
+		return loadGames(gameProvider, gameProvider.getGameIds(user));
+	}
+
+	private List<Game> loadGames(BatchGameState gameProvider, Collection<Integer> ids) {
 		List<Game> games = new ArrayList<>(ids.size());
 		Map<Integer, Integer> toLoad = new HashMap<>();
 		for(Integer id : ids) {

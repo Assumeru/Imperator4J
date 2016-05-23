@@ -14,6 +14,7 @@ import com.ee.imperator.map.Map;
 import com.ee.imperator.map.Territory;
 import com.ee.imperator.user.Member;
 import com.ee.imperator.user.Player;
+import com.ee.imperator.user.User;
 
 public class JoinedState implements State {
 	private final GameState gameProvider;
@@ -31,6 +32,11 @@ public class JoinedState implements State {
 	@Override
 	public List<Game> getGames() {
 		return gameProvider.getGames();
+	}
+
+	@Override
+	public List<Game> getGames(User user) {
+		return gameProvider.getGames(user);
 	}
 
 	@Override
