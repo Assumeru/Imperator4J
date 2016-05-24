@@ -29,7 +29,7 @@ public class GamePage extends AbstractVariablePage {
 	}
 
 	public void setVariables(PageContext context, @PathParam("id") int id) {
-		if(!context.getUser().isLoggedIn()) {
+		if(context.getUser().isGuest()) {
 			throw new ForbiddenException();
 		}
 		Game game = Imperator.getState().getGame(id);

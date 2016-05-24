@@ -15,7 +15,7 @@ public class MyGames extends ImperatorPage {
 
 	@Override
 	protected void setVariables(PageContext context) {
-		if(!context.getUser().isLoggedIn()) {
+		if(context.getUser().isGuest()) {
 			throw new ForbiddenException();
 		}
 		addChatJavascript(context, 0, context.getUser().canDeleteMessages());

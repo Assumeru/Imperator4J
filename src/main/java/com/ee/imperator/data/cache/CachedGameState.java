@@ -218,4 +218,9 @@ public class CachedGameState implements GameState {
 	public boolean victory(Player player) {
 		return gameProvider.victory(player);
 	}
+
+	@Override
+	public void deleteAttack(Attack attack) {
+		gameProvider.deleteAttack(attack);
+	}
 }

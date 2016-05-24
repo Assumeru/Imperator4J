@@ -1,6 +1,7 @@
 package com.ee.imperator.data;
 
 import java.io.Closeable;
+import java.util.List;
 
 import org.ee.web.request.Request;
 
@@ -16,4 +17,6 @@ public interface MemberState extends Closeable {
 	void addWin(Member member, int points);
 
 	void addLoss(Member member);
+
+	List<Member> getMembers();
 }

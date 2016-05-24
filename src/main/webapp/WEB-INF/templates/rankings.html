@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body th:fragment="fragment">
+<section>
+	<h1 th:text="${i18n.__(title)}"></h1>
+	<table id="rankings" class="table table-striped table-hover sortable">
+		<thead>
+			<tr><th th:text="${i18n.__('#')"></th><th th:text="${i18n.__('Name')"></th><th th:text="${i18n.__('Wins')"></th><th th:text="${i18n.__('Losses')"></th><th class="headerSortUp" th:text="${i18n.__('Score')"></th></tr>
+		</thead>
+		<tbody>
+			<tr th:each="user : ${users}">
+				<td th:text="${userStat.index}"></td>
+				<td th:text="${user.name}"></td>
+				<td th:text="${user.wins}"></td>
+				<td th:text="${user.losses}"></td>
+				<td th:text="${user.score}"></td>
+			</tr>
+		</tbody>
+	</table>
+</section>
+</body>
+</html>

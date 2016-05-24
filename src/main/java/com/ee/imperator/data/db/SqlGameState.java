@@ -138,7 +138,7 @@ public class SqlGameState extends CloseableDataSource implements BatchGameState 
 		while(result.next()) {
 			try {
 				int id = result.getInt(1);
-				com.ee.imperator.map.Map map = Imperator.getState().getMap(result.getInt(2)).clone();
+				com.ee.imperator.map.Map map = Imperator.getMapProvider().getMap(result.getInt(2)).clone();
 				Map<Integer, Player> players = loadPlayers(id, map.getMissions());
 				Game game = new Game(id, map, result.getString(3), result.getInt(4), result.getInt(5), result.getLong(6), Game.State.values()[result.getInt(7)], result.getInt(8), result.getBoolean(9), result.getString(10), players.values());
 				loadTerritories(game, conn);
@@ -235,7 +235,7 @@ public class SqlGameState extends CloseableDataSource implements BatchGameState 
 			statement.execute();
 			ResultSet result = statement.getGeneratedKeys();
 			if(result.next()) {
-				Game game = new Game(result.getInt(1), map, name, owner, password, time);
+				Game game = new Game(result.getInt(1), map.clone(), name, owner, password, time);
 				addPlayerToGame(conn, owner, game);
 				conn.commit();
 				return game;
@@ -777,5 +777,21 @@ public class SqlGameState extends CloseableDataSource implements BatchGameState 
 		PreparedStatement statement = conn.prepareStatement("DELETE FROM `territories` WHERE `gid` = ?");
 		statement.setInt(1, game.getId());
 		statement.execute();
+	}
+
+	@Override
+	public void deleteAttack(Attack attack) {
+		Game game = attack.getAttacker().getOwner().getGame();
+		try(Connection conn = dataSource.getConnection()) {
+			PreparedStatement statement = conn.prepareStatement("DELETE FROM `attacks` WHERE `gid` = ? AND `a_territory` = ? AND `d_territory` = ?");
+			statement.setInt(1, game.getId());
+			statement.setString(2, attack.getAttacker().getId());
+			statement.setString(3, attack.getDefender().getId());
+			statement.execute();
+			conn.commit();
+		} catch (SQLException e) {
+			LOG.e("Failed to delete attack", e);
+		}
+		game.getAttacks().remove(attack);
 	}
 }

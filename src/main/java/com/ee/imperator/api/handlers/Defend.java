@@ -29,6 +29,7 @@ public class Defend {
 		com.ee.imperator.game.Attack attack = getAttack(game, to, from);
 		attack.rollDefence(units);
 		game.executeAttack(attack);
+		Imperator.getState().deleteAttack(attack);
 		return Attack.getAttackResponse(game, to, from, attack);
 	}
 

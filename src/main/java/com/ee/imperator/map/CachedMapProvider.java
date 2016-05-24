@@ -1,13 +1,10 @@
-package com.ee.imperator.data.xml;
+package com.ee.imperator.map;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import com.ee.imperator.Imperator;
-import com.ee.imperator.data.MapProvider;
-import com.ee.imperator.map.Map;
 
 public class CachedMapProvider implements MapProvider {
 	private java.util.Map<Integer, Map> maps;
@@ -40,9 +37,5 @@ public class CachedMapProvider implements MapProvider {
 		if(maps == null) {
 			maps = MapParser.parseMaps(Imperator.getFiles(Imperator.getConfig().getString(getClass(), "path"), ".xml"));
 		}
-	}
-
-	@Override
-	public void close() throws IOException {
 	}
 }

@@ -1,6 +1,7 @@
 package com.ee.imperator.data.cache;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.ee.cache.SoftReferenceCache;
 import org.ee.web.request.Request;
@@ -66,5 +67,10 @@ public class CachedMemberState implements MemberState {
 	@Override
 	public void addLoss(Member member) {
 		memberProvider.addLoss(member);
+	}
+
+	@Override
+	public List<Member> getMembers() {
+		return memberProvider.getMembers();
 	}
 }

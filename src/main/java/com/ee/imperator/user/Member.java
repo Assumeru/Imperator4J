@@ -6,11 +6,12 @@ import org.ee.i18n.Language;
 
 import com.ee.imperator.Imperator;
 
-public class Member implements User {
+public class Member implements User, Comparable<Member> {
 	private final int id;
 	private final String name;
 	private final Language language;
-	private final boolean loggedIn;
+	private final boolean guest;
+	private final boolean canDeleteMessages;
 	private int score;
 	private int wins;
 	private int losses;
@@ -20,14 +21,15 @@ public class Member implements User {
 	}
 
 	public Member(int id) {
-		this(id, "Guest", Imperator.getLanguageProvider().getLanguage(Locale.US), false, 0, 0, 0);
+		this(id, "Guest", Imperator.getLanguageProvider().getLanguage(Locale.US), true, false, 0, 0, 0);
 	}
 
-	public Member(int id, String name, Language language, boolean loggedIn, int score, int wins, int losses) {
+	public Member(int id, String name, Language language, boolean guest, boolean canDeleteMessages, int score, int wins, int losses) {
 		this.id = id;
 		this.name = name;
 		this.language = language;
-		this.loggedIn = loggedIn;
+		this.guest = guest;
+		this.canDeleteMessages = canDeleteMessages;
 		this.score = score;
 		this.wins = wins;
 		this.losses = losses;
@@ -47,8 +49,8 @@ public class Member implements User {
 		return language;
 	}
 
-	public boolean isLoggedIn() {
-		return loggedIn;
+	public boolean isGuest() {
+		return guest;
 	}
 
 	public int getScore() {
@@ -86,7 +88,11 @@ public class Member implements User {
 	}
 
 	public boolean canDeleteMessages() {
-		//TODO
-		return false;
+		return canDeleteMessages;
+	}
+
+	@Override
+	public int compareTo(Member o) {
+		return Integer.compare(score, o.score);
 	}
 }

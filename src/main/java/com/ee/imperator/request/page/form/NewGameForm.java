@@ -38,7 +38,7 @@ public class NewGameForm extends Form {
 	}
 
 	private void setMap() throws FormException {
-		map = Imperator.getState().getMap(getPostInt("map"));
+		map = Imperator.getMapProvider().getMap(getPostInt("map"));
 		if(map == null) {
 			throw new FormException("Map does not exist");
 		}

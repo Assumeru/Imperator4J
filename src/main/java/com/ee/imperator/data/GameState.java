@@ -58,4 +58,6 @@ public interface GameState extends Closeable {
 	void playCards(Player player, int units);
 
 	boolean victory(Player player);
+
+	void deleteAttack(Attack attack);
 }

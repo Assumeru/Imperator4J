@@ -19,13 +19,11 @@ import com.ee.imperator.user.User;
 public class JoinedState implements State {
 	private final GameState gameProvider;
 	private final MemberState memberProvider;
-	private final MapProvider mapProvider;
 	private final ChatState chatProvider;
 
-	public JoinedState(GameState gameProvider, MemberState memberProvider, MapProvider mapProvider, ChatState chatProvider) {
+	public JoinedState(GameState gameProvider, MemberState memberProvider, ChatState chatProvider) {
 		this.gameProvider = gameProvider;
 		this.memberProvider = memberProvider;
-		this.mapProvider = mapProvider;
 		this.chatProvider = chatProvider;
 	}
 
@@ -145,6 +143,11 @@ public class JoinedState implements State {
 	}
 
 	@Override
+	public void deleteAttack(Attack attack) {
+		gameProvider.deleteAttack(attack);
+	}
+
+	@Override
 	public Member getMember(int id) {
 		return memberProvider.getMember(id);
 	}
@@ -170,13 +173,8 @@ public class JoinedState implements State {
 	}
 
 	@Override
-	public List<Map> getMaps() {
-		return mapProvider.getMaps();
-	}
-
-	@Override
-	public Map getMap(int id) {
-		return mapProvider.getMap(id);
+	public List<Member> getMembers() {
+		return memberProvider.getMembers();
 	}
 
 	@Override
@@ -185,13 +183,9 @@ public class JoinedState implements State {
 			gameProvider.close();
 		} finally {
 			try {
-				mapProvider.close();
+				memberProvider.close();
 			} finally {
-				try {
-					memberProvider.close();
-				} finally {
-					chatProvider.close();
-				}
+				chatProvider.close();
 			}
 		}
 	}

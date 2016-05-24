@@ -15,7 +15,7 @@ public class MapPage extends AbstractVariablePage {
 	}
 
 	public void setVariables(PageContext context, @PathParam("id") int id) {
-		Map map = Imperator.getState().getMap(id);
+		Map map = Imperator.getMapProvider().getMap(id);
 		if(map == null) {
 			throw new NotFoundException();
 		} else {

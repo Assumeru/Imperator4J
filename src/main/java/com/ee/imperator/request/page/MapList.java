@@ -14,6 +14,6 @@ public class MapList extends ImperatorPage {
 	@Override
 	protected void setVariables(PageContext context) {
 		PageContext.VARIABLE_JAVASCRIPT.addAll(context, "jquery.tablesorter.min.js", "tablesorter.js");
-		context.setVariable("maps", Imperator.getState().getMaps());
+		context.setVariable("maps", Imperator.getMapProvider().getMaps());
 	}
 }

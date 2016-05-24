@@ -14,11 +14,11 @@ import com.ee.imperator.crypt.bcrypt.BCryptHasher;
 import com.ee.imperator.data.ChatState;
 import com.ee.imperator.data.GameState;
 import com.ee.imperator.data.JoinedState;
-import com.ee.imperator.data.MapProvider;
 import com.ee.imperator.data.MemberState;
 import com.ee.imperator.data.State;
 import com.ee.imperator.exception.ConfigurationException;
 import com.ee.imperator.i18n.ClientSideLanguageProvider;
+import com.ee.imperator.map.MapProvider;
 import com.ee.imperator.request.RequestResolver;
 import com.ee.imperator.template.TemplateProvider;
 import com.ee.imperator.url.UrlBuilder;
@@ -30,15 +30,17 @@ public class Imperator extends WebApplication {
 	private static UrlBuilder urlBuilder;
 	private static ClientSideLanguageProvider languageProvider;
 	private static TemplateProvider templateProvider;
+	private static MapProvider mapProvider;
 
 	public Imperator(@Context ServletContext context) {
 		super(context);
 		initConfig();
 		initState();
 		initHasher();
-		initUrlBuilder();
-		initLanguage();
-		initTemplateProvider();
+		urlBuilder = getProviderInstance(UrlBuilder.class);
+		languageProvider = getProviderInstance(ClientSideLanguageProvider.class);
+		templateProvider = getProviderInstance(TemplateProvider.class);
+		mapProvider = getProviderInstance(MapProvider.class);
 	}
 
 	private void initConfig() {
@@ -58,7 +60,6 @@ public class Imperator extends WebApplication {
 		try {
 			state = new JoinedState(getProviderInstance(GameState.class),
 					getProviderInstance(MemberState.class),
-					getProviderInstance(MapProvider.class),
 					getProviderInstance(ChatState.class));
 		} catch(Exception e) {
 			throw new RuntimeException("Failed to init state", e);
@@ -78,30 +79,6 @@ public class Imperator extends WebApplication {
 			hasher = ReflectionUtils.getSubclass(getConfig().getClass(PasswordHasher.class, null, BCryptHasher.class), PasswordHasher.class).newInstance();
 		} catch(Exception e) {
 			throw new ConfigurationException("Failed to init password hasher", e);
-		}
-	}
-
-	private void initUrlBuilder() {
-		try {
-			urlBuilder = ReflectionUtils.getSubclass(getConfig().getClass(UrlBuilder.class, null), UrlBuilder.class).newInstance();
-		} catch(Exception e) {
-			throw new ConfigurationException("Failed to init url builder", e);
-		}
-	}
-
-	private void initLanguage() {
-		try {
-			languageProvider = ReflectionUtils.getSubclass(getConfig().getClass(ClientSideLanguageProvider.class, null), ClientSideLanguageProvider.class).newInstance();
-		} catch(Exception e) {
-			LOG.e("Failed to init language provider, falling back on default implementation", e);
-		}
-	}
-
-	private void initTemplateProvider() {
-		try {
-			templateProvider = ReflectionUtils.getSubclass(getConfig().getClass(TemplateProvider.class, null), TemplateProvider.class).newInstance();
-		} catch(Exception e) {
-			throw new ConfigurationException("Failed to init template provider", e);
 		}
 	}
 
@@ -128,5 +105,9 @@ public class Imperator extends WebApplication {
 
 	public static TemplateProvider getTemplateProvider() {
 		return templateProvider;
+	}
+
+	public static MapProvider getMapProvider() {
+		return mapProvider;
 	}
 }

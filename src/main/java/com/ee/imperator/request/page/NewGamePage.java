@@ -28,7 +28,7 @@ public class NewGamePage extends ImperatorPage {
 
 	@Override
 	protected void setVariables(PageContext context) {
-		if(!context.getUser().isLoggedIn()) {
+		if(context.getUser().isGuest()) {
 			throw new ForbiddenException();
 		}
 		if(context.getPostParams() != null) {
@@ -42,7 +42,7 @@ public class NewGamePage extends ImperatorPage {
 			}
 		}
 		context.setVariable(PageContext.VARIABLE_CSS, Arrays.asList("newgame.css"));
-		context.setVariable("maps", Imperator.getState().getMaps());
+		context.setVariable("maps", Imperator.getMapProvider().getMaps());
 		context.setVariable("colors", getColors());
 		context.setVariable("name", context.getUser().getLanguage().translate("%1$s's game", context.getUser().getName()));
 	}
