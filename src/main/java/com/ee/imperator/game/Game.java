@@ -27,6 +27,7 @@ public class Game implements Comparable<Game> {
 	public static final int MIN_FORTIFY = 3;
 	public static final int MAX_ATTACKERS = 3;
 	public static final int MAX_DEFENDERS = 2;
+	public static final int INITIAL_UNITS = 3;
 	public enum State {
 		TURN_START, FORTIFY, COMBAT, POST_COMBAT, FINISHED
 	}
@@ -230,7 +231,7 @@ public class Game implements Comparable<Game> {
 		for(Player player : players) {
 			for(int i = 0; i < perPlayer; i++, t++) {
 				territories[t].setOwner(player);
-				territories[t].setUnits(3);
+				territories[t].setUnits(INITIAL_UNITS);
 			}
 		}
 	}
