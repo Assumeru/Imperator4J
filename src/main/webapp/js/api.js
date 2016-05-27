@@ -22,12 +22,30 @@ Imperator.API = (function($) {
 		$(window).on('beforeunload', function() {
 			$unloading = true;
 		});
-		if(supportsWebSocket()) {
+		if($webSocketURL !== undefined && supportsWebSocket()) {
+			fixWebSocketURL();
 			$mode = 'WebSocket';
 			makeWebSocketConnection();
 		} else {
 			$mode = 'LongPolling';
 			makeLongPollingConnection();
+		}
+	}
+
+	function fixWebSocketURL() {
+		if(!$webSocketURL.startsWith('ws://') && !$webSocketURL.startsWith('wss://')) {
+			if($webSocketURL.startsWith('http://') || $webSocketURL.startsWith('https://')) {
+				$webSocketURL = $webSocketURL.replace('http', 'ws');
+			} else if($webSocketURL.startsWith('//')) {
+				if(window.location.protocol == 'https:') {
+					$webSocketURL = 'wss:' + $webSocketURL;
+				} else {
+					$webSocketURL = 'ws:' + $webSocketURL;
+				}
+			} else {
+				$webSocketURL = window.location.origin + $webSocketURL;
+				$webSocketURL = $webSocketURL.replace('http', 'ws');
+			}
 		}
 	}
 
@@ -59,7 +77,7 @@ Imperator.API = (function($) {
 	function receiveWebSocket($func) {
 		return function($msg) {
 			try {
-				$func(JSON.parse($msg));
+				$func(JSON.parse($msg.data));
 			} catch($e) {
 				console.log($msg);
 			}
@@ -72,7 +90,6 @@ Imperator.API = (function($) {
 	}
 
 	function supportsWebSocket() {
-		return false;
 		try {
 			return window.WebSocket !== undefined;
 		} catch($e) {

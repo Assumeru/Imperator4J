@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.ee.logger.LogManager;
@@ -26,12 +27,13 @@ import com.ee.imperator.user.Member;
 public class Api {
 	private static final Logger LOG = LogManager.createLogger();
 	public static final LongPolling LONG_POLLING = new LongPolling();
+	public static final WebSocket WEB_SOCKET = new WebSocket();
 	public static final String DATE_ATOM = "yyyy-MM-dd'T'HH:mm:ssXXX";
 	private static Map<String, List<Handler>> handlers;
 
 	static String handleRequest(Map<String, String> variables, Member member) throws RequestException {
 		try {
-			JSONObject output = handleInternal(variables, member);
+			JSONObject output = handleInternal(variables, Objects.requireNonNull(member));
 			return output == null ? null : output.toString();
 		} catch(InvocationTargetException e) {
 			if(e.getCause() instanceof RequestException) {

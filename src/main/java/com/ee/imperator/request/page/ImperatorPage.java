@@ -3,6 +3,8 @@ package com.ee.imperator.request.page;
 import java.io.ByteArrayOutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
@@ -12,8 +14,10 @@ import org.ee.web.request.Request;
 import org.ee.web.request.page.AbstractWebPage;
 
 import com.ee.imperator.Imperator;
+import com.ee.imperator.api.WebSocket;
 import com.ee.imperator.request.context.PageContext;
 import com.ee.imperator.request.context.Variable;
+import com.ee.imperator.websocket.WebSocketConfig;
 
 public abstract class ImperatorPage extends AbstractWebPage {
 	private final String template;
@@ -81,7 +85,12 @@ public abstract class ImperatorPage extends AbstractWebPage {
 	static void addApiJavascript(PageContext context, int gid) {
 		PageContext.VARIABLE_JAVASCRIPT.addAll(context, "store.js", "api.js", "dialog.js");
 		PageContext.VARIABLE_JAVASCRIPT_SETTINGS.put(context, "gid", gid);
-		PageContext.VARIABLE_JAVASCRIPT_SETTINGS.put(context, "API", new MapBuilder<>().put("longpollingURL", Imperator.getUrlBuilder().buildLink("/" + Ajax.PATH)).build());
+		Map<String, String> api = new HashMap<>();
+		api.put("longpollingURL", Imperator.getUrlBuilder().buildLink("/" + Ajax.PATH));
+		if(Imperator.getConfig().getBoolean(WebSocket.class, "enabled", true)) {
+			api.put("webSocketURL", Imperator.getUrlBuilder().buildLink(WebSocketConfig.PATH));
+		}
+		PageContext.VARIABLE_JAVASCRIPT_SETTINGS.put(context, "API", api);
 	}
 
 	static void addChatJavascript(PageContext context, int gid, boolean canDelete) {
