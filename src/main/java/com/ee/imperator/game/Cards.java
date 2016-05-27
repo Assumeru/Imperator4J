@@ -2,6 +2,7 @@ package com.ee.imperator.game;
 
 import java.util.AbstractCollection;
 import java.util.Iterator;
+import java.util.Random;
 
 import org.ee.collection.ArrayIterator;
 
@@ -30,7 +31,8 @@ public class Cards extends AbstractCollection<Card> {
 		}
 
 		public static Card getRandom(Cards cards) {
-			double r = Math.random();
+			Random random = new Random();
+			double r = random.nextDouble();
 			double p = 0;
 			for(int i = 0; i < Card.values().length - 1; i++) {
 				p += Card.values()[i].chance;
@@ -41,7 +43,7 @@ public class Cards extends AbstractCollection<Card> {
 			if(cards.getJokers() < Cards.MAX_JOKERS) {
 				return Card.JOKER;
 			}
-			return Card.values()[(int) (Math.random() * 3)];
+			return Card.values()[random.nextInt(3)];
 		}
 	}
 	public static final int MAX_CARDS = 5;

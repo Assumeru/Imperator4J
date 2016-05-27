@@ -5,6 +5,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import org.ee.collection.FixedSizeList;
 import org.ee.collection.Util;
@@ -217,15 +218,16 @@ public class Game implements Comparable<Game> {
 	}
 
 	public void start() {
-		distributeTerritories();
-		distributeMissions();
-		currentTurn = players.get((int) (Math.random() * players.size()));
+		Random random = new Random();
+		distributeTerritories(random);
+		distributeMissions(random);
+		currentTurn = players.get(random.nextInt(players.size()));
 		time = System.currentTimeMillis();
 	}
 
-	private void distributeTerritories() {
+	private void distributeTerritories(Random random) {
 		Territory[] territories = map.getTerritories().values().toArray(new Territory[map.getTerritories().size()]);
-		Util.shuffle(territories);
+		Util.shuffle(territories, random);
 		int perPlayer = territories.length / players.size();
 		int t = 0;
 		for(Player player : players) {
@@ -236,15 +238,15 @@ public class Game implements Comparable<Game> {
 		}
 	}
 
-	private void distributeMissions() {
+	private void distributeMissions(Random random) {
 		Integer[] distribution = map.getMissionDistribution().toArray(new Integer[map.getMissionDistribution().size()]);
-		Util.shuffle(distribution);
+		Util.shuffle(distribution, random);
 		int i = 0;
 		for(Player player : players) {
 			int target = 0;
 			Mission mission = map.getMissions().get(distribution[i++]);
 			if(mission.containsEliminate()) {
-				target = (int) (Math.random() * (players.size() - 1));
+				target = random.nextInt(players.size() - 1);
 				if(players.get(target).equals(player)) {
 					target = players.size() - 1;
 				}

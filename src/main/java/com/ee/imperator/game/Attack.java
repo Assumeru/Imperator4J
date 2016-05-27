@@ -1,5 +1,7 @@
 package com.ee.imperator.game;
 
+import java.util.Random;
+
 import com.ee.imperator.map.Territory;
 
 public class Attack {
@@ -51,9 +53,10 @@ public class Attack {
 	}
 
 	private int[] rollDice(int number) {
+		Random random = new Random();
 		int[] roll = new int[number];
 		for(int i = 0; i < roll.length; i++) {
-			roll[i] = (int) (Math.random() * 6) + 1;
+			roll[i] = random.nextInt(6) + 1;
 			for(int n = i - 1; n >= 0; n--) {
 				int j = n + 1;
 				if(roll[n] < roll[j]) {

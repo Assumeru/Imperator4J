@@ -74,6 +74,27 @@ public class TestApi implements RequestHandler<TestApi.Context, String> {
 		}
 	}
 
+	public static class StartMove extends Context {
+		public StartMove(Player player) {
+			super(player.getMember(), new MapBuilder<String, String>()
+					.put("mode", "game")
+					.put("type", "start-move")
+					.put("gid", String.valueOf(player.getGame().getId())).build());
+		}
+	}
+
+	public static class MoveUnits extends Context {
+		public MoveUnits(Player player, Territory from, Territory to, int move) {
+			super(player.getMember(), new MapBuilder<String, String>()
+					.put("mode", "game")
+					.put("type", "move")
+					.put("gid", String.valueOf(player.getGame().getId()))
+					.put("from", from.getId())
+					.put("to", to.getId())
+					.put("move", String.valueOf(move)).build());
+		}
+	}
+
 	private TestApi() {
 	}
 
