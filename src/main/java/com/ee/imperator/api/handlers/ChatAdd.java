@@ -10,7 +10,7 @@ import com.ee.imperator.user.Member;
 @Request(mode = "chat", type = "add")
 public class ChatAdd {
 	public void handle(Member member, @Param("gid") int gid, @Param("message") String message) throws RequestException {
-		if(!ChatUpdate.canUseChat(member, gid)) {
+		if(member.isGuest() || !ChatUpdate.canUseChat(member, gid)) {
 			throw new InvalidRequestException(member.getId() + " cannot use chat " + gid, "update", "chat");
 		}
 		Game game = gid != 0 ? Imperator.getState().getGame(gid) : null;

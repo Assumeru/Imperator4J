@@ -5,7 +5,8 @@
 	$loading = true,
 	$postgame = Imperator.settings.postgame !== undefined ? Imperator.settings.postgame : false,
 	$canDelete = Imperator.settings.chat.canDelete,
-	$updateErrors = 0;
+	$updateErrors = 0,
+	__ = Imperator.Language.__;
 
 	function create() {
 		var $chat = $('#chat');
@@ -59,11 +60,16 @@
 
 	function parseErrorMessage($msg) {
 		if($msg !== undefined && $msg !== '' && $msg.error !== undefined && $msg.request !== undefined && (($msg.request.mode == 'update' && $msg.request.type == 'chat') || $msg.request.mode == 'chat')) {
-			if($msg.request.mode == 'update' && $updateErrors < Imperator.API.MAX_CHAT_ERRORS) {
-				$updateErrors++;
-				setTimeout(sendUpdateRequest, 100 + $updateErrors * 400);
+			if($msg.request.mode == 'update') {
+				if($updateErrors < Imperator.API.MAX_CHAT_ERRORS) {
+					$updateErrors++;
+					setTimeout(sendUpdateRequest, 100 + $updateErrors * 400);
+				} else {
+					Imperator.Dialog.showDialog(__('An error has occurred'), __('Connection to the server has been lost.'), true);
+				}
+			} else if($msg.error !== '') {
+				Imperator.Dialog.showDialog(__('Chat Error'), $msg.error, true);
 			}
-			Imperator.Dialog.showDialog(Imperator.Language.__('Chat Error'), $msg.error, true);
 		}
 	}
 

@@ -7,7 +7,8 @@ Imperator.API = (function($) {
 	$mode,
 	$longPollingURL = Imperator.settings.API.longpollingURL,
 	$webSocketURL = Imperator.settings.API.webSocketURL,
-	$ws;
+	$ws,
+	__ = Imperator.Language.__;
 	if(window.console === undefined) {
 		window.console = {};
 	}
@@ -58,16 +59,17 @@ Imperator.API = (function($) {
 			}
 		};
 		$ws.onmessage = receiveWebSocket(onMessage);
-		$ws.onerror = receiveWebSocket(onError);
-		$ws.onclose = attemptWebSocketReconnect;
+		$ws.onerror = function() {
+			onError({});
+		};
 	}
 
 	function attemptWebSocketReconnect() {
 		onError({
 			error: '',
-			method: {
+			request: {
 				mode: 'update',
-				type: 'game'
+				type: Imperator.settings.gid === 0 ? 'chat' : 'game'
 			}
 		});
 		$ws.close();
@@ -134,7 +136,7 @@ Imperator.API = (function($) {
 			}
 		}
 		if($response.error === undefined) {
-			$response.error = Imperator.Language.__('Unknown error.');
+			$response.error = __('Unknown error.');
 		}
 		for(var $n = 0; $n < $onError.length; $n++) {
 			$onError[$n]($response);
@@ -158,6 +160,8 @@ Imperator.API = (function($) {
 	function sendWebSocket($json) {
 		if($ws.readyState == WebSocket.OPEN) {
 			$ws.send(JSON.stringify($json));
+		} else {
+			attemptWebSocketReconnect();
 		}
 	}
 

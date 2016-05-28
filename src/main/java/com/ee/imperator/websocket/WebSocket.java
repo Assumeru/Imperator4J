@@ -3,6 +3,8 @@ package com.ee.imperator.websocket;
 import java.io.IOException;
 
 import javax.websocket.EndpointConfig;
+import javax.websocket.OnClose;
+import javax.websocket.OnError;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
@@ -15,6 +17,7 @@ import org.json.JSONObject;
 
 import com.ee.imperator.Imperator;
 import com.ee.imperator.api.Api;
+import com.ee.imperator.game.Game;
 import com.ee.imperator.user.Member;
 
 public class WebSocket {
@@ -41,9 +44,15 @@ public class WebSocket {
 	public void onMessage(String message, Session session) {
 		try {
 			JSONObject variables = new JSONObject(message);
-			String response = Api.WEB_SOCKET.handle((Member) session.getUserProperties().get(Member.class.getName()), variables);
-			if(response != null) {
-				session.getBasicRemote().sendText(response);
+			Member member = (Member) session.getUserProperties().get(Member.class.getName());
+			if((variables.has("mode") && !"update".equals(variables.get("mode"))) || !session.getUserProperties().containsKey(Game.class.getName())) {
+				if(!session.getUserProperties().containsKey(Game.class.getName())) {
+					register(session, variables);
+				}
+				String response = Api.WEB_SOCKET.handle(member, variables);
+				if(response != null) {
+					session.getBasicRemote().sendText(response);
+				}
 			}
 		} catch(JSONException e) {
 			LOG.w("Invalid message", e);
@@ -52,5 +61,26 @@ public class WebSocket {
 		} catch(Exception e) {
 			LOG.e("Unexpected error", e);
 		}
+	}
+
+	private void register(Session session, JSONObject variables) {
+		if(variables.has("gid") && variables.has("time")) {
+			try {
+				session.getUserProperties().put(Game.class.getName(), variables.getInt("gid"));
+				Api.WEB_SOCKET.register(session, variables.getInt("gid"), variables.getLong("time"));
+			} catch(Exception e) {
+				LOG.w("Error registering", e);
+			}
+		}
+	}
+
+	@OnClose
+	public void onClose(Session session) {
+		Api.WEB_SOCKET.deregister(session);
+	}
+
+	@OnError
+	public void onError(Session session, Throwable e) {
+		LOG.d(e);
 	}
 }
