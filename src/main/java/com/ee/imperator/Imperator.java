@@ -52,21 +52,21 @@ public class Imperator extends WebApplication {
 			}
 			setConfig(ReflectionUtils.getSubclass(config, Config.class).newInstance());
 		} catch(Exception e) {
-			throw new RuntimeException("Failed to init config", e);
+			throw new ConfigurationException("Failed to init config", e);
 		}
 	}
 
-	private void initState() {
+	private static void initState() {
 		try {
 			state = new JoinedState(getProviderInstance(GameState.class),
 					getProviderInstance(MemberState.class),
 					getProviderInstance(ChatState.class));
 		} catch(Exception e) {
-			throw new RuntimeException("Failed to init state", e);
+			throw new ConfigurationException("Failed to init state", e);
 		}
 	}
 
-	private <T> T getProviderInstance(Class<T> type) {
+	private static <T> T getProviderInstance(Class<T> type) {
 		try {
 			return ReflectionUtils.getSubclass(Imperator.getConfig().getClass(type, null), type).newInstance();
 		} catch(Exception e) {
@@ -74,7 +74,7 @@ public class Imperator extends WebApplication {
 		}
 	}
 
-	private void initHasher() {
+	private static void initHasher() {
 		try {
 			hasher = ReflectionUtils.getSubclass(getConfig().getClass(PasswordHasher.class, null, BCryptHasher.class), PasswordHasher.class).newInstance();
 		} catch(Exception e) {

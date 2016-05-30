@@ -49,7 +49,7 @@ public final class PrimitiveUtils {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <E> E parse(Class<E> type, String input) throws IllegalArgumentException {
+	public static <E> E parse(Class<E> type, String input) {
 		if(!isPrimitive(type)) {
 			throw new IllegalArgumentException(type + " is not a primitive type");
 		}

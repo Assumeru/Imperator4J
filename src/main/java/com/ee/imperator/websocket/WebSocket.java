@@ -2,7 +2,6 @@ package com.ee.imperator.websocket;
 
 import java.io.IOException;
 
-import javax.websocket.EndpointConfig;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
@@ -24,7 +23,7 @@ public class WebSocket {
 	private static final Logger LOG = LogManager.createLogger();
 
 	@OnOpen
-	public void onOpen(Session session, EndpointConfig config) {
+	public void onOpen(Session session) {
 		Request request = (Request) session.getUserProperties().get(Request.class.getName());
 		if(request != null) {
 			Member member = Imperator.getState().getMember(request);
@@ -80,7 +79,7 @@ public class WebSocket {
 	}
 
 	@OnError
-	public void onError(Session session, Throwable e) {
+	public void onError(Throwable e) {
 		LOG.d(e);
 	}
 }

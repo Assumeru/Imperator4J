@@ -2,7 +2,7 @@ package org.ee.expression.parser;
 
 public class VariableToken extends AbstractToken {
 	public VariableToken() {
-		super(0);
+		super(Precedence.FIRST);
 	}
 
 	@Override

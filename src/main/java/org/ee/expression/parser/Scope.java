@@ -11,7 +11,7 @@ public class Scope extends AbstractToken {
 	private List<Token> tokens;
 
 	public Scope(Scope parent) {
-		super(0);
+		super(Precedence.FIRST);
 		this.parent = parent;
 		tokens = new ArrayList<>();
 	}

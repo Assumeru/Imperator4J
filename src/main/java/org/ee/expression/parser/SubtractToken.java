@@ -2,7 +2,7 @@ package org.ee.expression.parser;
 
 public class SubtractToken extends BinaryToken {
 	public SubtractToken() {
-		super(PREC_ADD_SUBTRACT, "-");
+		super(Precedence.ADD_SUBTRACT, "-");
 	}
 
 	@Override

@@ -2,7 +2,7 @@ package org.ee.expression.parser;
 
 public class ModuloToken extends BinaryToken {
 	public ModuloToken() {
-		super(PREC_MULT_DIVIDE, "%");
+		super(Precedence.MULT_DIVIDE, "%");
 	}
 
 	@Override

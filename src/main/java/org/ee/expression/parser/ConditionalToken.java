@@ -8,7 +8,7 @@ public class ConditionalToken extends AbstractToken {
 	private Token resultFalse;
 
 	public ConditionalToken(Token condition, Token resultTrue, Token resultFalse) {
-		super(PREC_TERNARY_IF);
+		super(Precedence.TERNARY_IF);
 		this.condition = condition;
 		this.resultTrue = resultTrue;
 		this.resultFalse = resultFalse;

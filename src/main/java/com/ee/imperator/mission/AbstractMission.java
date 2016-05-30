@@ -52,6 +52,11 @@ public abstract class AbstractMission implements Mission {
 	}
 
 	@Override
+	public int hashCode() {
+		return 1499 * id;
+	}
+
+	@Override
 	public boolean equals(Object obj) {
 		if(this == obj) {
 			return true;

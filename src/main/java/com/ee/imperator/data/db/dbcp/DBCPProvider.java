@@ -9,6 +9,8 @@ import com.ee.imperator.Imperator;
 public class DBCPProvider {
 	private static DataSource dataSource;
 
+	private DBCPProvider() {}
+
 	public static DataSource getDataSource() {
 		if(dataSource == null) {
 			createDataSource();
@@ -16,7 +18,7 @@ public class DBCPProvider {
 		return dataSource;
 	}
 
-	private synchronized static void createDataSource() {
+	private static synchronized void createDataSource() {
 		if(DBCPProvider.dataSource == null) {
 			BasicDataSource dataSource = new BasicDataSource();
 			dataSource.setDriverClassName(getConfigOrCrash("driver"));

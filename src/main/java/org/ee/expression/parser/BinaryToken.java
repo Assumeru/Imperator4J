@@ -8,16 +8,14 @@ public abstract class BinaryToken extends AbstractToken {
 	private Token rhs;
 	private String operator;
 
-	public BinaryToken(int precedence, String operator) {
+	public BinaryToken(Precedence precedence, String operator) {
 		super(precedence);
 		this.operator = " " + operator + " ";
 	}
 
 	@Override
 	public int apply(int n) {
-		int lhs = this.lhs.apply(n);
-		int rhs = this.rhs.apply(n);
-		return apply(lhs, rhs);
+		return apply(lhs.apply(n), rhs.apply(n));
 	}
 
 	protected abstract int apply(int lhs, int rhs);

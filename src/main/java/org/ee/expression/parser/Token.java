@@ -5,14 +5,9 @@ import java.util.List;
 import java.util.function.Function;
 
 public interface Token extends Function<Integer, Integer> {
-	public static final int PREC_UNARY = 1;
-	public static final int PREC_MULT_DIVIDE = 2;
-	public static final int PREC_ADD_SUBTRACT = 3;
-	public static final int PREC_RELATIONAL = 5;
-	public static final int PREC_EQUALITY = 6;
-	public static final int PREC_AND = 10;
-	public static final int PREC_OR = 11;
-	public static final int PREC_TERNARY_IF = 12;
+	enum Precedence {
+		FIRST, UNARY, MULT_DIVIDE, ADD_SUBTRACT, RELATIONAL, EQUALITY, AND, OR, TERNARY_IF
+	}
 
 	/**
 	 * Calculates f(n) for this token.

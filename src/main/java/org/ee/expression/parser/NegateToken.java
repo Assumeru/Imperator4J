@@ -7,7 +7,7 @@ public class NegateToken extends AbstractToken {
 	private Token value;
 
 	public NegateToken() {
-		super(PREC_UNARY);
+		super(Precedence.UNARY);
 	}
 
 	@Override

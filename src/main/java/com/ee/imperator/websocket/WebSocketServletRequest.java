@@ -178,7 +178,7 @@ public class WebSocketServletRequest implements HttpServletRequest {
 
 	@Override
 	public boolean isSecure() {
-		return getProtocol().equalsIgnoreCase("https");
+		return "https".equalsIgnoreCase(getProtocol());
 	}
 
 	@Override
@@ -217,12 +217,12 @@ public class WebSocketServletRequest implements HttpServletRequest {
 	}
 
 	@Override
-	public AsyncContext startAsync() throws IllegalStateException {
+	public AsyncContext startAsync() {
 		throw new IllegalStateException();
 	}
 
 	@Override
-	public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse) throws IllegalStateException {
+	public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse) {
 		throw new IllegalStateException();
 	}
 

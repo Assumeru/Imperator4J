@@ -10,7 +10,7 @@ import com.ee.imperator.map.Territory;
 import com.ee.imperator.user.Member;
 import com.ee.imperator.user.Player;
 
-public class TestApi implements RequestHandler<TestApi.Context, String> {
+public class TestApi {
 	public static final TestApi INSTANCE = new TestApi();
 
 	public static class Context {
@@ -98,7 +98,6 @@ public class TestApi implements RequestHandler<TestApi.Context, String> {
 	private TestApi() {
 	}
 
-	@Override
 	public String handle(com.ee.imperator.api.TestApi.Context input) {
 		try {
 			return Api.handleRequest(input.getVariables(), input.getMember());

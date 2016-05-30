@@ -17,6 +17,7 @@ public class SoftReferenceCache<K, V> implements Map<K, V> {
 		cache = new HashMap<>();
 	}
 
+	@Override
 	public V get(Object key) {
 		Value<V> value = cache.get(key);
 		if(value != null) {
@@ -110,6 +111,11 @@ public class SoftReferenceCache<K, V> implements Map<K, V> {
 
 		public T getValue() {
 			return value.get();
+		}
+
+		@Override
+		public int hashCode() {
+			return 7 * Objects.hashCode(getValue());
 		}
 
 		@Override

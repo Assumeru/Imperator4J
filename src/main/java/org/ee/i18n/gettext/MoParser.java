@@ -20,7 +20,7 @@ public class MoParser {
 	private static final Logger LOG = LogManager.createLogger();
 	private static final int MAGIC = 0x950412de;
 	private static final Pattern PLURAL_FORMS = Pattern.compile("^\\s*nplurals\\s*=\\s*(\\d+)\\s*;\\s*plural\\s*=\\s*(.+)$");
-	private static final Function<Integer, Integer> DEFAULT_PLURAL_FORM = (n -> n != 0 ? 1 : 0);
+	private static final Function<Integer, Integer> DEFAULT_PLURAL_FORM = n -> n != 0 ? 1 : 0;
 	private static final String DEFAULT_PLURAL_FORM_STRING = "n != 0";
 	private final ByteBuffer input;
 	private Charset charset;
@@ -40,21 +40,9 @@ public class MoParser {
 		overrideCharset = true;
 	}
 
-	private static Charset getDefaultCharset() {
-		try {
-			return Charset.forName("utf-8");
-		} catch(UnsupportedCharsetException e) {
-			LOG.w("Charset not supported, falling back on default", e);
-		}
-		return Charset.defaultCharset();
-	}
-
 	public MoParser(byte[] input, Charset charset) {
 		this.input = ByteBuffer.wrap(input).order(ByteOrder.LITTLE_ENDIAN);
-		if(charset == null) {
-			charset = getDefaultCharset();
-		}
-		this.charset = charset;
+		this.charset = charset == null ? getDefaultCharset() : charset;
 		headers = new HashMap<>();
 		translations = new HashMap<>();
 	}
@@ -163,5 +151,14 @@ public class MoParser {
 		} else {
 			LOG.w("Invalid Plural-Forms value: " + pluralForms);
 		}
+	}
+
+	private static Charset getDefaultCharset() {
+		try {
+			return Charset.forName("utf-8");
+		} catch(UnsupportedCharsetException e) {
+			LOG.w("Charset not supported, falling back on default", e);
+		}
+		return Charset.defaultCharset();
 	}
 }

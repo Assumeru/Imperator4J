@@ -2,7 +2,7 @@ package org.ee.expression.parser;
 
 public class ConstantToken extends AbstractToken {
 	public ConstantToken() {
-		super(0);
+		super(Precedence.FIRST);
 	}
 
 	@Override

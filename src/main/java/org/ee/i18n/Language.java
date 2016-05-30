@@ -3,7 +3,7 @@ package org.ee.i18n;
 import java.util.Locale;
 
 public interface Language {
-	static enum TextDirection {
+	enum TextDirection {
 		LTR, RTL;
 
 		@Override

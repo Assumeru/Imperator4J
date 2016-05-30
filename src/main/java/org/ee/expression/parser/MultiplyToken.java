@@ -2,7 +2,7 @@ package org.ee.expression.parser;
 
 public class MultiplyToken extends BinaryToken {
 	public MultiplyToken() {
-		super(PREC_MULT_DIVIDE, "*");
+		super(Precedence.MULT_DIVIDE, "*");
 	}
 
 	@Override

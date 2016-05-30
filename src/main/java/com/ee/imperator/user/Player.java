@@ -77,13 +77,13 @@ public class Player implements User, Comparable<Player> {
 	}
 
 	@Override
+	public int hashCode() {
+		return member.hashCode();
+	}
+
+	@Override
 	public boolean equals(Object obj) {
-		if(this == obj) {
-			return true;
-		} else if(obj instanceof User) {
-			return ((User) obj).getId() == getId();
-		}
-		return false;
+		return member.equals(obj);
 	}
 
 	@Override

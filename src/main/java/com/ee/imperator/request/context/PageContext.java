@@ -1,6 +1,7 @@
 package com.ee.imperator.request.context;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
@@ -30,7 +31,7 @@ public interface PageContext {
 	public static final Variable<String> VARIABLE_MAIN_CLASS = new Variable<>("mainClass", ctx -> "container");
 	public static final Variable<Config> VARIABLE_CONFIG = new Variable<>("cfg", ctx -> Imperator.getConfig());
 	public static final Variable<UrlBuilder> VARIABLE_URL_BUILDER = new Variable<>("url", ctx -> Imperator.getUrlBuilder());
-	public static final Variable<?>[] DEFAULT_VARIABLES = { VARIABLE_CONFIG, VARIABLE_LANGUAGE, VARIABLE_NAVIGATION, VARIABLE_SHOW_FOOTER, VARIABLE_YEAR, VARIABLE_CSS, VARIABLE_JAVASCRIPT, VARIABLE_CONTEXT, VARIABLE_MAIN_CLASS, VARIABLE_URL_BUILDER };
+	public static final List<Variable<?>> DEFAULT_VARIABLES = Arrays.asList(VARIABLE_CONFIG, VARIABLE_LANGUAGE, VARIABLE_NAVIGATION, VARIABLE_SHOW_FOOTER, VARIABLE_YEAR, VARIABLE_CSS, VARIABLE_JAVASCRIPT, VARIABLE_CONTEXT, VARIABLE_MAIN_CLASS, VARIABLE_URL_BUILDER);
 
 	Member getUser();
 

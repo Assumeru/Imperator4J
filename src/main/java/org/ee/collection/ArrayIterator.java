@@ -1,6 +1,7 @@
 package org.ee.collection;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 public class ArrayIterator<E> implements Iterator<E> {
 	protected E[] array;
@@ -17,6 +18,9 @@ public class ArrayIterator<E> implements Iterator<E> {
 
 	@Override
 	public E next() {
+		if(index >= array.length) {
+			throw new NoSuchElementException();
+		}
 		return array[index++];
 	}
 

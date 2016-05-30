@@ -2,7 +2,7 @@ package org.ee.expression.parser;
 
 public class EqualityToken extends BinaryToken {
 	public EqualityToken() {
-		super(PREC_EQUALITY, "==");
+		super(Precedence.EQUALITY, "==");
 	}
 
 	@Override

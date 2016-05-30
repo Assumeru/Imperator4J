@@ -2,7 +2,7 @@ package org.ee.expression.parser;
 
 public class EqualLessToken extends BinaryToken {
 	public EqualLessToken() {
-		super(PREC_RELATIONAL, "<=");
+		super(Precedence.RELATIONAL, "<=");
 	}
 
 	@Override

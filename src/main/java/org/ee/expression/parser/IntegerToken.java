@@ -4,7 +4,7 @@ public class IntegerToken extends AbstractToken {
 	private final int value;
 
 	public IntegerToken(int value) {
-		super(0);
+		super(Precedence.FIRST);
 		this.value = value;
 	}
 

@@ -48,7 +48,7 @@ public abstract class AbstractVariablePage extends ImperatorPage {
 		template = new UriTemplate(pattern + "{___slash : [/]*}");
 		List<Method> methods = ReflectionUtils.getMethodsUntil(getClass(), AbstractVariablePage.class);
 		for(Method method : methods) {
-			if(method.getName().equals("setVariables") && method.getParameterCount() > 0 && method.getParameterTypes()[0] == PageContext.class) {
+			if("setVariables".equals(method.getName()) && method.getParameterCount() > 0 && method.getParameterTypes()[0] == PageContext.class) {
 				setMethod(method);
 				break;
 			}

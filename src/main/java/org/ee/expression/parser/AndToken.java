@@ -2,7 +2,7 @@ package org.ee.expression.parser;
 
 public class AndToken extends BinaryToken {
 	public AndToken() {
-		super(PREC_AND, "&&");
+		super(Precedence.AND, "&&");
 	}
 
 	@Override

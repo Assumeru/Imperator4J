@@ -7,8 +7,8 @@ public abstract class AbstractToken implements Token {
 	private final int precedence;
 	private boolean resolved;
 
-	public AbstractToken(int precedence) {
-		this.precedence = precedence;
+	public AbstractToken(Precedence precedence) {
+		this.precedence = precedence.ordinal();
 	}
 
 	@Override

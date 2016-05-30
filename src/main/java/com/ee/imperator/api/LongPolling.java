@@ -15,13 +15,12 @@ import com.ee.imperator.Imperator;
 import com.ee.imperator.exception.RequestException;
 import com.ee.imperator.request.context.PageContext;
 
-public class LongPolling implements RequestHandler<PageContext, Response> {
+public class LongPolling {
 	private static final Logger LOG = LogManager.createLogger();
 
 	LongPolling() {
 	}
 
-	@Override
 	public Response handle(PageContext context) {
 		Map<String, String> arguments = getArguments(context);
 		if(arguments != null) {

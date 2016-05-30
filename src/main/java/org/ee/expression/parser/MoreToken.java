@@ -2,7 +2,7 @@ package org.ee.expression.parser;
 
 public class MoreToken extends BinaryToken {
 	public MoreToken() {
-		super(PREC_RELATIONAL, ">");
+		super(Precedence.RELATIONAL, ">");
 	}
 
 	@Override

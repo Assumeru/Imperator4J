@@ -2,11 +2,11 @@ package com.ee.imperator.request.context;
 
 import java.util.function.Function;
 
-public class Variable<Value> {
+public class Variable<V> {
 	private final String name;
-	private final Function<PageContext, Value> defaultValue;
+	private final Function<PageContext, V> defaultValue;
 
-	public Variable(String name, Function<PageContext, Value> defaultValue) {
+	public Variable(String name, Function<PageContext, V> defaultValue) {
 		this.name = name;
 		this.defaultValue = defaultValue;
 	}
@@ -15,7 +15,7 @@ public class Variable<Value> {
 		return name;
 	}
 
-	public Value getDefaultValue(PageContext context) {
+	public V getDefaultValue(PageContext context) {
 		return defaultValue.apply(context);
 	}
 

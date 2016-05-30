@@ -2,7 +2,7 @@ package org.ee.expression.parser;
 
 public class InequalityToken extends BinaryToken {
 	public InequalityToken() {
-		super(PREC_EQUALITY, "!=");
+		super(Precedence.EQUALITY, "!=");
 	}
 
 	@Override

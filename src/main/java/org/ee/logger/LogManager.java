@@ -5,6 +5,9 @@ import org.ee.logger.system.SystemLogProvider;
 public class LogManager {
 	private static LogProvider provider = new SystemLogProvider();
 
+	private LogManager() {
+	}
+
 	public static Logger createLogger() {
 		return provider.createLogger();
 	}

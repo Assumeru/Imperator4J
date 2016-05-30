@@ -2,7 +2,7 @@ package org.ee.expression.parser;
 
 public class OrToken extends BinaryToken {
 	public OrToken() {
-		super(PREC_OR, "||");
+		super(Precedence.OR, "||");
 	}
 
 	@Override

@@ -89,7 +89,7 @@ public class GamePage extends AbstractVariablePage {
 			if(context.getPostParams() != null) {
 				if(context.getUser().equals(game.getOwner())) {
 					if(context.getPostParams().getFirst("startgame") != null && game.getPlayers().size() == game.getMap().getPlayers()) {
-						startGame(context, game);
+						startGame(game);
 					} else if(context.getPostParams().getFirst("disband") != null) {
 						deleteGame(game);
 					}
@@ -133,7 +133,7 @@ public class GamePage extends AbstractVariablePage {
 		}
 	}
 
-	private synchronized void startGame(PageContext context, Game game) {
+	private synchronized void startGame(Game game) {
 		if(game.getPlayers().size() == game.getMap().getPlayers()) {
 			Imperator.getState().startGame(game);
 			redirect(Imperator.getUrlBuilder().game(game));

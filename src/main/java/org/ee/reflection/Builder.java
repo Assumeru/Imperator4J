@@ -22,7 +22,7 @@ public class Builder {
 		this(types.toArray(new Class<?>[types.size()]), values.toArray(new Object[values.size()]));
 	}
 
-	public <T> T newInstance(Class<T> type) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+	public <T> T newInstance(Class<T> type) throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
 		try {
 			return newInstance(type.getConstructor(types));
 		} catch (NoSuchMethodException e) {
@@ -68,7 +68,7 @@ public class Builder {
 		return true;
 	}
 
-	public <T> T newInstance(Constructor<T> constructor) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+	public <T> T newInstance(Constructor<T> constructor) throws InstantiationException, IllegalAccessException, InvocationTargetException {
 		return constructor.newInstance(values);
 	}
 }

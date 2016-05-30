@@ -8,8 +8,8 @@ import com.ee.imperator.api.Api;
 
 public class RequestException extends Exception {
 	private static final long serialVersionUID = 6416489667172984755L;
-	private String mode;
-	private String type;
+	private final String mode;
+	private final String type;
 
 	public RequestException(String message, String mode, String type, Throwable cause) {
 		super(message, cause);

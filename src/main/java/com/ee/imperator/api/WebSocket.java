@@ -17,7 +17,7 @@ import com.ee.imperator.exception.RequestException;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.user.Member;
 
-public class WebSocket implements RequestHandler<JSONObject, String> {
+public class WebSocket {
 	private static final Logger LOG = LogManager.createLogger();
 	private Map<Game, Map<Session, Long>> sessions;
 
@@ -25,16 +25,11 @@ public class WebSocket implements RequestHandler<JSONObject, String> {
 		sessions = new WeakHashMap<>();
 	}
 
-	@Override
-	public String handle(JSONObject input) {
-		return handle((Member) input.get("member"), input.getJSONObject("input"));
-	}
-
 	public String handle(Member member, JSONObject input) {
 		try {
 			String response = Api.handleRequest(getVariables(input), member);
 			try {
-				sendUpdates(member, input);
+				sendUpdates(input);
 			} catch(Exception e) {
 				LOG.e("Error sending updates", e);
 			}
@@ -44,17 +39,14 @@ public class WebSocket implements RequestHandler<JSONObject, String> {
 		}
 	}
 
-	private void sendUpdates(Member member, JSONObject input) {
+	private void sendUpdates(JSONObject input) {
 		if(input.has("mode") && input.has("type") && input.has("gid")) {
 			int gid = input.getInt("gid");
 			String mode = input.getString("mode");
 			String type = input.getString("type");
-			if("chat".equals(mode) && "delete".equals(type)) {
+			if(("chat".equals(mode) && "delete".equals(type)) ||
+					("game".equals(mode) && ("start-move".equals(type) || "autoroll".equals(type)))) {
 				return;
-			} else if("game".equals(mode)) {
-				if("start-move".equals(type) || "autoroll".equals(type)) {
-					return;
-				}
 			}
 			if(gid == 0) {
 				sendChatUpdates();
