@@ -5,6 +5,7 @@ import javax.sql.DataSource;
 import org.apache.commons.dbcp2.BasicDataSource;
 
 import com.ee.imperator.Imperator;
+import com.ee.imperator.exception.ConfigurationException;
 
 public class DBCPProvider {
 	private static DataSource dataSource;
@@ -23,7 +24,7 @@ public class DBCPProvider {
 			BasicDataSource dataSource = new BasicDataSource();
 			dataSource.setDriverClassName(getConfigOrCrash("driver"));
 			dataSource.setUrl(getConfigOrCrash("url"));
-			dataSource.setUsername(Imperator.getConfig().getString(DBCPProvider.class, "username"));
+			dataSource.setUsername(getConfigOrCrash("username"));
 			dataSource.setPassword(Imperator.getConfig().getString(DBCPProvider.class, "password"));
 			dataSource.setDefaultAutoCommit(false);
 			dataSource.setRollbackOnReturn(true);
@@ -34,7 +35,7 @@ public class DBCPProvider {
 	private static String getConfigOrCrash(String key) {
 		String value = Imperator.getConfig().getString(DBCPProvider.class, key);
 		if(value == null || value.isEmpty()) {
-			throw new NullPointerException("Missing config value for " + key);
+			throw new ConfigurationException("Missing config value for " + key);
 		}
 		return value;
 	}

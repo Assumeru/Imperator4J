@@ -138,7 +138,7 @@ public class SqlGameState extends CloseableDataSource implements BatchGameState 
 		while(result.next()) {
 			try {
 				int id = result.getInt(1);
-				com.ee.imperator.map.Map map = Imperator.getMapProvider().getMap(result.getInt(2)).clone();
+				com.ee.imperator.map.Map map = Imperator.getMapProvider().getMap(result.getInt(2)).copy();
 				Map<Integer, Player> players = loadPlayers(id, map.getMissions());
 				Game game = new Game(id, map, result.getString(3), result.getInt(4), result.getInt(5), result.getLong(6), Game.State.values()[result.getInt(7)], result.getInt(8), result.getBoolean(9), result.getString(10), players.values());
 				loadTerritories(game, conn);
@@ -235,7 +235,7 @@ public class SqlGameState extends CloseableDataSource implements BatchGameState 
 			statement.execute();
 			ResultSet result = statement.getGeneratedKeys();
 			if(result.next()) {
-				Game game = new Game(result.getInt(1), map.clone(), name, owner, password, time);
+				Game game = new Game(result.getInt(1), map.copy(), name, owner, password, time);
 				addPlayerToGame(conn, owner, game);
 				conn.commit();
 				return game;

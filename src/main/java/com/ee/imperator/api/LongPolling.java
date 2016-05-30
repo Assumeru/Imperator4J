@@ -24,7 +24,9 @@ public class LongPolling {
 	public Response handle(PageContext context) {
 		Map<String, String> arguments = getArguments(context);
 		if(arguments != null) {
-			sleep(arguments);
+			if("update".equals(arguments.get("mode"))) {
+				sleep(arguments);
+			}
 			try {
 				return Response.ok(Api.handleRequest(arguments, context.getUser())).type(MediaType.APPLICATION_JSON_TYPE).build();
 			} catch (RequestException e) {
@@ -35,28 +37,30 @@ public class LongPolling {
 	}
 
 	private void sleep(Map<String, String> arguments) {
-		if("update".equals(arguments.get("mode"))) {
-			try {
-				String type = arguments.get("type");
-				boolean game = false;
-				if("game".equals(type) || "pregame".equals(type)) {
-					game = true;
-				} else if(!"chat".equals(type)) {
-					return;
-				}
-				long time = Long.parseLong(arguments.get("time"));
-				int gid = Integer.parseInt(arguments.get("gid"));
-				int maxTries = Imperator.getConfig().getInt(getClass(), "maxTries");
-				long sleep = Imperator.getConfig().getLong(getClass(), "sleep");
-				for(int i = 0; !Imperator.getState().hasChatMessages(gid, time) && (!game || Imperator.getState().getGame(gid).getTime() <= time) && i < maxTries || maxTries == 0; i++) {
-					Thread.sleep(sleep);
-				}
-			} catch(NumberFormatException e) {
-				// Do nothing
-			} catch(InterruptedException e) {
-				LOG.e(e);
+		try {
+			String type = arguments.get("type");
+			boolean game = false;
+			if("game".equals(type) || "pregame".equals(type)) {
+				game = true;
+			} else if(!"chat".equals(type)) {
+				return;
 			}
+			long time = Long.parseLong(arguments.get("time"));
+			int gid = Integer.parseInt(arguments.get("gid"));
+			int maxTries = Imperator.getConfig().getInt(getClass(), "maxTries");
+			long sleep = Imperator.getConfig().getLong(getClass(), "sleep");
+			for(int i = 0; shouldSleep(gid, time, game) && i < maxTries || maxTries == 0; i++) {
+				Thread.sleep(sleep);
+			}
+		} catch(NumberFormatException e) {
+			// Do nothing
+		} catch(InterruptedException e) {
+			LOG.e(e);
 		}
+	}
+
+	private boolean shouldSleep(int gid, long time, boolean game) {
+		return !Imperator.getState().hasChatMessages(gid, time) && (!game || Imperator.getState().getGame(gid).getTime() <= time);
 	}
 
 	private Map<String, String> getArguments(PageContext context) {

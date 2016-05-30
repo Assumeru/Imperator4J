@@ -12,9 +12,9 @@ public abstract class AbstractConfig implements Config {
 	public Boolean getBoolean(String key) {
 		String value = getString(key);
 		if(value != null) {
-			if(value.equalsIgnoreCase("true")) {
+			if("true".equalsIgnoreCase(value)) {
 				return true;
-			} else if(value.equalsIgnoreCase("false")) {
+			} else if("false".equalsIgnoreCase(value)) {
 				return false;
 			}
 		}

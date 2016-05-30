@@ -272,7 +272,8 @@ public class Game implements Comparable<Game> {
 			return;
 		}
 		Player next;
-		for(int i = (players.indexOf(currentTurn) + 1) % players.size();; i = (i + 1) % players.size()) {
+		int i = (players.indexOf(currentTurn) + 1) % players.size();
+		while(true) {
 			Player player = players.get(i);
 			if(player.equals(currentTurn)) {
 				victory(currentTurn);
@@ -281,6 +282,7 @@ public class Game implements Comparable<Game> {
 				next = player;
 				break;
 			}
+			i = (i + 1) % players.size();
 		}
 		Imperator.getState().startTurn(next);
 	}

@@ -15,6 +15,7 @@ import org.ee.web.request.page.AbstractWebPage;
 
 import com.ee.imperator.Imperator;
 import com.ee.imperator.api.WebSocket;
+import com.ee.imperator.exception.PageException;
 import com.ee.imperator.request.context.PageContext;
 import com.ee.imperator.request.context.Variable;
 import com.ee.imperator.websocket.WebSocketConfig;
@@ -78,7 +79,7 @@ public abstract class ImperatorPage extends AbstractWebPage {
 		try {
 			throw new WebApplicationException(Response.seeOther(new URI(path)).build());
 		} catch (URISyntaxException e) {
-			throw new RuntimeException("Failed to redirect to " + path, e);
+			throw new PageException("Failed to redirect to " + path, e);
 		}
 	}
 

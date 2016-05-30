@@ -43,7 +43,7 @@ public class MemoryGameState implements GameState {
 
 	@Override
 	public Game createGame(Player owner, Map map, String name, String password) {
-		Game game = new Game(id++, map.clone(), name, owner, password, System.currentTimeMillis());
+		Game game = new Game(id++, map.copy(), name, owner, password, System.currentTimeMillis());
 		games.put(game.getId(), game);
 		return game;
 	}

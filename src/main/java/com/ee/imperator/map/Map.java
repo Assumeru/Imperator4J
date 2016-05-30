@@ -8,7 +8,7 @@ import java.util.TreeMap;
 
 import com.ee.imperator.mission.Mission;
 
-public class Map implements Comparable<Map>, Cloneable {
+public class Map implements Comparable<Map> {
 	private int id;
 	private String name;
 	private int players;
@@ -104,17 +104,11 @@ public class Map implements Comparable<Map>, Cloneable {
 		return diff;
 	}
 
-	@Override
-	public Map clone() {
-		Map map = null;
-		try {
-			map = (Map) super.clone();
-		} catch (CloneNotSupportedException e) {
-			//Not going to happen
-		}
+	public Map copy() {
+		Map map = new Map(id, name, players, descriptions, null, null, missions, missionDistribution);
 		map.territories = new TreeMap<>();
 		for(Territory territory : territories.values()) {
-			map.territories.put(territory.getId(), territory.clone());
+			map.territories.put(territory.getId(), territory.copy());
 		}
 		for(Territory territory : territories.values()) {
 			Territory clone = map.territories.get(territory.getId());
@@ -124,7 +118,7 @@ public class Map implements Comparable<Map>, Cloneable {
 		}
 		map.regions = new TreeMap<>();
 		for(Region region : regions.values()) {
-			Region clone = region.clone();
+			Region clone = region.copy();
 			map.regions.put(region.getId(), clone);
 			for(Territory territory : region.getTerritories()) {
 				Territory clonedTerritory = map.territories.get(territory.getId());

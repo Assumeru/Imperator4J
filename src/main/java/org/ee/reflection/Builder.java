@@ -44,28 +44,34 @@ public class Builder {
 		int i = 0;
 		for(Parameter param : constructor.getParameters()) {
 			if(i >= types.length || param.getType() != types[i]) {
-				if(param.isVarArgs()) {
-					int end = i;
-					while(i < types.length && param.getType().getComponentType() == types[i]) {
-						i++;
-					}
-					if(i == types.length) {
-						Object varArgs = Array.newInstance(param.getType().getComponentType(), i - end);
-						for(int n = end; n < i; n++) {
-							Array.set(varArgs, n - end, values[n]);
-						}
-						Object[] values = new Object[end + 1];
-						System.arraycopy(this.values, 0, values, 0, end);
-						values[end] = varArgs;
-						this.values = values;
-						return true;
-					}
-				}
-				return false;
+				return param.isVarArgs() && fixVarArgs(param, i);
 			}
 			i++;
 		}
 		return true;
+	}
+
+	private boolean fixVarArgs(Parameter param, int i) {
+		int end = i;
+		while(i < types.length && param.getType().getComponentType() == types[i]) {
+			i++;
+		}
+		if(i == types.length) {
+			copyParams(param, i, end);
+			return true;
+		}
+		return false;
+	}
+
+	private void copyParams(Parameter param, int i, int end) {
+		Object varArgs = Array.newInstance(param.getType().getComponentType(), i - end);
+		for(int n = end; n < i; n++) {
+			Array.set(varArgs, n - end, values[n]);
+		}
+		Object[] copy = new Object[end + 1];
+		System.arraycopy(this.values, 0, copy, 0, end);
+		copy[end] = varArgs;
+		this.values = copy;
 	}
 
 	public <T> T newInstance(Constructor<T> constructor) throws InstantiationException, IllegalAccessException, InvocationTargetException {

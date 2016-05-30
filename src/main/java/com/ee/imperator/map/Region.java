@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.ee.imperator.user.User;
 
-public class Region implements Comparable<Region>, HasFlag, Cloneable {
+public class Region implements Comparable<Region>, HasFlag {
 	private final String id;
 	private final String name;
 	private final int units;
@@ -49,8 +49,7 @@ public class Region implements Comparable<Region>, HasFlag, Cloneable {
 		return id.compareTo(o.id);
 	}
 
-	@Override
-	public Region clone() {
+	public Region copy() {
 		return new Region(id, name, units);
 	}
 }

@@ -31,16 +31,12 @@ public class Api {
 	public static final String DATE_ATOM = "yyyy-MM-dd'T'HH:mm:ssXXX";
 	private static Map<String, List<Handler>> handlers;
 
+	private Api() {}
+
 	static String handleRequest(Map<String, String> variables, Member member) throws RequestException {
 		try {
 			JSONObject output = handleInternal(variables, Objects.requireNonNull(member));
 			return output == null ? null : output.toString();
-		} catch(InvocationTargetException e) {
-			if(e.getCause() instanceof RequestException) {
-				throw (RequestException) e.getCause();
-			}
-			LOG.e("Failed to handle request", e);
-			throw new RequestException("Fatal error", variables.get("mode"), variables.get("type"), e);
 		} catch(RequestException e) {
 			throw e;
 		} catch(Exception e) {
@@ -49,15 +45,23 @@ public class Api {
 		}
 	}
 
-	private static JSONObject handleInternal(Map<String, String> variables, Member member) throws Exception {
+	private static JSONObject handleInternal(Map<String, String> variables, Member member) throws RequestException, IllegalAccessException {
 		String mode = variables.get("mode");
 		String type = variables.get("type");
-		for(Handler handler : getHandlers(mode, type)) {
-			Match match = handler.getMatch(variables, member);
-			if(match != null) {
-				JSONObject out = handler.invoke(match);
-				return getReply(out, mode, type);
+		try {
+			for(Handler handler : getHandlers(mode, type)) {
+				Match match = handler.getMatch(variables, member);
+				if(match != null) {
+					JSONObject out = handler.invoke(match);
+					return getReply(out, mode, type);
+				}
 			}
+		} catch(InvocationTargetException e) {
+			if(e.getCause() instanceof RequestException) {
+				throw (RequestException) e.getCause();
+			}
+			LOG.e("Failed to handle request", e);
+			throw new RequestException("Fatal error", mode, type, e);
 		}
 		throw new InvalidRequestException("Unknown request", mode, type);
 	}
@@ -81,7 +85,7 @@ public class Api {
 	}
 
 	@SuppressWarnings("unchecked")
-	private synchronized static void setHandlers() {
+	private static synchronized void setHandlers() {
 		if(handlers == null) {
 			handlers = new HashMap<>();
 			Set<Class<?>> types = new Reflections(Request.class.getPackage().getName()).getTypesAnnotatedWith(Request.class);
@@ -104,7 +108,6 @@ public class Api {
 			LOG.w("Classes annotated with " + Request.class + " must specify a non-empty mode and type");
 			return;
 		}
-		String key = getKey(request.mode(), request.type());
 		Object instance;
 		try {
 			instance = type.newInstance();
@@ -112,6 +115,10 @@ public class Api {
 			LOG.w("Classes annotated with " + Request.class + " must specify a default constructor", e);
 			return;
 		}
+		addHandlers(methods, type, getKey(request.mode(), request.type()), instance);
+	}
+
+	private static void addHandlers(Set<Method> methods, Class<?> type, String key, Object instance) {
 		for(Method method : methods) {
 			if((method.getReturnType() == void.class || method.getReturnType().isAssignableFrom(JSONObject.class)) && method.getParameterCount() > 0) {
 				Parameter[] params = method.getParameters();
@@ -152,8 +159,5 @@ public class Api {
 
 	public static String getErrorMessage(String error, String mode, String type) {
 		return getReply(new JSONObject().put("error", error), mode, type).toString();
-	}
-
-	private Api() {
 	}
 }

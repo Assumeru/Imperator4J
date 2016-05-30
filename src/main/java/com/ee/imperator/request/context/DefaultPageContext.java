@@ -10,6 +10,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import org.ee.web.request.Request;
 import org.ee.web.request.page.WebPage;
 
+import com.ee.imperator.exception.PageException;
 import com.ee.imperator.template.Template;
 import com.ee.imperator.user.Member;
 
@@ -62,7 +63,7 @@ public class DefaultPageContext implements PageContext {
 		try {
 			template.process(response);
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new PageException(e);
 		}
 		return response;
 	}

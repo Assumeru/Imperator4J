@@ -1,5 +1,6 @@
 package com.ee.imperator.api;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -28,44 +29,54 @@ public class WebSocket {
 	public String handle(Member member, JSONObject input) {
 		try {
 			String response = Api.handleRequest(getVariables(input), member);
-			try {
-				sendUpdates(input);
-			} catch(Exception e) {
-				LOG.e("Error sending updates", e);
-			}
+			trySendUpdates(input);
 			return response;
 		} catch(RequestException e) {
 			return new JSONObject().put("type", e.getType()).put("mode", e.getMode()).put("error", e.getMessage(member.getLanguage())).toString();
 		}
 	}
 
+	private void trySendUpdates(JSONObject input) {
+		try {
+			sendUpdates(input);
+		} catch(Exception e) {
+			LOG.e("Error sending updates", e);
+		}
+	}
+
 	private void sendUpdates(JSONObject input) {
 		if(input.has("mode") && input.has("type") && input.has("gid")) {
 			int gid = input.getInt("gid");
-			String mode = input.getString("mode");
-			String type = input.getString("type");
-			if(("chat".equals(mode) && "delete".equals(type)) ||
-					("game".equals(mode) && ("start-move".equals(type) || "autoroll".equals(type)))) {
-				return;
-			}
-			if(gid == 0) {
-				sendChatUpdates();
-			} else {
-				Game game = Imperator.getState().getGame(gid);
-				if(game != null) {
-					sendGameUpdates(game);
+			if(shouldUpdate(input.getString("mode"), input.getString("type"))) {
+				if(gid == 0) {
+					sendChatUpdates();
+				} else {
+					sendGameUpdates(Imperator.getState().getGame(gid));
 				}
 			}
 		}
 	}
 
+	private boolean shouldUpdate(String mode, String type) {
+		if("chat".equals(mode) && "delete".equals(type)) {
+			return false;
+		} else if("game".equals(mode)) {
+			return !"start-move".equals(type) && !"autoroll".equals(type);
+		}
+		return true;
+	}
+
 	private void sendGameUpdates(Game game) {
-		Map<Session, Long> map = sessions.get(game);
+		Map<Session, Long> map = game == null ? null : sessions.get(game);
 		if(map != null) {
 			for(Entry<Session, Long> entry : map.entrySet()) {
 				Member member = (Member) entry.getKey().getUserProperties().get(Member.class.getName());
-				String response = sendGameUpdate(member, entry.getValue(), game.getId());
-				send(game, entry.getKey(), response);
+				try {
+					String response = sendGameUpdate(member, entry.getValue(), game.getId());
+					send(game, entry.getKey(), response);
+				} catch(Exception e) {
+					LOG.w("Failed to send update", e);
+				}
 			}
 		}
 	}
@@ -75,48 +86,38 @@ public class WebSocket {
 		if(map != null) {
 			for(Entry<Session, Long> entry : map.entrySet()) {
 				Member member = (Member) entry.getKey().getUserProperties().get(Member.class.getName());
-				String response = sendChatUpdate(member, entry.getValue());
-				send(null, entry.getKey(), response);
+				try {
+					String response = sendChatUpdate(member, entry.getValue());
+					send(null, entry.getKey(), response);
+				} catch(Exception e) {
+					LOG.w("Failed to send update", e);
+				}
 			}
 		}
 	}
 
-	private String sendGameUpdate(Member member, long time, int gid) {
-		try {
-			return Api.handleRequest(new MapBuilder<String, String>()
-					.put("mode", "update")
-					.put("type", "game")
-					.put("gid", String.valueOf(gid))
-					.put("time", String.valueOf(time))
-					.build(), member);
-		} catch(Exception e) {
-			LOG.w("Failed to send update", e);
-		}
-		return null;
+	private String sendGameUpdate(Member member, long time, int gid) throws RequestException {
+		return Api.handleRequest(new MapBuilder<String, String>()
+				.put("mode", "update")
+				.put("type", "game")
+				.put("gid", String.valueOf(gid))
+				.put("time", String.valueOf(time))
+				.build(), member);
 	}
 
-	private String sendChatUpdate(Member member, long time) {
-		try {
-			return Api.handleRequest(new MapBuilder<String, String>()
-					.put("mode", "update")
-					.put("type", "chat")
-					.put("time", String.valueOf(time))
-					.build(), member);
-		} catch(Exception e) {
-			LOG.w("Failed to send update", e);
-		}
-		return null;
+	private String sendChatUpdate(Member member, long time) throws RequestException {
+		return Api.handleRequest(new MapBuilder<String, String>()
+				.put("mode", "update")
+				.put("type", "chat")
+				.put("time", String.valueOf(time))
+				.build(), member);
 	}
 
-	private void send(Game game, Session session, String response) {
+	private void send(Game game, Session session, String response) throws IOException {
 		if(response != null) {
-			try {
-				session.getBasicRemote().sendText(response);
-				long time = new JSONObject(response).getLong("update");
-				update(game, session, time);
-			} catch(Exception e) {
-				LOG.w("Failed to send update", e);
-			}
+			session.getBasicRemote().sendText(response);
+			long time = new JSONObject(response).getLong("update");
+			update(game, session, time);
 		}
 	}
 

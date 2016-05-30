@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.ee.imperator.user.Player;
 
-public class Territory implements Comparable<Territory>, HasFlag, Cloneable {
+public class Territory implements Comparable<Territory>, HasFlag {
 	private final String id;
 	private final String name;
 	private final List<Region> regions;
@@ -58,8 +58,7 @@ public class Territory implements Comparable<Territory>, HasFlag, Cloneable {
 		return id.compareTo(o.id);
 	}
 
-	@Override
-	public Territory clone() {
+	public Territory copy() {
 		return new Territory(id, name);
 	}
 }

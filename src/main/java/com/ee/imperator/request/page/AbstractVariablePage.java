@@ -16,6 +16,7 @@ import org.ee.reflection.ReflectionUtils;
 import org.ee.text.PrimitiveUtils;
 import org.ee.text.UriTemplate;
 
+import com.ee.imperator.exception.ParamPageException;
 import com.ee.imperator.request.context.PageContext;
 
 public abstract class AbstractVariablePage extends ImperatorPage {
@@ -98,9 +99,9 @@ public abstract class AbstractVariablePage extends ImperatorPage {
 				if(e.getCause() instanceof RuntimeException) {
 					throw (RuntimeException) e.getCause();
 				}
-				throw new RuntimeException(e);
+				throw new ParamPageException(e);
 			} catch (IllegalAccessException | IllegalArgumentException e) {
-				throw new RuntimeException(e);
+				throw new ParamPageException(e);
 			}
 		}
 	}

@@ -121,7 +121,7 @@ public class Parser {
 		try {
 			return TOKENS.get(key).newInstance();
 		} catch(InstantiationException | IllegalAccessException e) {
-			throw new RuntimeException(e);
+			throw new UnsupportedOperationException(e);
 		}
 	}
 }
