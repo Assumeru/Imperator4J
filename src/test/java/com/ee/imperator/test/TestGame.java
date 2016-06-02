@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import com.ee.imperator.Imperator;
 import com.ee.imperator.api.TestApi;
+import com.ee.imperator.game.Cards;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.map.Map;
 import com.ee.imperator.map.Region;
@@ -18,6 +19,7 @@ import com.ee.imperator.user.Player;
 
 public class TestGame {
 	private static final Logger LOG = LogManager.createLogger();
+	private static final int[] CARD_COMBINATIONS = {10, 8, 6, 4};
 	private Game game;
 	private Player player1;
 	private Player player2;
@@ -40,7 +42,39 @@ public class TestGame {
 		Assert.assertEquals(Game.State.TURN_START, game.getState());
 		testStack();
 		testCombat();
-		//TODO
+		testCards();
+	}
+
+	private void testCards() {
+		Territory target = null;
+		for(Player player : game.getPlayers()) {
+			if(player.getState() == Player.State.GAME_OVER) {
+				target = territories.get(player);
+			}
+		}
+		while(game.getCurrentPlayer().getCards().size() < Cards.MAX_CARDS) {
+			Player player = game.getCurrentPlayer();
+			Territory territory = territories.get(player);
+			if(target.getOwner().equals(player) || territory.getUnits() <= Game.MAX_ATTACKERS) {
+				fortify(player);
+				stack(player, territory, game.getUnits());
+			} else {
+				attack(player, territory, target, Game.MAX_ATTACKERS, 1);
+			}
+			endTurn();
+		}
+		Cards cards = game.getCurrentPlayer().getCards();
+		Assert.assertEquals(Cards.MAX_CARDS, cards.size());
+		boolean playedCards = false;
+		int units = game.getUnits();
+		for(int combo : CARD_COMBINATIONS) {
+			if(cards.canPlay(combo)) {
+				playCards(game.getCurrentPlayer(), combo);
+				Assert.assertNotEquals(units, game.getUnits());
+				playedCards = true;
+			}
+		}
+		Assert.assertTrue("No card combination could be played", playedCards);
 	}
 
 	private void testCombat() {
@@ -208,5 +242,10 @@ public class TestGame {
 	private void moveUnits(Player player, Territory from, Territory to, int move) {
 		TestApi.INSTANCE.handle(new TestApi.MoveUnits(player, from, to, move));
 		LOG.i(move + " moved from " + from.getId() + " to " + to.getId());
+	}
+
+	private void playCards(Player player, int combo) {
+		TestApi.INSTANCE.handle(new TestApi.PlayCards(player, combo));
+		LOG.i(player.getId() + " played cards for " + combo + " units");
 	}
 }

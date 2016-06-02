@@ -95,6 +95,16 @@ public class TestApi {
 		}
 	}
 
+	public static class PlayCards extends Context {
+		public PlayCards(Player player, int units) {
+			super(player.getMember(), new MapBuilder<String, String>()
+					.put("mode", "game")
+					.put("type", "play-cards")
+					.put("gid", String.valueOf(player.getGame().getId()))
+					.put("units", String.valueOf(units)).build());
+		}
+	}
+
 	private TestApi() {
 	}
 

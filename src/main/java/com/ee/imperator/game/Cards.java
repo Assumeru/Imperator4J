@@ -1,6 +1,7 @@
 package com.ee.imperator.game;
 
 import java.util.AbstractCollection;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Random;
 
@@ -178,6 +179,15 @@ public class Cards extends AbstractCollection<Card> {
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public boolean removeAll(Collection<?> c) {
+		boolean changed = false;
+		for(Object o : c) {
+			remove(o);
+		}
+		return changed;
 	}
 
 	@Override
