@@ -105,6 +105,15 @@ public class TestApi {
 		}
 	}
 
+	public static class Forfeit extends Context {
+		public Forfeit(Player player) {
+			super(player.getMember(), new MapBuilder<String, String>()
+					.put("mode", "game")
+					.put("type", "forfeit")
+					.put("gid", String.valueOf(player.getGame().getId())).build());
+		}
+	}
+
 	private TestApi() {
 	}
 

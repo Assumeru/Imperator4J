@@ -43,6 +43,30 @@ public class TestGame {
 		testStack();
 		testCombat();
 		testCards();
+		testForfeit();
+		testGameOver();
+	}
+
+	private void testGameOver() {
+		Assert.assertEquals(Game.State.FINISHED, game.getState());
+		for(Player player : game.getPlayers()) {
+			if(player.getState() == Player.State.GAME_OVER) {
+				Assert.assertEquals(-1, player.getMember().getScore());
+				Assert.assertEquals(1, player.getMember().getLosses());
+			} else if(player.getState() == Player.State.VICTORIOUS) {
+				Assert.assertEquals(game.getPlayers().size() - 1, player.getMember().getScore());
+				Assert.assertEquals(1, player.getMember().getWins());
+			} else {
+				Assert.fail("Unexpected state " + player.getState());
+			}
+		}
+	}
+
+	private void testForfeit() {
+		Player loser = game.getCurrentPlayer();
+		forfeit(loser);
+		Assert.assertNotEquals(loser, game.getCurrentPlayer());
+		Assert.assertEquals(Player.State.GAME_OVER, loser.getState());
 	}
 
 	private void testCards() {
@@ -63,18 +87,20 @@ public class TestGame {
 			}
 			endTurn();
 		}
-		Cards cards = game.getCurrentPlayer().getCards();
-		Assert.assertEquals(Cards.MAX_CARDS, cards.size());
+		Player player = game.getCurrentPlayer();
+		Assert.assertEquals(Cards.MAX_CARDS, player.getCards().size());
 		boolean playedCards = false;
 		int units = game.getUnits();
 		for(int combo : CARD_COMBINATIONS) {
-			if(cards.canPlay(combo)) {
-				playCards(game.getCurrentPlayer(), combo);
+			if(player.getCards().canPlay(combo)) {
+				playCards(player, combo);
 				Assert.assertNotEquals(units, game.getUnits());
 				playedCards = true;
 			}
 		}
 		Assert.assertTrue("No card combination could be played", playedCards);
+		stack(player, territories.get(player), game.getUnits());
+		Assert.assertEquals(Game.State.TURN_START, game.getState());
 	}
 
 	private void testCombat() {
@@ -247,5 +273,10 @@ public class TestGame {
 	private void playCards(Player player, int combo) {
 		TestApi.INSTANCE.handle(new TestApi.PlayCards(player, combo));
 		LOG.i(player.getId() + " played cards for " + combo + " units");
+	}
+
+	private void forfeit(Player player) {
+		TestApi.INSTANCE.handle(new TestApi.Forfeit(player));
+		LOG.i(player.getId() + " forfeited");
 	}
 }
