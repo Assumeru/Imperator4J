@@ -22,7 +22,7 @@ import com.ee.imperator.user.Player;
 import com.ee.imperator.user.User;
 
 public class CachedGameState implements GameState {
-	private final SoftReferenceCache<Integer, Game> cache;
+	private final Map<Integer, Game> cache;
 	private final GameState gameProvider;
 
 	public CachedGameState(GameState gameProvider, long timeToKeep) {

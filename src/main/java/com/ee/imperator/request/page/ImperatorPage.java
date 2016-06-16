@@ -59,10 +59,7 @@ public abstract class ImperatorPage extends AbstractWebPage {
 		for(Variable<?> var : PageContext.DEFAULT_VARIABLES) {
 			context.setVariable(var);
 		}
-		String langJS = Imperator.getLanguageProvider().getJavascript();
-		if(langJS != null) {
-			PageContext.VARIABLE_JAVASCRIPT.add(context, langJS);
-		}
+		Imperator.getLanguageProvider().addToPage(context);
 	}
 
 	protected abstract void setVariables(PageContext context);

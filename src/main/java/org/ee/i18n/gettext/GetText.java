@@ -38,4 +38,8 @@ public class GetText extends AbstractLanguage {
 		}
 		return new PluralString(String.valueOf(vars[0]), String.valueOf(vars[1]), (Integer) vars[2]);
 	}
+
+	public Mo getMo() {
+		return mo;
+	}
 }

@@ -21,7 +21,7 @@ public class MoParser {
 	private static final int MAGIC = 0x950412de;
 	private static final Pattern PLURAL_FORMS = Pattern.compile("^\\s*nplurals\\s*=\\s*(\\d+)\\s*;\\s*plural\\s*=\\s*(.+)$");
 	private static final Function<Integer, Integer> DEFAULT_PLURAL_FORM = n -> n != 0 ? 1 : 0;
-	private static final String DEFAULT_PLURAL_FORM_STRING = "n != 0";
+	public static final String DEFAULT_PLURAL_FORM_STRING = "n != 0";
 	private final ByteBuffer input;
 	private Charset charset;
 	private boolean overrideCharset;

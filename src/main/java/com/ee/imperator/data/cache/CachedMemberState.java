@@ -2,6 +2,7 @@ package com.ee.imperator.data.cache;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import org.ee.cache.SoftReferenceCache;
 import org.ee.web.request.Request;
@@ -12,7 +13,7 @@ import com.ee.imperator.user.Member;
 
 public class CachedMemberState implements MemberState {
 	private final MemberState memberProvider;
-	private final SoftReferenceCache<Integer, Member> cache;
+	private final Map<Integer, Member> cache;
 
 	public CachedMemberState(MemberState memberProvider, long timeToKeep) {
 		this.memberProvider = memberProvider;
