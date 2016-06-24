@@ -22,7 +22,7 @@ public class DummyMemberState extends CachedMemberState {
 			@Override
 			public Member getMember(int id) {
 				Member member = super.getMember(id);
-				return new Member(id, "Dummy user #" + id, Imperator.getLanguageProvider().getLanguage(Locale.UK), false, false, member.getScore(), member.getWins(), member.getLosses());
+				return new Member(id, "Dummy user #" + id, Imperator.getLanguageProvider().getLanguage(Locale.US), false, false, member.getScore(), member.getWins(), member.getLosses());
 			}
 
 			@Override

@@ -72,7 +72,7 @@ public class WebSocket {
 			for(Entry<Session, Long> entry : map.entrySet()) {
 				Member member = (Member) entry.getKey().getUserProperties().get(Member.class.getName());
 				try {
-					String response = sendGameUpdate(member, entry.getValue(), game.getId());
+					String response = sendGameUpdate(member, entry.getValue(), game);
 					send(game, entry.getKey(), response);
 				} catch(Exception e) {
 					LOG.w("Failed to send update", e);
@@ -96,11 +96,11 @@ public class WebSocket {
 		}
 	}
 
-	private String sendGameUpdate(Member member, long time, int gid) throws RequestException {
+	private String sendGameUpdate(Member member, long time, Game game) throws RequestException {
 		return Api.handleRequest(new MapBuilder<String, String>()
 				.put("mode", "update")
-				.put("type", "game")
-				.put("gid", String.valueOf(gid))
+				.put("type", game.hasStarted() ? "game" : "pregame")
+				.put("gid", String.valueOf(game.getId()))
 				.put("time", String.valueOf(time))
 				.build(), member);
 	}
