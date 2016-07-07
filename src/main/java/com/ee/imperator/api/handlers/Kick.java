@@ -3,6 +3,7 @@ package com.ee.imperator.api.handlers;
 import com.ee.imperator.Imperator;
 import com.ee.imperator.exception.InvalidRequestException;
 import com.ee.imperator.exception.RequestException;
+import com.ee.imperator.exception.TransactionException;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.user.Member;
 import com.ee.imperator.user.Player;
@@ -22,7 +23,11 @@ public class Kick {
 		}
 		Player player = game.getPlayerById(uid);
 		if(player != null) {
-			Imperator.getState().removePlayerFromGame(player, game);
+			try {
+				game.removePlayer(player);
+			} catch (TransactionException e) {
+				throw new RequestException("Failed to remove player", "game", "kick", e);
+			}
 		}
 	}
 }

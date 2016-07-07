@@ -9,6 +9,8 @@ import java.util.Set;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.ServerErrorException;
+import javax.ws.rs.core.Response;
 
 import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
@@ -16,6 +18,7 @@ import org.ee.logger.Logger;
 import com.ee.imperator.Imperator;
 import com.ee.imperator.exception.ConfigurationException;
 import com.ee.imperator.exception.FormException;
+import com.ee.imperator.exception.TransactionException;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.request.context.PageContext;
 import com.ee.imperator.request.page.form.JoinGameForm;
@@ -103,28 +106,33 @@ public class GamePage extends AbstractVariablePage {
 		context.setVariable("code", context.getGetParams().getFirst("code"));
 	}
 
-	private synchronized void joinGame(PageContext context, Game game, Map<String, String> colors) {
+	private void joinGame(PageContext context, Game game, Map<String, String> colors) {
 		if(game.getPlayers().size() < game.getMap().getPlayers()) {
 			try {
 				JoinGameForm form = new JoinGameForm(context, game, colors);
 				Player player = new Player(context.getUser());
 				player.setColor(form.getColor());
-				if(Imperator.getState().addPlayerToGame(player, game)) {
-					redirect(Imperator.getUrlBuilder().game(game));
-				}
+				game.addPlayer(player);
+				redirect(Imperator.getUrlBuilder().game(game));
 			} catch (FormException e) {
 				if(e.getName() != null) {
 					context.setVariable(e.getName(), e.getMessage());
 				}
 				LOG.v(e);
+			} catch (TransactionException e) {
+				LOG.e(e);
+				redirect(Imperator.getUrlBuilder().game(game));
 			}
 		}
 	}
 
 	private void leaveGame(PageContext context, Game game) {
-		if(Imperator.getState().removePlayerFromGame(game.getPlayerById(context.getUser().getId()), game)) {
-			redirect(Imperator.getUrlBuilder().game(game));
+		try {
+			game.removePlayer(game.getPlayerById(context.getUser().getId()));
+		} catch (TransactionException e) {
+			LOG.e(e);
 		}
+		redirect(Imperator.getUrlBuilder().game(game));
 	}
 
 	private void deleteGame(Game game) {
@@ -133,9 +141,13 @@ public class GamePage extends AbstractVariablePage {
 		}
 	}
 
-	private synchronized void startGame(Game game) {
+	private void startGame(Game game) {
 		if(game.getPlayers().size() == game.getMap().getPlayers()) {
-			Imperator.getState().startGame(game);
+			try {
+				game.start();
+			} catch (TransactionException e) {
+				throw new ServerErrorException(Response.Status.INTERNAL_SERVER_ERROR, e);
+			}
 			redirect(Imperator.getUrlBuilder().game(game));
 		}
 	}

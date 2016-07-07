@@ -14,9 +14,5 @@ public interface MemberState extends Closeable {
 
 	Integer getId(Request request);
 
-	void addWin(Member member, int points);
-
-	void addLoss(Member member);
-
 	List<Member> getMembers();
 }

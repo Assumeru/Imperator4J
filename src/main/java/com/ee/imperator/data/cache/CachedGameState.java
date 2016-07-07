@@ -12,12 +12,10 @@ import org.ee.cache.SoftReferenceCache;
 import com.ee.imperator.Imperator;
 import com.ee.imperator.data.BatchGameState;
 import com.ee.imperator.data.GameState;
-import com.ee.imperator.game.Attack;
-import com.ee.imperator.game.Cards.Card;
+import com.ee.imperator.data.transaction.GameTransaction;
+import com.ee.imperator.exception.TransactionException;
 import com.ee.imperator.game.Game;
-import com.ee.imperator.game.Game.State;
 import com.ee.imperator.game.log.LogEntry;
-import com.ee.imperator.map.Territory;
 import com.ee.imperator.user.Player;
 import com.ee.imperator.user.User;
 
@@ -121,16 +119,6 @@ public class CachedGameState implements GameState {
 	}
 
 	@Override
-	public boolean addPlayerToGame(Player player, Game game) {
-		return gameProvider.addPlayerToGame(player, game);
-	}
-
-	@Override
-	public boolean removePlayerFromGame(Player player, Game game) {
-		return gameProvider.removePlayerFromGame(player, game);
-	}
-
-	@Override
 	public boolean deleteGame(Game game) {
 		if(gameProvider.deleteGame(game)) {
 			cache.remove(game.getId());
@@ -140,87 +128,12 @@ public class CachedGameState implements GameState {
 	}
 
 	@Override
-	public void startGame(Game game) {
-		gameProvider.startGame(game);
-	}
-
-	@Override
 	public List<LogEntry> getCombatLogs(Game game, long time) {
 		return gameProvider.getCombatLogs(game, time);
 	}
 
 	@Override
-	public void setAutoRoll(Player player, boolean autoroll) {
-		gameProvider.setAutoRoll(player, autoroll);
-	}
-
-	@Override
-	public boolean addCards(Player player, Card card, int amount) {
-		return gameProvider.addCards(player, card, amount);
-	}
-
-	@Override
-	public void startTurn(Player player) {
-		gameProvider.startTurn(player);
-	}
-
-	@Override
-	public void updateUnitsAndState(Game game, State state, int units) {
-		gameProvider.updateUnitsAndState(game, state, units);
-	}
-
-	@Override
-	public void placeUnits(Game game, Territory territory, int units) {
-		gameProvider.placeUnits(game, territory, units);
-	}
-
-	@Override
-	public void forfeit(Player player) {
-		gameProvider.forfeit(player);
-	}
-
-	@Override
-	public void saveAttack(Game game, Attack attack) {
-		gameProvider.saveAttack(game, attack);
-	}
-
-	@Override
-	public void attack(Game game, Attack attack) {
-		gameProvider.attack(game, attack);
-	}
-
-	@Override
-	public void setState(Player player, Player.State state) {
-		gameProvider.setState(player, state);
-	}
-
-	@Override
-	public void saveMissions(Game game) {
-		gameProvider.saveMissions(game);
-	}
-
-	@Override
-	public void setState(Game game, State state) {
-		gameProvider.setState(game, state);
-	}
-
-	@Override
-	public void moveUnits(Game game, Territory from, Territory to, int move) {
-		gameProvider.moveUnits(game, from, to, move);
-	}
-
-	@Override
-	public void playCards(Player player, int units) {
-		gameProvider.playCards(player, units);
-	}
-
-	@Override
-	public boolean victory(Player player) {
-		return gameProvider.victory(player);
-	}
-
-	@Override
-	public void deleteAttack(Attack attack) {
-		gameProvider.deleteAttack(attack);
+	public GameTransaction modify(Game game) throws TransactionException {
+		return gameProvider.modify(game);
 	}
 }

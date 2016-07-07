@@ -46,18 +46,6 @@ public class MemoryMemberState implements MemberState {
 	}
 
 	@Override
-	public void addWin(Member member, int points) {
-		member.setWins(member.getWins() + 1);
-		member.setScore(member.getScore() + points);
-	}
-
-	@Override
-	public void addLoss(Member member) {
-		member.setLosses(member.getLosses() + 1);
-		member.setScore(member.getScore() - 1);
-	}
-
-	@Override
 	public List<Member> getMembers() {
 		return new ArrayList<>(members.values());
 	}

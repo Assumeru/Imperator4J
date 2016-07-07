@@ -8,7 +8,7 @@ import com.ee.imperator.Imperator;
 import com.ee.imperator.exception.ConfigurationException;
 
 public class DBCPProvider {
-	private static DataSource dataSource;
+	private static volatile DataSource dataSource;
 
 	private DBCPProvider() {}
 

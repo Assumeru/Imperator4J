@@ -7,7 +7,7 @@ import java.util.List;
 import com.ee.imperator.Imperator;
 
 public class CachedMapProvider implements MapProvider {
-	private java.util.Map<Integer, Map> maps;
+	private volatile java.util.Map<Integer, Map> maps;
 	private List<Map> sortedMaps;
 
 	@Override

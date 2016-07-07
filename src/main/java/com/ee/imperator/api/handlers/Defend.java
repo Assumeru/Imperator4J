@@ -5,6 +5,7 @@ import org.json.JSONObject;
 import com.ee.imperator.Imperator;
 import com.ee.imperator.exception.InvalidRequestException;
 import com.ee.imperator.exception.RequestException;
+import com.ee.imperator.exception.TransactionException;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.map.Territory;
 import com.ee.imperator.user.Member;
@@ -27,16 +28,20 @@ public class Defend {
 			throw new InvalidRequestException("Not your territory", "game", "defend");
 		}
 		com.ee.imperator.game.Attack attack = getAttack(game, to, from);
-		attack.rollDefence(units);
-		game.executeAttack(attack);
-		Imperator.getState().deleteAttack(attack);
+		try {
+			game.defend(attack, units);
+		} catch (TransactionException e) {
+			throw new RequestException("Failed to defend", "game", "defend", e);
+		}
 		return Attack.getAttackResponse(game, to, from, attack);
 	}
 
 	private com.ee.imperator.game.Attack getAttack(Game game, Territory to, Territory from) throws RequestException {
-		for(com.ee.imperator.game.Attack attack : game.getAttacks()) {
-			if(attack.getAttacker().equals(from) && attack.getDefender().equals(to)) {
-				return attack;
+		synchronized(game.getAttacks()) {
+			for(com.ee.imperator.game.Attack attack : game.getAttacks()) {
+				if(attack.getAttacker().equals(from) && attack.getDefender().equals(to)) {
+					return attack;
+				}
 			}
 		}
 		throw new InvalidRequestException("Attack not found", "game", "defend");

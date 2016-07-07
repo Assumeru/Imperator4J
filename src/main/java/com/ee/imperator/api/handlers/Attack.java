@@ -4,8 +4,10 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.ee.imperator.Imperator;
+import com.ee.imperator.data.transaction.GameTransaction;
 import com.ee.imperator.exception.InvalidRequestException;
 import com.ee.imperator.exception.RequestException;
+import com.ee.imperator.exception.TransactionException;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.map.Territory;
 import com.ee.imperator.user.Member;
@@ -14,6 +16,47 @@ import com.ee.imperator.user.Member;
 public class Attack {
 	public JSONObject handle(Member member, @Param("gid") int gid, @Param("units") int units, @Param("to") String tid, @Param("from") String fid, @Param("move") int move) throws RequestException {
 		Game game = Imperator.getState().getGame(gid);
+		checkParams(game, member, units);
+		Territory to = game.getMap().getTerritories().get(tid);
+		Territory from = game.getMap().getTerritories().get(fid);
+		if(to == null || from == null) {
+			throw new InvalidRequestException("Territory does not exist", "game", "attack");
+		} else if(!from.getOwner().equals(member) || to.getOwner().equals(member) || units >= from.getUnits() || move >= from.getUnits() || !from.getBorders().contains(to)) {
+			throw new InvalidRequestException("Invalid attack", "game", "attack");
+		}
+		com.ee.imperator.game.Attack attack;
+		boolean autoRoll;
+		synchronized(game.getAttacks()) {
+			for(com.ee.imperator.game.Attack a : game.getAttacks()) {
+				if(a.getAttacker().equals(to) || a.getAttacker().equals(from) || a.getDefender().equals(to) || a.getDefender().equals(from)) {
+					throw new InvalidRequestException(String.valueOf(member.getLanguage().translate("One of these territories is already engaged in combat.")), "game", "attack");
+				}
+			}
+			attack = new com.ee.imperator.game.Attack(from, to, Math.max(1, move));
+			attack.rollAttack(units);
+			autoRoll = to.getUnits() == 1 || to.getOwner().getAutoRoll() || attack.attackerCannotWin();
+			try(GameTransaction transaction = Imperator.getState().modify(game)) {
+				transaction.setState(Game.State.COMBAT);
+				if(autoRoll) {
+					attack.autoRollDefence();
+					game.executeAttack(attack, transaction);
+				} else {
+					transaction.getAttacks().add(attack);
+				}
+				transaction.commit();
+			} catch (TransactionException e) {
+				throw new RequestException("Failed to attack", "game", "attack", e);
+			}
+		}
+		if(autoRoll) {
+			return getAttackResponse(game, to, from, attack);
+		}
+		return new JSONObject()
+				.put("attacks", getAttacks(game))
+				.put("attack", getAttackJSON(attack));
+	}
+
+	private void checkParams(Game game, Member member, int units) throws InvalidRequestException {
 		if(game == null) {
 			throw new InvalidRequestException("Game does not exist", "game", "attack");
 		} else if(!game.getCurrentPlayer().equals(member)) {
@@ -23,30 +66,6 @@ public class Attack {
 		} else if(units < 1 || units > Game.MAX_ATTACKERS) {
 			throw new InvalidRequestException("Invalid amount of attackers", "game", "attack");
 		}
-		Territory to = game.getMap().getTerritories().get(tid);
-		Territory from = game.getMap().getTerritories().get(fid);
-		if(to == null || from == null) {
-			throw new InvalidRequestException("Territory does not exist", "game", "attack");
-		} else if(!from.getOwner().equals(member) || to.getOwner().equals(member) || units >= from.getUnits() || move >= from.getUnits() || !from.getBorders().contains(to)) {
-			throw new InvalidRequestException("Invalid attack", "game", "attack");
-		}
-		for(com.ee.imperator.game.Attack attack : game.getAttacks()) {
-			if(attack.getAttacker().equals(to) || attack.getAttacker().equals(from) || attack.getDefender().equals(to) || attack.getDefender().equals(from)) {
-				throw new InvalidRequestException(String.valueOf(member.getLanguage().translate("One of these territories is already engaged in combat.")), "game", "attack");
-			}
-		}
-		Imperator.getState().setState(game, Game.State.COMBAT);
-		com.ee.imperator.game.Attack attack = new com.ee.imperator.game.Attack(from, to, Math.max(1, move));
-		attack.rollAttack(units);
-		if(to.getUnits() == 1 || to.getOwner().getAutoRoll() || attack.attackerCannotWin()) {
-			attack.autoRollDefence();
-			game.executeAttack(attack);
-			return getAttackResponse(game, to, from, attack);
-		}
-		Imperator.getState().saveAttack(game, attack);
-		return new JSONObject()
-				.put("attacks", game.getAttacks())
-				.put("attack", getAttackJSON(attack));
 	}
 
 	static JSONObject getAttackResponse(Game game, Territory to, Territory from, com.ee.imperator.game.Attack attack) {
@@ -65,8 +84,10 @@ public class Attack {
 
 	static JSONArray getAttacks(Game game) {
 		JSONArray attacks = new JSONArray();
-		for(com.ee.imperator.game.Attack attack : game.getAttacks()) {
-			attacks.put(getAttackJSON(attack));
+		synchronized(game.getAttacks()) {
+			for(com.ee.imperator.game.Attack attack : game.getAttacks()) {
+				attacks.put(getAttackJSON(attack));
+			}
 		}
 		return attacks;
 	}

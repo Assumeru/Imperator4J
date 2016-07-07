@@ -5,6 +5,7 @@ import org.json.JSONObject;
 import com.ee.imperator.Imperator;
 import com.ee.imperator.exception.InvalidRequestException;
 import com.ee.imperator.exception.RequestException;
+import com.ee.imperator.exception.TransactionException;
 import com.ee.imperator.game.Cards;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.user.Member;
@@ -21,11 +22,16 @@ public class EndTurn {
 			throw new InvalidRequestException(String.valueOf(member.getLanguage().translate("You cannot end your turn without finishing all battles.")), "game", "end-turn");
 		}
 		JSONObject out = new JSONObject();
-		if(game.hasConquered()) {
-			Cards.Card card = game.giveCard(game.getPlayerById(member.getId()), Cards.Card.valueOf(cid));
+		boolean conquered = game.hasConquered();
+		Cards.Card card;
+		try {
+			card = game.endTurn(Cards.Card.valueOf(cid));
+		} catch (TransactionException e) {
+			throw new RequestException("Failed to end turn", "game", "end-turn", e);
+		}
+		if(conquered) {
 			out.put("card", card == null ? -1 : card.ordinal());
 		}
-		game.nextTurn();
 		out.put("turn", game.getCurrentPlayer().getId())
 				.put("update", game.getTime())
 				.put("state", game.getState().ordinal());

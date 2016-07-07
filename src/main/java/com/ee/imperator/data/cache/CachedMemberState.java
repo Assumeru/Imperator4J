@@ -61,16 +61,6 @@ public class CachedMemberState implements MemberState {
 	}
 
 	@Override
-	public void addWin(Member member, int points) {
-		memberProvider.addWin(member, points);
-	}
-
-	@Override
-	public void addLoss(Member member) {
-		memberProvider.addLoss(member);
-	}
-
-	@Override
 	public List<Member> getMembers() {
 		return memberProvider.getMembers();
 	}

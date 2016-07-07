@@ -3,11 +3,15 @@ package com.ee.imperator.api.handlers;
 import org.json.JSONObject;
 
 import com.ee.imperator.Imperator;
+import com.ee.imperator.data.transaction.GameTransaction;
 import com.ee.imperator.exception.InvalidRequestException;
 import com.ee.imperator.exception.RequestException;
+import com.ee.imperator.exception.TransactionException;
 import com.ee.imperator.game.Cards;
 import com.ee.imperator.game.Game;
+import com.ee.imperator.game.log.CardsPlayedEntry;
 import com.ee.imperator.user.Member;
+import com.ee.imperator.user.Player;
 
 @Request(mode = "game", type = "play-cards")
 public class PlayCards {
@@ -22,7 +26,18 @@ public class PlayCards {
 		} else if(!game.getCurrentPlayer().getCards().canPlay(units)) {
 			throw new InvalidRequestException("Combination not playable", "game", "play-cards");
 		}
-		Imperator.getState().playCards(game.getCurrentPlayer(), units);
+		try(GameTransaction transaction = Imperator.getState().modify(game)) {
+			Player player = game.getCurrentPlayer();
+			Cards combo = player.getCards().getCombination(units);
+			long time = System.currentTimeMillis();
+			transaction.setUnits(game.getUnits() + units);
+			transaction.setTime(time);
+			transaction.addEntry(new CardsPlayedEntry(player, time, combo.toArray(), units));
+			transaction.getPlayer(player).getCards().removeAll(combo);
+			transaction.commit();
+		} catch (TransactionException e) {
+			throw new RequestException("Failed to play cards", "game", "play-cards", e);
+		}
 		return new JSONObject()
 				.put("update", game.getTime())
 				.put("units", game.getUnits())

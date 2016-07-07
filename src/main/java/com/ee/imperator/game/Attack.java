@@ -101,4 +101,20 @@ public class Attack {
 			}
 		}
 	}
+
+	@Override
+	public int hashCode() {
+		return 71 * attacker.getId().hashCode() + defender.getId().hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(this == obj) {
+			return true;
+		} else if(obj instanceof Attack) {
+			Attack other = (Attack) obj;
+			return attacker.getId().equals(other.attacker.getId()) && defender.getId().equals(other.defender.getId());
+		}
+		return false;
+	}
 }

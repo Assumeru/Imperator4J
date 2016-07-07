@@ -2,20 +2,29 @@ package com.ee.imperator.game;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Random;
+import java.util.Set;
 
 import org.ee.collection.FixedSizeList;
 import org.ee.collection.Util;
-import org.ee.collection.VariableSizeList;
 import org.ee.crypt.Hasher;
 import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
 
 import com.ee.imperator.Imperator;
+import com.ee.imperator.data.transaction.GameTransaction;
+import com.ee.imperator.data.transaction.PlayerTransaction;
+import com.ee.imperator.data.transaction.TerritoryTransaction;
+import com.ee.imperator.exception.TransactionException;
 import com.ee.imperator.game.Cards.Card;
+import com.ee.imperator.game.log.AttackedEntry;
+import com.ee.imperator.game.log.ConqueredEntry;
+import com.ee.imperator.game.log.EndedTurnEntry;
+import com.ee.imperator.game.log.ForfeitedEntry;
 import com.ee.imperator.map.Map;
 import com.ee.imperator.map.Territory;
 import com.ee.imperator.mission.Mission;
@@ -33,19 +42,19 @@ public class Game implements Comparable<Game> {
 		TURN_START, FORTIFY, COMBAT, POST_COMBAT, FINISHED
 	}
 
-	private int id;
-	private String name;
+	private final int id;
+	private final String name;
 	private State state;
-	private Map map;
-	private List<Player> players;
+	private final Map map;
+	private final List<Player> players;
 	private Player currentTurn;
-	private String password;
+	private final String password;
 	private Player owner;
 	private long time;
 	private int units;
 	private boolean conquered;
-	private String inviteCode;
-	private List<Attack> attacks;
+	private volatile String inviteCode;
+	private final Set<Attack> attacks;
 
 	private Game(int id, Map map, String name, String password, long time) {
 		this.id = id;
@@ -54,17 +63,17 @@ public class Game implements Comparable<Game> {
 		this.password = password;
 		this.time = time;
 		players = new FixedSizeList<>(map.getPlayers());
-		attacks = new VariableSizeList<>();
+		attacks = Collections.synchronizedSet(new HashSet<>());
 	}
 
 	public Game(int id, Map map, String name, Player owner, String password, long time) {
 		this(id, map, name, password, time);
 		this.owner = owner;
-		addPlayer(owner);
+		addPlayer(owner, false);
 		state = State.TURN_START;
 	}
 
-	public Game(int id, Map map, String name, int owner, int turn, long time, State state, int units, boolean conquered, String password, Collection<Player> players) {
+	public Game(int id, Map map, String name, int owner, int turn, long time, State state, int units, boolean conquered, String password, Iterable<Player> players) {
 		this(id, map, name, password, time);
 		this.state = state;
 		this.units = units;
@@ -97,21 +106,43 @@ public class Game implements Comparable<Game> {
 		return owner;
 	}
 
-	public void addPlayer(Player player) {
-		addPlayer(player, true);
+	public void addPlayer(Player player) throws TransactionException {
+		synchronized(players) {
+			if(!players.contains(player)) {
+				if(hasStarted() || hasEnded()) {
+					throw new IllegalStateException("Cannot add players after starting");
+				} else if(players.size() >= map.getPlayers()) {
+					throw new IllegalStateException("Game is full");
+				}
+				try(GameTransaction transaction = Imperator.getState().modify(this)) {
+					transaction.addPlayer(player);
+					transaction.setTime(System.currentTimeMillis());
+					transaction.commit();
+				}
+				addPlayer(player, true);
+			}
+		}
 	}
 
-	public void removePlayer(Player player) {
-		players.remove(player);
+	public void removePlayer(Player player) throws TransactionException {
+		synchronized(players) {
+			if(hasStarted() || hasEnded()) {
+				throw new IllegalStateException("Cannot remove players after starting");
+			}
+			try(GameTransaction transaction = Imperator.getState().modify(this)) {
+				transaction.removePlayer(player);
+				transaction.setTime(System.currentTimeMillis());
+				transaction.commit();
+			}
+			players.remove(player);
+		}
 	}
 
 	private void addPlayer(Player player, boolean sort) {
-		if(!players.contains(player)) {
-			player.setGame(this);
-			players.add(player);
-			if(sort) {
-				players.sort(null);
-			}
+		player.setGame(this);
+		players.add(player);
+		if(sort) {
+			players.sort(null);
 		}
 	}
 
@@ -184,7 +215,7 @@ public class Game implements Comparable<Game> {
 		return state;
 	}
 
-	public List<Attack> getAttacks() {
+	public Set<Attack> getAttacks() {
 		return attacks;
 	}
 
@@ -217,28 +248,37 @@ public class Game implements Comparable<Game> {
 		return c;
 	}
 
-	public void start() {
-		Random random = new Random();
-		distributeTerritories(random);
-		distributeMissions(random);
-		currentTurn = players.get(random.nextInt(players.size()));
-		time = System.currentTimeMillis();
+	public void start() throws TransactionException {
+		synchronized(players) {
+			if(players.size() != map.getPlayers()) {
+				throw new IllegalStateException("Incorrect player amount");
+			}
+			Random random = new Random();
+			try(GameTransaction transaction = Imperator.getState().modify(this)) {
+				distributeTerritories(random, transaction);
+				distributeMissions(random, transaction);
+				transaction.setCurrentTurn(players.get(random.nextInt(players.size())));
+				transaction.setTime(System.currentTimeMillis());
+				transaction.commit();
+			}
+		}
 	}
 
-	private void distributeTerritories(Random random) {
+	private void distributeTerritories(Random random, GameTransaction parentTransaction) throws TransactionException {
 		Territory[] territories = map.getTerritories().values().toArray(new Territory[map.getTerritories().size()]);
 		Util.shuffle(territories, random);
 		int perPlayer = territories.length / players.size();
 		int t = 0;
 		for(Player player : players) {
 			for(int i = 0; i < perPlayer; i++, t++) {
-				territories[t].setOwner(player);
-				territories[t].setUnits(INITIAL_UNITS);
+				TerritoryTransaction transaction = parentTransaction.getTerritory(territories[t]);
+				transaction.setOwner(player);
+				transaction.setUnits(INITIAL_UNITS);
 			}
 		}
 	}
 
-	private void distributeMissions(Random random) {
+	private void distributeMissions(Random random, GameTransaction parentTransaction) throws TransactionException {
 		Integer[] distribution = map.getMissionDistribution().toArray(new Integer[map.getMissionDistribution().size()]);
 		Util.shuffle(distribution, random);
 		int i = 0;
@@ -252,23 +292,26 @@ public class Game implements Comparable<Game> {
 				}
 				target = players.get(target).getId();
 			}
-			player.setMission(new PlayerMission(mission, player, target));
+			PlayerTransaction transaction = parentTransaction.getPlayer(player);
+			transaction.setMission(new PlayerMission(mission, player, target));
 		}
 	}
 
-	public Card giveCard(Player player, Card card) {
-		if(card != null && player.getCards().contains(card) || player.getCards().size() < Cards.MAX_CARDS) {
-			Card random = Card.getRandom(player.getCards());
-			if(Imperator.getState().addCards(player, random, 1)) {
-				return random;
+	public Card endTurn(Card discard) throws TransactionException {
+		try(GameTransaction transaction = Imperator.getState().modify(this)) {
+			if(conquered && (discard != null && currentTurn.getCards().contains(discard) || currentTurn.getCards().size() < Cards.MAX_CARDS)) {
+				Card random = Card.getRandom(currentTurn.getCards());
+				transaction.getPlayer(currentTurn).getCards().add(random);
 			}
+			nextTurn(transaction);
+			transaction.commit();
 		}
 		return null;
 	}
 
-	public void nextTurn() {
+	private void nextTurn(GameTransaction transaction) throws TransactionException {
 		if(currentTurn.getMission().hasBeenCompleted()) {
-			victory(currentTurn);
+			victory(currentTurn, transaction);
 			return;
 		}
 		Player next;
@@ -276,7 +319,7 @@ public class Game implements Comparable<Game> {
 		while(true) {
 			Player player = players.get(i);
 			if(player.equals(currentTurn)) {
-				victory(currentTurn);
+				victory(currentTurn, transaction);
 				return;
 			} else if(player.getState() != Player.State.GAME_OVER) {
 				next = player;
@@ -284,62 +327,115 @@ public class Game implements Comparable<Game> {
 			}
 			i = (i + 1) % players.size();
 		}
-		Imperator.getState().startTurn(next);
+		long time = System.currentTimeMillis();
+		transaction.setConquered(false);
+		transaction.setState(State.TURN_START);
+		transaction.setTime(time);
+		transaction.setCurrentTurn(next);
+		transaction.setUnits(next.getUnitsFromRegionsPerTurn());
+		transaction.addEntry(new EndedTurnEntry(currentTurn, time));
 	}
 
-	private void victory(Player winner) {
-		if(Imperator.getState().victory(winner)) {
-			for(Player player : players) {
-				if(player.equals(winner)) {
-					Imperator.getState().addWin(player.getMember(), players.size() - 1);
-				} else {
-					Imperator.getState().addLoss(player.getMember());
+	private void victory(Player winner, GameTransaction transaction) throws NoSuchElementException, TransactionException {
+		transaction.deleteLogEntries();
+		transaction.deleteTerritories();
+		PlayerTransaction playerTransaction = transaction.getPlayer(winner);
+		playerTransaction.setState(Player.State.VICTORIOUS);
+		playerTransaction.addWin();
+		transaction.setState(State.FINISHED);
+		transaction.setTime(System.currentTimeMillis());
+		transaction.setCurrentTurn(null);
+		for(Player player : players) {
+			if(!player.equals(winner)) {
+				transaction.getPlayer(player).addLoss();
+			}
+		}
+	}
+
+	public void forfeit(Player player) throws TransactionException {
+		try(GameTransaction transaction = Imperator.getState().modify(this)) {
+			PlayerTransaction playerTransaction = transaction.getPlayer(player);
+			playerTransaction.setState(Player.State.GAME_OVER);
+			playerTransaction.setAutoRoll(true);
+			long time = System.currentTimeMillis();
+			transaction.addEntry(new ForfeitedEntry(player, time));
+			transaction.setTime(time);
+			int numRemaining = 0;
+			Player last = null;
+			for(Player remaining : players) {
+				if(remaining.getState() != Player.State.GAME_OVER && !remaining.equals(player)) {
+					numRemaining++;
+					last = remaining;
 				}
 			}
-		}
-	}
-
-	public void forfeit(Player player) {
-		Imperator.getState().forfeit(player);
-		int numRemaining = 0;
-		Player last = null;
-		for(Player remaining : players) {
-			if(remaining.getState() != Player.State.GAME_OVER) {
-				numRemaining++;
-				last = remaining;
+			if(numRemaining < 2) {
+				victory(last, transaction);
+			} else if(currentTurn.equals(player)) {
+				nextTurn(transaction);
 			}
-		}
-		if(numRemaining < 2) {
-			victory(last);
-		} else if(currentTurn.equals(player)) {
-			nextTurn();
+			transaction.commit();
 		}
 	}
 
-	public void executeAttack(Attack attack) {
+	public void executeAttack(Attack attack, GameTransaction transaction) throws TransactionException {
 		Player defender = attack.getDefender().getOwner();
-		Imperator.getState().attack(this, attack);
-		if(attack.getAttacker().getOwner().equals(attack.getDefender().getOwner())) {
-			for(Territory territory : map.getTerritories().values()) {
-				if(territory.getOwner().equals(defender)) {
-					return;
-				}
-			}
-			boolean newMissions = false;
-			Imperator.getState().setState(defender, Player.State.GAME_OVER);
+		if(attack(attack, transaction) && map.getNumberOfTerritories(defender) == 1) {
+			transaction.getPlayer(defender).setState(Player.State.GAME_OVER);
 			for(Player player : players) {
 				if(player.getMission().containsEliminate() && defender.equals(player.getMission().getTarget())) {
+					PlayerTransaction playerTransaction = transaction.getPlayer(player);
 					if(player.equals(attack.getAttacker().getOwner())) {
-						Imperator.getState().setState(player, Player.State.DESTROYED_RIVAL);
+						playerTransaction.setState(Player.State.DESTROYED_RIVAL);
 					} else {
-						player.setMission(new PlayerMission(map.getMissions().get(player.getMission().getFallback()), player, 0));
-						newMissions = true;
+						playerTransaction.setMission(new PlayerMission(map.getMissions().get(player.getMission().getFallback()), player, 0));
 					}
 				}
 			}
-			if(newMissions) {
-				Imperator.getState().saveMissions(this);
+		}
+	}
+
+	private boolean attack(Attack attack, GameTransaction transaction) throws TransactionException {
+		long time = System.currentTimeMillis();
+		Player aOwner = attack.getAttacker().getOwner();
+		Player dOwner = attack.getDefender().getOwner();
+		transaction.addEntry(new AttackedEntry(time, aOwner, dOwner, attack.getAttackRoll(), attack.getDefendRoll(), attack.getAttacker(), attack.getDefender()));
+		int attackerUnits = attack.getAttacker().getUnits() - attack.getAttackLosses();
+		int defenderUnits = attack.getDefender().getUnits() - attack.getDefendLosses();
+		boolean conquered = defenderUnits < 1;
+		transaction.setTime(time);
+		TerritoryTransaction attackerTransaction = transaction.getTerritory(attack.getAttacker());
+		TerritoryTransaction defenderTransaction = transaction.getTerritory(attack.getDefender());
+		if(conquered) {
+			transaction.addEntry(new ConqueredEntry(aOwner, time, attack.getDefender()));
+			transaction.setConquered(true);
+			defenderTransaction.setOwner(aOwner);
+			int move = attack.getMove();
+			if(move >= attackerUnits) {
+				move = attackerUnits - 1;
 			}
+			attackerUnits -= move;
+			defenderUnits = move;
+		}
+		attackerTransaction.setUnits(attackerUnits);
+		defenderTransaction.setUnits(defenderUnits);
+		return conquered;
+	}
+
+	public void moveUnits(Territory from, Territory to, int move) throws TransactionException {
+		try(GameTransaction transaction = Imperator.getState().modify(this)) {
+			transaction.setUnits(units - move);
+			transaction.getTerritory(from).setUnits(from.getUnits() - move);
+			transaction.getTerritory(to).setUnits(to.getUnits() + move);
+			transaction.commit();
+		}
+	}
+
+	public void defend(Attack attack, int units) throws TransactionException {
+		attack.rollDefence(units);
+		try(GameTransaction transaction = Imperator.getState().modify(this)) {
+			executeAttack(attack, transaction);
+			transaction.getAttacks().remove(attack);
+			transaction.commit();
 		}
 	}
 }

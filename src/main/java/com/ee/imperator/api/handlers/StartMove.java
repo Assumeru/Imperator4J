@@ -3,8 +3,10 @@ package com.ee.imperator.api.handlers;
 import org.json.JSONObject;
 
 import com.ee.imperator.Imperator;
+import com.ee.imperator.data.transaction.GameTransaction;
 import com.ee.imperator.exception.InvalidRequestException;
 import com.ee.imperator.exception.RequestException;
+import com.ee.imperator.exception.TransactionException;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.user.Member;
 
@@ -21,7 +23,13 @@ public class StartMove {
 		} else if(!game.getAttacks().isEmpty()) {
 			throw new InvalidRequestException(String.valueOf(member.getLanguage().translate("All battles need to finish before units can be moved.")), "game", "start-move");
 		}
-		Imperator.getState().updateUnitsAndState(game, Game.State.POST_COMBAT, Game.MAX_MOVE_UNITS);
+		try(GameTransaction transaction = Imperator.getState().modify(game)) {
+			transaction.setState(Game.State.POST_COMBAT);
+			transaction.setUnits(Game.MAX_MOVE_UNITS);
+			transaction.commit();
+		} catch (TransactionException e) {
+			throw new RequestException("Failed to start moving", "game", "start-move", e);
+		}
 		return new JSONObject()
 				.put("state", game.getState().ordinal())
 				.put("units", game.getUnits());

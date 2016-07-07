@@ -36,7 +36,7 @@ public abstract class AbstractRequestResolver {
 	private static final Logger LOG = LogManager.createLogger();
 	private static final Object MUTEX = new Object();
 	private static List<WebPage> navigation;
-	private static Set<RequestHandler> requestHandlers;
+	private volatile static Set<RequestHandler> requestHandlers;
 	@Context
 	private HttpServletRequest request;
 	@Context
@@ -145,7 +145,7 @@ public abstract class AbstractRequestResolver {
 		return getStatusPageInternal(Status.NOT_FOUND);
 	}
 
-	private synchronized void initRequestHandlers() {
+	private void initRequestHandlers() {
 		if(requestHandlers == null) {
 			requestHandlers = new HashSet<>();
 			navigation = new ArrayList<>();

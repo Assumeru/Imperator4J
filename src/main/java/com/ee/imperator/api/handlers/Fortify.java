@@ -3,8 +3,10 @@ package com.ee.imperator.api.handlers;
 import org.json.JSONObject;
 
 import com.ee.imperator.Imperator;
+import com.ee.imperator.data.transaction.GameTransaction;
 import com.ee.imperator.exception.InvalidRequestException;
 import com.ee.imperator.exception.RequestException;
+import com.ee.imperator.exception.TransactionException;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.user.Member;
 
@@ -19,7 +21,13 @@ public class Fortify {
 		} else if(game.getState() != Game.State.TURN_START) {
 			throw new InvalidRequestException("Cannot fortify after attacking.", "game", "fortify");
 		}
-		Imperator.getState().updateUnitsAndState(game, Game.State.FORTIFY, game.getPlayerById(member.getId()).getUnitsFromTerritoriesPerTurn());
+		try(GameTransaction transaction = Imperator.getState().modify(game)) {
+			transaction.setState(Game.State.FORTIFY);
+			transaction.setUnits(game.getPlayerById(member.getId()).getUnitsFromTerritoriesPerTurn());
+			transaction.commit();
+		} catch (TransactionException e) {
+			throw new RequestException("Failed to fortify", "game", "fortify", e);
+		}
 		return new JSONObject()
 				.put("units", game.getUnits())
 				.put("state", game.getState().ordinal())
