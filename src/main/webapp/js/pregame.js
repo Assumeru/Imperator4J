@@ -13,7 +13,7 @@
 	}
 
 	function parseErrorMessage($msg) {
-		if($msg !== undefined && $msg !== '' && $msg.error !== undefined && $msg.request !== undefined && $msg.request.mode == 'update' && $msg.request.type == 'pregame') {
+		if($msg !== undefined && $msg !== '' && $msg.error !== undefined && $msg.request !== undefined && $msg.request.mode === 'update' && $msg.request.type === 'pregame') {
 			if($updateErrors < Imperator.API.MAX_GAME_ERRORS) {
 				$updateErrors++;
 				sendUpdateRequest();
@@ -67,7 +67,7 @@
 					} else {
 						$playerLi.find('[data-template="kick"]').hide();
 					}
-					if($msg.players[$n].id != $msg.owner) {
+					if($msg.players[$n].id !== $msg.owner) {
 						$playerLi.find('[data-template="owner"]').hide();
 					}
 					$playerList.append($playerLi);

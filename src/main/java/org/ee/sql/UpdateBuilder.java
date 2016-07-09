@@ -30,7 +30,7 @@ public class UpdateBuilder {
 	}
 
 	public PreparedStatement toStatement(Connection connection, String where) throws SQLException {
-		query.append(' ').append(where);
+		query.append(" WHERE ").append(where);
 		PreparedStatement statement = connection.prepareStatement(toString());
 		for(int i = 0; i < arguments.size(); i++) {
 			arguments.get(i).set(statement, i + 1);

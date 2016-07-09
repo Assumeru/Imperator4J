@@ -20,7 +20,7 @@ import com.ee.imperator.user.Member;
 
 public class WebSocket {
 	private static final Logger LOG = LogManager.createLogger();
-	private Map<Game, Map<Session, Long>> sessions;
+	private final Map<Game, Map<Session, Long>> sessions;
 
 	WebSocket() {
 		sessions = new WeakHashMap<>();
@@ -71,8 +71,9 @@ public class WebSocket {
 		if(map != null) {
 			for(Entry<Session, Long> entry : map.entrySet()) {
 				Member member = (Member) entry.getKey().getUserProperties().get(Member.class.getName());
+				String type = (String) entry.getKey().getUserProperties().get(Game.State.class.getName());
 				try {
-					String response = sendGameUpdate(member, entry.getValue(), game);
+					String response = sendGameUpdate(member, entry.getValue(), game, type);
 					send(game, entry.getKey(), response);
 				} catch(Exception e) {
 					LOG.w("Failed to send update", e);
@@ -96,13 +97,23 @@ public class WebSocket {
 		}
 	}
 
-	private String sendGameUpdate(Member member, long time, Game game) throws RequestException {
+	private String sendGameUpdate(Member member, long time, Game game, String type) throws RequestException {
 		return Api.handleRequest(new MapBuilder<String, String>()
 				.put("mode", "update")
-				.put("type", game.hasStarted() ? "game" : "pregame")
+				.put("type", getType(game, type))
 				.put("gid", String.valueOf(game.getId()))
 				.put("time", String.valueOf(time))
 				.build(), member);
+	}
+
+	private String getType(Game game, String previous) {
+		if(previous == null) {
+			if(game.hasStarted()) {
+				return "game";
+			}
+			return "pregame";
+		}
+		return previous;
 	}
 
 	private String sendChatUpdate(Member member, long time) throws RequestException {

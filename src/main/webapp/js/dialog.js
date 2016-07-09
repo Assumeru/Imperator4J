@@ -11,10 +11,10 @@ Imperator.Dialog = (function($) {
 	}
 
 	function isEscapeKey($e) {
-		return $e.key == 'Escape'
-			|| $e.key == 'Esc'
-			|| $e.keyCode == 27
-			|| $e.which == 27;
+		return $e.key === 'Escape'
+			|| $e.key === 'Esc'
+			|| $e.keyCode === 27
+			|| $e.which === 27;
 	}
 
 	function closeDialog($dialog) {

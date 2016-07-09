@@ -59,8 +59,8 @@
 	}
 
 	function parseErrorMessage($msg) {
-		if($msg !== undefined && $msg !== '' && $msg.error !== undefined && $msg.request !== undefined && (($msg.request.mode == 'update' && $msg.request.type == 'chat') || $msg.request.mode == 'chat')) {
-			if($msg.request.mode == 'update') {
+		if($msg !== undefined && $msg !== '' && $msg.error !== undefined && $msg.request !== undefined && (($msg.request.mode === 'update' && $msg.request.type === 'chat') || $msg.request.mode === 'chat')) {
+			if($msg.request.mode === 'update') {
 				if($updateErrors < Imperator.API.MAX_CHAT_ERRORS) {
 					$updateErrors++;
 					setTimeout(sendUpdateRequest, 100 + $updateErrors * 400);

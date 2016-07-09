@@ -48,6 +48,10 @@ public class WebSocket {
 				if(!session.getUserProperties().containsKey(Game.class.getName())) {
 					register(session, variables);
 				}
+				Object type = variables.get("type");
+				if("pregame".equals(type) || "game".equals(type)) {
+					session.getUserProperties().put(Game.State.class.getName(), type);
+				}
 				String response = Api.WEB_SOCKET.handle(member, variables);
 				if(response != null) {
 					session.getBasicRemote().sendText(response);

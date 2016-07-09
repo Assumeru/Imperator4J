@@ -12,10 +12,10 @@ Imperator.API = (function($) {
 	if(window.console === undefined) {
 		window.console = {};
 	}
-	if(typeof window.console.log != 'function') {
+	if(typeof window.console.log !== 'function') {
 		window.console.log = function() {};
 	}
-	if(typeof window.console.error != 'function') {
+	if(typeof window.console.error !== 'function') {
 		window.console.error = function() {};
 	}
 
@@ -38,7 +38,7 @@ Imperator.API = (function($) {
 			if($webSocketURL.startsWith('http://') || $webSocketURL.startsWith('https://')) {
 				$webSocketURL = $webSocketURL.replace('http', 'ws');
 			} else if($webSocketURL.startsWith('//')) {
-				if(window.location.protocol == 'https:') {
+				if(window.location.protocol === 'https:') {
 					$webSocketURL = 'wss:' + $webSocketURL;
 				} else {
 					$webSocketURL = 'ws:' + $webSocketURL;
@@ -158,7 +158,7 @@ Imperator.API = (function($) {
 	}
 
 	function sendWebSocket($json) {
-		if($ws.readyState == WebSocket.OPEN) {
+		if($ws.readyState === WebSocket.OPEN) {
 			$ws.send(JSON.stringify($json));
 		} else {
 			attemptWebSocketReconnect();
@@ -184,7 +184,7 @@ Imperator.API = (function($) {
 
 	function send($json) {
 		if($open) {
-			if($mode == 'WebSocket') {
+			if($mode === 'WebSocket') {
 				return sendWebSocket($json);
 			} else {
 				return sendLongPolling($json);

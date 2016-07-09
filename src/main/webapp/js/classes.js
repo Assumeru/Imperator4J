@@ -72,7 +72,7 @@ Imperator.Player.prototype.getUnitsPerTurnFromTerritories = function($optionalNu
 		$territories = $optionalNumberOfTerritories;
 	} else {
 		for($id in this.game.map.territories) {
-			if(this.game.map.territories[$id].owner == this) {
+			if(this.game.map.territories[$id].owner === this) {
 				$territories++;
 			}
 		}
@@ -102,7 +102,7 @@ Imperator.Territory = function($id, $name, $user, $units) {
 };
 Imperator.Territory.prototype.bordersEnemyTerritory = function() {
 	for(var $n = 0; $n < this.borders.length; $n++) {
-		if(this.borders[$n].owner != this.owner) {
+		if(this.borders[$n].owner !== this.owner) {
 			return true;
 		}
 	}
@@ -110,7 +110,7 @@ Imperator.Territory.prototype.bordersEnemyTerritory = function() {
 };
 Imperator.Territory.prototype.bordersFriendlyTerritory = function() {
 	for(var $n = 0; $n < this.borders.length; $n++) {
-		if(this.borders[$n].owner == this.owner) {
+		if(this.borders[$n].owner === this.owner) {
 			return true;
 		}
 	}
@@ -118,7 +118,7 @@ Imperator.Territory.prototype.bordersFriendlyTerritory = function() {
 };
 Imperator.Territory.prototype.canBeAttackedBy = function($player) {
 	for(var $n = 0; $n < this.borders.length; $n++) {
-		if(this.borders[$n].owner == $player && this.borders[$n].units > 1) {
+		if(this.borders[$n].owner === $player && this.borders[$n].units > 1) {
 			return true;
 		}
 	}
@@ -128,11 +128,11 @@ Imperator.Territory.prototype.canReceiveReinforcements = function() {
 	return this.canBeAttackedBy(this.owner);
 };
 Imperator.Territory.prototype.canAttack = function($territory) {
-	return this.owner != $territory.owner && this.units > 1 && this.bordersTerritory($territory);
+	return this.owner !== $territory.owner && this.units > 1 && this.bordersTerritory($territory);
 };
 Imperator.Territory.prototype.bordersTerritory = function($territory) {
 	for(var $n = 0; $n < this.borders.length; $n++) {
-		if(this.borders[$n] == $territory) {
+		if(this.borders[$n] === $territory) {
 			return true;
 		}
 	}
@@ -146,7 +146,7 @@ Imperator.Region = function($id, $units) {
 };
 Imperator.Region.prototype.isOwnedBy = function($player) {
 	for(var $n = 0; $n < this.territories.length; $n++) {
-		if(this.territories[$n].owner != $player) {
+		if(this.territories[$n].owner !== $player) {
 			return false;
 		}
 	}
@@ -172,24 +172,24 @@ Imperator.Cards.NAMES[Imperator.Cards.CARD_CAVALRY] = 'Cavalry';
 Imperator.Cards.NAMES[Imperator.Cards.CARD_INFANTRY] = 'Infantry';
 Imperator.Cards.NAMES[Imperator.Cards.CARD_JOKER] = 'Joker';
 Imperator.Cards.prototype.setCard = function($card, $amount) {
-	if($card == Imperator.Cards.CARD_ARTILLERY) {
+	if($card === Imperator.Cards.CARD_ARTILLERY) {
 		this.artillery = $amount;
-	} else if($card == Imperator.Cards.CARD_CAVALRY) {
+	} else if($card === Imperator.Cards.CARD_CAVALRY) {
 		this.cavalry = $amount;
-	} else if($card == Imperator.Cards.CARD_INFANTRY) {
+	} else if($card === Imperator.Cards.CARD_INFANTRY) {
 		this.infantry = $amount;
-	} else if($card == Imperator.Cards.CARD_JOKER) {
+	} else if($card === Imperator.Cards.CARD_JOKER) {
 		this.jokers = $amount;
 	}
 };
 Imperator.Cards.prototype.getCard = function($card) {
-	if($card == Imperator.Cards.CARD_ARTILLERY) {
+	if($card === Imperator.Cards.CARD_ARTILLERY) {
 		return this.artillery;
-	} else if($card == Imperator.Cards.CARD_CAVALRY) {
+	} else if($card === Imperator.Cards.CARD_CAVALRY) {
 		return this.cavalry;
-	} else if($card == Imperator.Cards.CARD_INFANTRY) {
+	} else if($card === Imperator.Cards.CARD_INFANTRY) {
 		return this.infantry;
-	} else if($card == Imperator.Cards.CARD_JOKER) {
+	} else if($card === Imperator.Cards.CARD_JOKER) {
 		return this.jokers;
 	}
 };

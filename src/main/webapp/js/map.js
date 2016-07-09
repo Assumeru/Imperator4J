@@ -27,14 +27,14 @@ Imperator.Map = (function($) {
 	}
 
 	function dragTouch($e) {
-		var ΔX, ΔY;
+		var deltaX, deltaY;
 		$e = $e.originalEvent;
 		if($e.touches.length === 1) {
-			ΔX = $dragPosition.x - $e.touches[0].pageX;
-			ΔY = $dragPosition.y - $e.touches[0].pageY;
+			deltaX = $dragPosition.x - $e.touches[0].pageX;
+			deltaY = $dragPosition.y - $e.touches[0].pageY;
 			$dragPosition.x = $e.touches[0].pageX;
 			$dragPosition.y = $e.touches[0].pageY;
-			moveMap(ΔX, ΔY);
+			moveMap(deltaX, deltaY);
 		}
 	}
 
@@ -57,11 +57,11 @@ Imperator.Map = (function($) {
 	}
 
 	function mapDrag($e) {
-		var ΔX = $dragPosition.x - $e.pageX,
-		ΔY = $dragPosition.y - $e.pageY;
+		var deltaX = $dragPosition.x - $e.pageX,
+		deltaY = $dragPosition.y - $e.pageY;
 		$dragPosition.x = $e.pageX;
 		$dragPosition.y = $e.pageY;
-		moveMap(ΔX, ΔY);
+		moveMap(deltaX, deltaY);
 	}
 
 	function moveMap($x, $y) {
@@ -82,9 +82,9 @@ Imperator.Map = (function($) {
 			x: $offset.left + $width / 2,
 			y: $offset.top + $height / 2
 		},
-		ΔX = 20 * ($e.clientX - $center.x) / $width,
-		ΔY = 20 * ($e.clientY - $center.y) / $height;
-		moveMap(($zoom + ΔX) / 100 * $width, ($zoom + ΔY) / 100 * $height);
+		deltaX = 20 * ($e.clientX - $center.x) / $width,
+		deltaY = 20 * ($e.clientY - $center.y) / $height;
+		moveMap(($zoom + deltaX) / 100 * $width, ($zoom + deltaY) / 100 * $height);
 	}
 
 	function setUpZoom($container) {
@@ -113,7 +113,7 @@ Imperator.Map = (function($) {
 				id: $e.touches[$n].identifier
 			});
 		}
-		if($touches.length == 2) {
+		if($touches.length === 2) {
 			$x = $touches[0].x - $touches[1].x;
 			$y = $touches[0].y - $touches[1].y;
 			$pinchPositions = {
@@ -131,19 +131,19 @@ Imperator.Map = (function($) {
 		$e = $e.originalEvent;
 		if($pinchPositions !== undefined) {
 			for($n = 0; $n < $e.touches.length; $n++) {
-				if($e.touches[$n].identifier == $pinchPositions.a) {
+				if($e.touches[$n].identifier === $pinchPositions.a) {
 					$touches[0] = {
 						x: $e.touches[$n].pageX,
 						y: $e.touches[$n].pageY
 					};
-				} else if($e.touches[$n].identifier == $pinchPositions.b) {
+				} else if($e.touches[$n].identifier === $pinchPositions.b) {
 					$touches[1] = {
 						x: $e.touches[$n].pageX,
 						y: $e.touches[$n].pageY
 					};
 				}
 			}
-			if($touches.length == 2) {
+			if($touches.length === 2) {
 				$x = $touches[0].x - $touches[1].x;
 				$y = $touches[0].y - $touches[1].y;
 				$d = ($x * $x + $y * $y - $pinchPositions.distance) / $pinchPositions.distance;
@@ -300,10 +300,10 @@ Imperator.Map = (function($) {
 
 	function updateUnitBox($type, $id, $units) {
 		var $box = $('#unitBox-'+$id);
-		if($type == 'numeric') {
+		if($type === 'numeric') {
 			$box.attr('fill', 'url('+getUnitPattern($units)+') none');
 			$box.show();
-		} else if($type == 'default') {
+		} else if($type === 'default') {
 			if($units >= 50) {
 				$units = 50;
 			} else if($units >= 40) {

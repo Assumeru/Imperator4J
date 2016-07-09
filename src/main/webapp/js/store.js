@@ -60,9 +60,9 @@ Imperator.Store = (function() {
 
 	function getBoolean($key, $value) {
 		var $out = getItem($key, null);
-		if($out == 'true' || $out === '1') {
+		if($out === 'true' || $out === '1') {
 			return true;
-		} else if($out == 'false' || $out === '0') {
+		} else if($out === 'false' || $out === '0') {
 			return false;
 		}
 		return $value;
