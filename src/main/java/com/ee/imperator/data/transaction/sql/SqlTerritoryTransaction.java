@@ -37,7 +37,7 @@ public class SqlTerritoryTransaction extends AbstractTerritoryTransaction implem
 				update.setColumn("`units`", PreparedStatement::setInt, getUnits());
 			}
 			try {
-				PreparedStatement statement = update.toStatement(connection, "WHERE `territory` = ? AND `gid` = ?");
+				PreparedStatement statement = update.toStatement(connection, "`territory` = ? AND `gid` = ?");
 				statement.setString(update.getArguments() + 1, territory.getId());
 				statement.setInt(update.getArguments() + 2, game.getId());
 				statement.execute();

@@ -12,7 +12,7 @@ import com.ee.imperator.user.Member;
 
 @Request(mode = "game", type = "fortify")
 public class Fortify {
-	public JSONObject handle(Member member, @Param("gid") int gid) throws RequestException {
+	public JSONObject handle(Member member, @Param("gid") int gid) throws RequestException, TransactionException {
 		Game game = Imperator.getState().getGame(gid);
 		if(game == null) {
 			throw new InvalidRequestException("Game does not exist", "game", "fortify");
@@ -25,8 +25,6 @@ public class Fortify {
 			transaction.setState(Game.State.FORTIFY);
 			transaction.setUnits(game.getPlayerById(member.getId()).getUnitsFromTerritoriesPerTurn());
 			transaction.commit();
-		} catch (TransactionException e) {
-			throw new RequestException("Failed to fortify", "game", "fortify", e);
 		}
 		return new JSONObject()
 				.put("units", game.getUnits())

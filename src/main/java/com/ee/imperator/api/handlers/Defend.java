@@ -12,7 +12,7 @@ import com.ee.imperator.user.Member;
 
 @Request(mode = "game", type = "defend")
 public class Defend {
-	public JSONObject handle(Member member, @Param("gid") int gid, @Param("to") String tid, @Param("from") String fid, @Param("units") int units) throws RequestException {
+	public JSONObject handle(Member member, @Param("gid") int gid, @Param("to") String tid, @Param("from") String fid, @Param("units") int units) throws RequestException, TransactionException {
 		if(units < 1 || units > Game.MAX_DEFENDERS) {
 			throw new InvalidRequestException("Invalid number of defenders", "game", "defend");
 		}
@@ -28,11 +28,7 @@ public class Defend {
 			throw new InvalidRequestException("Not your territory", "game", "defend");
 		}
 		com.ee.imperator.game.Attack attack = getAttack(game, to, from);
-		try {
-			game.defend(attack, units);
-		} catch (TransactionException e) {
-			throw new RequestException("Failed to defend", "game", "defend", e);
-		}
+		game.defend(attack, units);
 		return Attack.getAttackResponse(game, to, from, attack);
 	}
 

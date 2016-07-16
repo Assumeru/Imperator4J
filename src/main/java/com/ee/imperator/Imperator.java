@@ -9,6 +9,7 @@ import org.ee.logger.Logger;
 import org.ee.reflection.ReflectionUtils;
 import org.ee.web.WebApplication;
 
+import com.ee.imperator.config.ImperatorConfig;
 import com.ee.imperator.crypt.PasswordHasher;
 import com.ee.imperator.crypt.bcrypt.BCryptHasher;
 import com.ee.imperator.data.ChatState;
@@ -47,7 +48,7 @@ public class Imperator extends WebApplication {
 		try {
 			String config = System.getProperty("com.ee.imperator.Config");
 			if(config == null) {
-				config = "com.ee.imperator.config.ImperatorConfig";
+				config = ImperatorConfig.class.getName();
 				LOG.w("Using default config, use jvm argument -Dcom.ee.imperator.Config=<class name> to define another config implementation.");
 			}
 			setConfig(ReflectionUtils.getSubclass(config, Config.class).newInstance());

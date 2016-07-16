@@ -14,7 +14,7 @@ import com.ee.imperator.user.Member;
 
 @Request(mode = "game", type = "attack")
 public class Attack {
-	public JSONObject handle(Member member, @Param("gid") int gid, @Param("units") int units, @Param("to") String tid, @Param("from") String fid, @Param("move") int move) throws RequestException {
+	public JSONObject handle(Member member, @Param("gid") int gid, @Param("units") int units, @Param("to") String tid, @Param("from") String fid, @Param("move") int move) throws RequestException, TransactionException {
 		Game game = Imperator.getState().getGame(gid);
 		checkParams(game, member, units);
 		Territory to = game.getMap().getTerritories().get(tid);
@@ -44,8 +44,6 @@ public class Attack {
 					transaction.getAttacks().add(attack);
 				}
 				transaction.commit();
-			} catch (TransactionException e) {
-				throw new RequestException("Failed to attack", "game", "attack", e);
 			}
 		}
 		if(autoRoll) {

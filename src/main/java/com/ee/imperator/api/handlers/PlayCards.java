@@ -15,7 +15,7 @@ import com.ee.imperator.user.Player;
 
 @Request(mode = "game", type = "play-cards")
 public class PlayCards {
-	public JSONObject handle(Member member, @Param("gid") int gid, @Param("units") int units) throws RequestException {
+	public JSONObject handle(Member member, @Param("gid") int gid, @Param("units") int units) throws RequestException, TransactionException {
 		Game game = Imperator.getState().getGame(gid);
 		if(game == null) {
 			throw new InvalidRequestException("Game does not exist", "game", "play-cards");
@@ -35,8 +35,6 @@ public class PlayCards {
 			transaction.addEntry(new CardsPlayedEntry(player, time, combo.toArray(), units));
 			transaction.getPlayer(player).getCards().removeAll(combo);
 			transaction.commit();
-		} catch (TransactionException e) {
-			throw new RequestException("Failed to play cards", "game", "play-cards", e);
 		}
 		return new JSONObject()
 				.put("update", game.getTime())

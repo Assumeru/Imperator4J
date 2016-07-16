@@ -118,8 +118,8 @@ public class SqlGameTransaction extends AbstractGameTransaction<SqlChildTransact
 			statement.setString(5, ((ConqueredEntry) entry).getTerritory().getId());
 		} else if(entry instanceof CardsPlayedEntry) {
 			CardsPlayedEntry cards = (CardsPlayedEntry) entry;
-			statement.setString(3, toString(cards.getCards()));
-			statement.setInt(4, cards.getUnits());
+			statement.setString(5, toString(cards.getCards()));
+			statement.setInt(6, cards.getUnits());
 		}
 		statement.execute();
 	}

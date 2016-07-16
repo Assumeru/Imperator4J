@@ -14,7 +14,7 @@ import com.ee.imperator.user.Member;
 
 @Request(mode = "game", type = "place-units")
 public class PlaceUnits {
-	public JSONObject handle(Member member, @Param("gid") int gid, @Param("units") int units, @Param("territory") String tid) throws RequestException {
+	public JSONObject handle(Member member, @Param("gid") int gid, @Param("units") int units, @Param("territory") String tid) throws RequestException, TransactionException {
 		Game game = Imperator.getState().getGame(gid);
 		checkParams(game, member, units);
 		Territory territory = game.getMap().getTerritories().get(tid);
@@ -29,8 +29,6 @@ public class PlaceUnits {
 			transaction.setUnits(game.getUnits() - units);
 			transaction.getTerritory(territory).setUnits(territory.getUnits() + units);
 			transaction.commit();
-		} catch (TransactionException e) {
-			throw new RequestException("Failed to place units", "game", "place-units", e);
 		}
 		return new JSONObject()
 				.put("update", game.getTime())

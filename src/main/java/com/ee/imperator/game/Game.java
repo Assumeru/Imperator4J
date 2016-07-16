@@ -299,14 +299,15 @@ public class Game implements Comparable<Game> {
 
 	public Card endTurn(Card discard) throws TransactionException {
 		try(GameTransaction transaction = Imperator.getState().modify(this)) {
+			Card random = null;
 			if(conquered && (discard != null && currentTurn.getCards().contains(discard) || currentTurn.getCards().size() < Cards.MAX_CARDS)) {
-				Card random = Card.getRandom(currentTurn.getCards());
+				random = Card.getRandom(currentTurn.getCards());
 				transaction.getPlayer(currentTurn).getCards().add(random);
 			}
 			nextTurn(transaction);
 			transaction.commit();
+			return random;
 		}
-		return null;
 	}
 
 	private void nextTurn(GameTransaction transaction) throws TransactionException {

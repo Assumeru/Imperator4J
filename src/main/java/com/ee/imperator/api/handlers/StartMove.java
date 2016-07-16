@@ -12,7 +12,7 @@ import com.ee.imperator.user.Member;
 
 @Request(mode = "game", type = "start-move")
 public class StartMove {
-	public JSONObject handle(Member member, @Param("gid") int gid) throws RequestException {
+	public JSONObject handle(Member member, @Param("gid") int gid) throws RequestException, TransactionException {
 		Game game = Imperator.getState().getGame(gid);
 		if(game == null) {
 			throw new InvalidRequestException("Game does not exist", "game", "start-move");
@@ -27,8 +27,6 @@ public class StartMove {
 			transaction.setState(Game.State.POST_COMBAT);
 			transaction.setUnits(Game.MAX_MOVE_UNITS);
 			transaction.commit();
-		} catch (TransactionException e) {
-			throw new RequestException("Failed to start moving", "game", "start-move", e);
 		}
 		return new JSONObject()
 				.put("state", game.getState().ordinal())

@@ -89,7 +89,7 @@ public class SqlPlayerTransaction extends AbstractPlayerTransaction implements S
 			update.setColumn("`c_cav`", PreparedStatement::setInt, getCards().getCavalry());
 		}
 		if(player.getCards().getInfantry() != getCards().getInfantry()) {
-			update.setColumn("`c_int`", PreparedStatement::setInt, getCards().getInfantry());
+			update.setColumn("`c_inf`", PreparedStatement::setInt, getCards().getInfantry());
 		}
 		if(player.getCards().getJokers() != getCards().getJokers()) {
 			update.setColumn("`c_jok`", PreparedStatement::setInt, getCards().getJokers());

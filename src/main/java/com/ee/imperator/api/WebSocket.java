@@ -28,15 +28,13 @@ public class WebSocket {
 
 	public String handle(Member member, JSONObject input) {
 		try {
-			String response = Api.handleRequest(getVariables(input), member);
-			trySendUpdates(input);
-			return response;
+			return Api.handleRequest(getVariables(input), member);
 		} catch(RequestException e) {
 			return new JSONObject().put("type", e.getType()).put("mode", e.getMode()).put("error", e.getMessage(member.getLanguage())).toString();
 		}
 	}
 
-	private void trySendUpdates(JSONObject input) {
+	public void trySendUpdates(JSONObject input) {
 		try {
 			sendUpdates(input);
 		} catch(Exception e) {

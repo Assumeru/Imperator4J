@@ -10,14 +10,10 @@ import com.ee.imperator.user.Member;
 
 @Request(mode = "game", type = "forfeit")
 public class Forfeit {
-	public void handle(Member member, @Param("gid") int gid) throws RequestException {
+	public void handle(Member member, @Param("gid") int gid) throws RequestException, TransactionException {
 		Game game = Imperator.getState().getGame(gid);
 		checkParams(game, member);
-		try {
-			game.forfeit(game.getPlayerById(member.getId()));
-		} catch (TransactionException e) {
-			throw new RequestException("Failed to forfeit", "game", "forfeit", e);
-		}
+		game.forfeit(game.getPlayerById(member.getId()));
 	}
 
 	private void checkParams(Game game, Member member) throws InvalidRequestException {

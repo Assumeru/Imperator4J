@@ -12,7 +12,7 @@ import com.ee.imperator.user.Member;
 
 @Request(mode = "game", type = "end-turn")
 public class EndTurn {
-	public JSONObject handle(Member member, @Param("gid") int gid, @Param("card") int cid) throws RequestException {
+	public JSONObject handle(Member member, @Param("gid") int gid, @Param("card") int cid) throws RequestException, TransactionException {
 		Game game = Imperator.getState().getGame(gid);
 		if(game == null) {
 			throw new InvalidRequestException("Game does not exist", "game", "end-turn");
@@ -23,12 +23,7 @@ public class EndTurn {
 		}
 		JSONObject out = new JSONObject();
 		boolean conquered = game.hasConquered();
-		Cards.Card card;
-		try {
-			card = game.endTurn(Cards.Card.valueOf(cid));
-		} catch (TransactionException e) {
-			throw new RequestException("Failed to end turn", "game", "end-turn", e);
-		}
+		Cards.Card card = game.endTurn(Cards.Card.valueOf(cid));
 		if(conquered) {
 			out.put("card", card == null ? -1 : card.ordinal());
 		}
