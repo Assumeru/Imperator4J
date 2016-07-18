@@ -58,7 +58,7 @@ Imperator.API = (function($) {
 				onOpen();
 			}
 		};
-		$ws.onmessage = receiveWebSocket(onMessage);
+		$ws.onmessage = receiveWebSocket;
 		$ws.onerror = function() {
 			onError({});
 		};
@@ -76,14 +76,16 @@ Imperator.API = (function($) {
 		makeWebSocketConnection();
 	}
 
-	function receiveWebSocket($func) {
-		return function($msg) {
-			try {
-				$func(JSON.parse($msg.data));
-			} catch($e) {
-				console.log($msg);
+	function receiveWebSocket($msg) {
+		try {
+			$msg = JSON.parse($msg.data);
+			onMessage($msg);
+			if($msg !== undefined && $msg.error !== undefined) {
+				onError($msg);
 			}
-		};
+		} catch($e) {
+			console.log($msg);
+		}
 	}
 
 	function makeLongPollingConnection() {

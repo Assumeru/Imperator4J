@@ -48,7 +48,7 @@ public class SqlPlayerTransaction extends AbstractPlayerTransaction implements S
 			if(memberExists(member)) {
 				statement = connection.prepareStatement("UPDATE `users` SET `score` = `score` - 1, `losses` = `losses` + 1 WHERE `uid` = ?");
 			} else {
-				statement = connection.prepareStatement("INSERT INTO `users` (`score`, `losses`) VALUES(-1, 1) WHERE `uid` = ?");
+				statement = connection.prepareStatement("INSERT INTO `users` (`score`, `losses`, `uid`) VALUES(-1, 1, ?)");
 			}
 			statement.setInt(1, member.getId());
 			statement.execute();
@@ -57,7 +57,7 @@ public class SqlPlayerTransaction extends AbstractPlayerTransaction implements S
 			if(memberExists(member)) {
 				statement = connection.prepareStatement("UPDATE `users` SET `score` = `score` + ?, `wins` = `wins` + 1 WHERE `uid` = ?");
 			} else {
-				statement = connection.prepareStatement("INSERT INTO `users` (`score`, `wins`) VALUES(?, 1) WHERE `uid` = ?");
+				statement = connection.prepareStatement("INSERT INTO `users` (`score`, `wins`, `uid`) VALUES(?, 1, ?)");
 			}
 			statement.setInt(1, player.getGame().getPlayers().size() - 1);
 			statement.setInt(2, member.getId());

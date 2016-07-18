@@ -56,12 +56,12 @@ public class WebSocket {
 	}
 
 	private boolean shouldUpdate(String mode, String type) {
-		if("chat".equals(mode) && "delete".equals(type)) {
-			return false;
+		if("chat".equals(mode)) {
+			return "add".equals(type);
 		} else if("game".equals(mode)) {
 			return !"start-move".equals(type) && !"autoroll".equals(type);
 		}
-		return true;
+		return false;
 	}
 
 	private void sendGameUpdates(Game game) {

@@ -18,11 +18,11 @@ import com.ee.imperator.user.User;
 
 @Request(mode = "update", type = "chat")
 public class ChatUpdate {
-	public JSONObject handle(Member member, @Param("time") long time) throws InvalidRequestException {
-		if(member.isGuest()) {
+	public JSONObject handle(Member member, @Param("time") long time, @Param("gid") int gid) throws InvalidRequestException {
+		if(member.isGuest() || !canUseChat(member, gid)) {
 			throw new InvalidRequestException(member.getId() + " cannot use chat", "update", "chat");
 		}
-		return new JSONObject().put("update", System.currentTimeMillis()).put("messages", getMessages(0, time));
+		return new JSONObject().put("update", System.currentTimeMillis()).put("messages", getMessages(gid, time));
 	}
 
 	static boolean canUseChat(User user, int gid) {
