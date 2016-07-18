@@ -41,6 +41,7 @@ public class Attack {
 					attack.autoRollDefence();
 					game.executeAttack(attack, transaction);
 				} else {
+					transaction.setTime(System.currentTimeMillis());
 					transaction.getAttacks().add(attack);
 				}
 				transaction.commit();

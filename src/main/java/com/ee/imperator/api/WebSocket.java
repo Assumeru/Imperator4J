@@ -35,6 +35,7 @@ public class WebSocket {
 	}
 
 	public void trySendUpdates(JSONObject input) {
+		//TODO api listener
 		try {
 			sendUpdates(input);
 		} catch(Exception e) {
@@ -130,10 +131,10 @@ public class WebSocket {
 		}
 	}
 
-	private Map<String, String> getVariables(JSONObject input) {
-		Map<String, String> out = new HashMap<>();
+	private Map<String, Object> getVariables(JSONObject input) {
+		Map<String, Object> out = new HashMap<>();
 		for(String key : input.keySet()) {
-			out.put(key, String.valueOf(input.get(key)));
+			out.put(key, input.get(key));
 		}
 		return out;
 	}

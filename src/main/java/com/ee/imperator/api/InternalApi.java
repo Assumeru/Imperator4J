@@ -1,0 +1,37 @@
+package com.ee.imperator.api;
+
+import org.ee.collection.MapBuilder;
+
+import com.ee.imperator.exception.RequestException;
+import com.ee.imperator.game.Game;
+import com.ee.imperator.user.Player;
+
+public class InternalApi {
+	InternalApi() {
+	}
+
+	public void joinGame(Game game, Player player) throws RequestException {
+		Api.handleRequest(new MapBuilder<String, Object>()
+				.put("mode", "game")
+				.put("type", "join")
+				.put("game", game)
+				.put("player", player)
+				.build(), player.getMember());
+	}
+
+	public void startGame(Game game) throws RequestException {
+		Api.handleRequest(new MapBuilder<String, Object>()
+				.put("mode", "game")
+				.put("type", "start")
+				.put("game", game)
+				.build(), game.getOwner().getMember());
+	}
+
+	public void leaveGame(Game game, Player player) throws RequestException {
+		Api.handleRequest(new MapBuilder<String, Object>()
+				.put("mode", "game")
+				.put("type", "leave")
+				.put("game", game)
+				.build(), player.getMember());
+	}
+}

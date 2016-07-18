@@ -27,7 +27,7 @@ class Handler implements Comparable<Handler> {
 		this.target = target;
 	}
 
-	public Match getMatch(Map<String, String> variables, Member member) {
+	public Match getMatch(Map<String, ?> variables, Member member) {
 		if(variables.keySet().containsAll(names)) {
 			Class<?>[] types = method.getParameterTypes();
 			Match match = new Match(member);

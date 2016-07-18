@@ -29,6 +29,7 @@ public class Api {
 	private static final Map<String, List<Handler>> handlers = getHandlers();
 	public static final LongPolling LONG_POLLING = new LongPolling();
 	public static final WebSocket WEB_SOCKET = new WebSocket();
+	public static final InternalApi INTERNAL = new InternalApi();
 	public static final String DATE_ATOM = "yyyy-MM-dd'T'HH:mm:ssXXX";
 
 	private Api() {}
@@ -50,7 +51,7 @@ public class Api {
 		return handlers;
 	}
 
-	static String handleRequest(Map<String, String> variables, Member member) throws RequestException {
+	static String handleRequest(Map<String, ?> variables, Member member) throws RequestException {
 		try {
 			JSONObject output = handleInternal(variables, Objects.requireNonNull(member));
 			return output == null ? null : output.toString();
@@ -58,13 +59,13 @@ public class Api {
 			throw e;
 		} catch(Exception e) {
 			LOG.e("Failed to handle request", e);
-			throw new RequestException("Fatal error", variables.get("mode"), variables.get("type"), e);
+			throw new RequestException("Fatal error", String.valueOf(variables.get("mode")), String.valueOf(variables.get("type")), e);
 		}
 	}
 
-	private static JSONObject handleInternal(Map<String, String> variables, Member member) throws RequestException, IllegalAccessException {
-		String mode = variables.get("mode");
-		String type = variables.get("type");
+	private static JSONObject handleInternal(Map<String, ?> variables, Member member) throws RequestException, IllegalAccessException {
+		String mode = String.valueOf(variables.get("mode"));
+		String type = String.valueOf(variables.get("type"));
 		try {
 			for(Handler handler : getHandlers(mode, type)) {
 				Match match = handler.getMatch(variables, member);

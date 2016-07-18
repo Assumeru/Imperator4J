@@ -29,6 +29,17 @@ public final class PrimitiveUtils {
 			.put("int", int.class)
 			.put("void", void.class)
 			.build(true);
+	private static final Map<Class<?>, Class<?>> BOXES = new MapBuilder<Class<?>, Class<?>>()
+			.put(boolean.class, Boolean.class)
+			.put(byte.class, Byte.class)
+			.put(char.class, Character.class)
+			.put(double.class, Double.class)
+			.put(float.class, Float.class)
+			.put(long.class, Long.class)
+			.put(short.class, Short.class)
+			.put(int.class, Integer.class)
+			.put(void.class, Void.class)
+			.build(true);
 
 	private PrimitiveUtils() {
 	}
@@ -77,5 +88,17 @@ public final class PrimitiveUtils {
 			return (E) Integer.valueOf(Integer.parseInt(input));
 		}
 		return null;
+	}
+
+	public static boolean equals(Class<?> type1, Class<?> type2) {
+		if(type1 == type2) {
+			return true;
+		} else if(isPrimitive(type1) && isPrimitive(type2)) {
+			if(type1.isPrimitive()) {
+				return type2 == BOXES.get(type1);
+			}
+			return type1 == BOXES.get(type2);
+		}
+		return false;
 	}
 }

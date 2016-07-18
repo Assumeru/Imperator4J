@@ -55,7 +55,7 @@ public class SqlMemberState extends CloseableDataSource implements MemberState {
 	public List<Member> getMembers() {
 		List<Member> members = new ArrayList<>();
 		try(Connection conn = dataSource.getConnection()) {
-			ResultSet result = conn.createStatement().executeQuery("SELECT `uid`, `wins`, `losses`, `score` FROM `users` ORDER BY `score`");
+			ResultSet result = conn.createStatement().executeQuery("SELECT `uid`, `wins`, `losses`, `score` FROM `users` ORDER BY `score` DESC");
 			while(result.next()) {
 				members.add(new Member(result.getInt(1), null, null, false, false, result.getInt(4), result.getInt(2), result.getInt(3)));
 			}

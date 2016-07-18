@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import com.ee.imperator.Imperator;
 import com.ee.imperator.api.TestApi;
+import com.ee.imperator.exception.RequestException;
 import com.ee.imperator.exception.TransactionException;
 import com.ee.imperator.game.Cards;
 import com.ee.imperator.game.Game;
@@ -28,12 +29,12 @@ public class TestGame {
 	private java.util.Map<Player, Territory> territories = new HashMap<>();
 
 	@Before
-	public void init() throws TransactionException {
+	public void init() throws TransactionException, RequestException {
 		System.setProperty("com.ee.imperator.Config", Config.class.getName());
 		new Imperator(null);
 		createGame();
 		addPlayers();
-		game.start();
+		TestApi.INSTANCE.startGame(game);
 		skipTo(player1);
 	}
 
@@ -225,13 +226,13 @@ public class TestGame {
 		game = Imperator.getState().createGame(player1, map, "Test game", null);
 	}
 
-	private void addPlayers() throws TransactionException {
+	private void addPlayers() throws RequestException {
 		player2 = new Player(Imperator.getState().getMember(2));
 		player2.setColor("00FF00");
 		player3 = new Player(Imperator.getState().getMember(3));
-		player2.setColor("0000FF");
-		game.addPlayer(player2);
-		game.addPlayer(player3);
+		player3.setColor("0000FF");
+		TestApi.INSTANCE.joinGame(game, player2);
+		TestApi.INSTANCE.joinGame(game, player3);
 	}
 
 	private void skipTo(Player player) {

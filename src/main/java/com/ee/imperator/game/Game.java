@@ -114,6 +114,11 @@ public class Game implements Comparable<Game> {
 				} else if(players.size() >= map.getPlayers()) {
 					throw new IllegalStateException("Game is full");
 				}
+				for(Player p : players) {
+					if(player.getColor().equals(p.getColor())) {
+						throw new IllegalArgumentException("Color already in use");
+					}
+				}
 				try(GameTransaction transaction = Imperator.getState().modify(this)) {
 					transaction.addPlayer(player);
 					transaction.setTime(System.currentTimeMillis());

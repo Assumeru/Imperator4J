@@ -10,19 +10,19 @@ import com.ee.imperator.map.Territory;
 import com.ee.imperator.user.Member;
 import com.ee.imperator.user.Player;
 
-public class TestApi {
+public class TestApi extends InternalApi {
 	public static final TestApi INSTANCE = new TestApi();
 
 	public static class Context {
 		private final Member member;
-		private final Map<String, String> variables;
+		private final Map<String, ?> variables;
 
-		public Context(Member member, Map<String, String> variables) {
+		public Context(Member member, Map<String, ?> variables) {
 			this.member = member;
 			this.variables = variables;
 		}
 
-		public Map<String, String> getVariables() {
+		public Map<String, ?> getVariables() {
 			return variables;
 		}
 
@@ -33,84 +33,84 @@ public class TestApi {
 
 	public static class EndTurn extends Context {
 		public EndTurn(Player player, Card card) {
-			super(player.getMember(), new MapBuilder<String, String>()
+			super(player.getMember(), new MapBuilder<String, Object>()
 					.put("mode", "game")
 					.put("type", "end-turn")
-					.put("gid", String.valueOf(player.getGame().getId()))
-					.put("card", card == null ? "-1" : String.valueOf(card.ordinal())).build());
+					.put("gid", player.getGame().getId())
+					.put("card", card == null ? -1 : card.ordinal()).build());
 		}
 	}
 
 	public static class Fortify extends Context {
 		public Fortify(Player player) {
-			super(player.getMember(), new MapBuilder<String, String>()
+			super(player.getMember(), new MapBuilder<String, Object>()
 					.put("mode", "game")
 					.put("type", "fortify")
-					.put("gid", String.valueOf(player.getGame().getId())).build());
+					.put("gid", player.getGame().getId()).build());
 		}
 	}
 
 	public static class Stack extends Context {
 		public Stack(Player player, Territory territory, int units) {
-			super(player.getMember(), new MapBuilder<String, String>()
+			super(player.getMember(), new MapBuilder<String, Object>()
 					.put("mode", "game")
 					.put("type", "place-units")
-					.put("gid", String.valueOf(player.getGame().getId()))
+					.put("gid", player.getGame().getId())
 					.put("territory", territory.getId())
-					.put("units", String.valueOf(units)).build());
+					.put("units", units).build());
 		}
 	}
 
 	public static class Attack extends Context {
 		public Attack(Player player, Territory from, Territory to, int units, int move) {
-			super(player.getMember(), new MapBuilder<String, String>()
+			super(player.getMember(), new MapBuilder<String, Object>()
 					.put("mode", "game")
 					.put("type", "attack")
-					.put("gid", String.valueOf(player.getGame().getId()))
+					.put("gid", player.getGame().getId())
 					.put("from", from.getId())
 					.put("to", to.getId())
-					.put("units", String.valueOf(units))
-					.put("move", String.valueOf(move)).build());
+					.put("units", units)
+					.put("move", move).build());
 		}
 	}
 
 	public static class StartMove extends Context {
 		public StartMove(Player player) {
-			super(player.getMember(), new MapBuilder<String, String>()
+			super(player.getMember(), new MapBuilder<String, Object>()
 					.put("mode", "game")
 					.put("type", "start-move")
-					.put("gid", String.valueOf(player.getGame().getId())).build());
+					.put("gid", player.getGame().getId()).build());
 		}
 	}
 
 	public static class MoveUnits extends Context {
 		public MoveUnits(Player player, Territory from, Territory to, int move) {
-			super(player.getMember(), new MapBuilder<String, String>()
+			super(player.getMember(), new MapBuilder<String, Object>()
 					.put("mode", "game")
 					.put("type", "move")
-					.put("gid", String.valueOf(player.getGame().getId()))
+					.put("gid", player.getGame().getId())
 					.put("from", from.getId())
 					.put("to", to.getId())
-					.put("move", String.valueOf(move)).build());
+					.put("move", move).build());
 		}
 	}
 
 	public static class PlayCards extends Context {
 		public PlayCards(Player player, int units) {
-			super(player.getMember(), new MapBuilder<String, String>()
+			super(player.getMember(), new MapBuilder<String, Object>()
 					.put("mode", "game")
 					.put("type", "play-cards")
-					.put("gid", String.valueOf(player.getGame().getId()))
-					.put("units", String.valueOf(units)).build());
+					.put("gid", player.getGame().getId())
+					.put("units", units).build());
 		}
 	}
 
 	public static class Forfeit extends Context {
 		public Forfeit(Player player) {
-			super(player.getMember(), new MapBuilder<String, String>()
+			super(player.getMember(), new MapBuilder<String, Object>()
 					.put("mode", "game")
 					.put("type", "forfeit")
-					.put("gid", String.valueOf(player.getGame().getId())).build());
+					.put("gid", player.getGame().getId()).build());
 		}
 	}
 

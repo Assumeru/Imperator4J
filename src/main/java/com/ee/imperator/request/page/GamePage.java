@@ -16,9 +16,10 @@ import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
 
 import com.ee.imperator.Imperator;
+import com.ee.imperator.api.Api;
 import com.ee.imperator.exception.ConfigurationException;
 import com.ee.imperator.exception.FormException;
-import com.ee.imperator.exception.TransactionException;
+import com.ee.imperator.exception.RequestException;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.request.context.PageContext;
 import com.ee.imperator.request.page.form.JoinGameForm;
@@ -112,14 +113,14 @@ public class GamePage extends AbstractVariablePage {
 				JoinGameForm form = new JoinGameForm(context, game, colors);
 				Player player = new Player(context.getUser());
 				player.setColor(form.getColor());
-				game.addPlayer(player);
+				Api.INTERNAL.joinGame(game, player);
 				redirect(Imperator.getUrlBuilder().game(game));
 			} catch (FormException e) {
 				if(e.getName() != null) {
 					context.setVariable(e.getName(), e.getMessage());
 				}
 				LOG.v(e);
-			} catch (TransactionException e) {
+			} catch (RequestException e) {
 				LOG.e(e);
 				redirect(Imperator.getUrlBuilder().game(game));
 			}
@@ -128,28 +129,29 @@ public class GamePage extends AbstractVariablePage {
 
 	private void leaveGame(PageContext context, Game game) {
 		try {
-			game.removePlayer(game.getPlayerById(context.getUser().getId()));
-		} catch (TransactionException e) {
+			Api.INTERNAL.leaveGame(game, game.getPlayerById(context.getUser().getId()));
+		} catch (RequestException e) {
 			LOG.e(e);
 		}
 		redirect(Imperator.getUrlBuilder().game(game));
 	}
 
 	private void deleteGame(Game game) {
-		if(Imperator.getState().deleteGame(game)) {
+		try {
+			Api.INTERNAL.leaveGame(game, game.getOwner());
 			redirect("/");
+		} catch (RequestException e) {
+			LOG.e(e);
 		}
 	}
 
 	private void startGame(Game game) {
-		if(game.getPlayers().size() == game.getMap().getPlayers()) {
-			try {
-				game.start();
-			} catch (TransactionException e) {
-				throw new ServerErrorException(Response.Status.INTERNAL_SERVER_ERROR, e);
-			}
-			redirect(Imperator.getUrlBuilder().game(game));
+		try {
+			Api.INTERNAL.startGame(game);
+		} catch (RequestException e) {
+			throw new ServerErrorException(Response.Status.INTERNAL_SERVER_ERROR, e);
 		}
+		redirect(Imperator.getUrlBuilder().game(game));
 	}
 
 	private Map<String, String> getColors(Game game) {
