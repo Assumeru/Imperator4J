@@ -26,7 +26,8 @@ import com.ee.imperator.user.Member;
 
 public class Api {
 	private static final Logger LOG = LogManager.createLogger();
-	private static final Map<String, List<Handler>> handlers = getHandlers();
+	private static final Map<String, List<Handler>> HANDLERS = getHandlers();
+	private static final List<RequestListener> LISTENERS = new ArrayList<>();
 	public static final LongPolling LONG_POLLING = new LongPolling();
 	public static final WebSocket WEB_SOCKET = new WebSocket();
 	public static final InternalApi INTERNAL = new InternalApi();
@@ -51,10 +52,11 @@ public class Api {
 		return handlers;
 	}
 
-	static String handleRequest(Map<String, ?> variables, Member member) throws RequestException {
+	static JSONObject handleRequest(Map<String, ?> variables, Member member) throws RequestException {
 		try {
 			JSONObject output = handleInternal(variables, Objects.requireNonNull(member));
-			return output == null ? null : output.toString();
+			runListeners(member, variables, output);
+			return output;
 		} catch(RequestException e) {
 			throw e;
 		} catch(Exception e) {
@@ -92,7 +94,7 @@ public class Api {
 	}
 
 	private static List<Handler> getHandlers(String mode, String type) {
-		List<Handler> list = handlers.get(getKey(mode, type));
+		List<Handler> list = HANDLERS.get(getKey(mode, type));
 		if(list != null) {
 			return list;
 		}
@@ -156,5 +158,23 @@ public class Api {
 
 	public static String getErrorMessage(String error, String mode, String type) {
 		return getReply(new JSONObject().put("error", error), mode, type).toString();
+	}
+
+	public static void addRequestListener(RequestListener listener) {
+		LISTENERS.add(listener);
+	}
+
+	public static void removeRequestListener(RequestListener listener) {
+		LISTENERS.remove(listener);
+	}
+
+	private static void runListeners(Member member, Map<String, ?> input, JSONObject output) {
+		for(RequestListener listener : LISTENERS) {
+			try {
+				listener.onRequest(member, input, output);
+			} catch(Exception e) {
+				LOG.e(e);
+			}
+		}
 	}
 }

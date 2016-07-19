@@ -56,7 +56,6 @@ public class WebSocket {
 				if(response != null) {
 					session.getBasicRemote().sendText(response);
 				}
-				Api.WEB_SOCKET.trySendUpdates(variables);
 			}
 		} catch(JSONException e) {
 			LOG.w("Invalid message", e);

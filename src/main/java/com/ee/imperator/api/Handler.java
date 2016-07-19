@@ -17,7 +17,7 @@ class Handler implements Comparable<Handler> {
 	private final Object target;
 	private final Method method;
 
-	public Handler(Object target, Method method) {
+	Handler(Object target, Method method) {
 		Parameter[] params = method.getParameters();
 		this.names = new ArrayList<>(params.length - 1);
 		for(int i = 1; i < params.length; i++) {
@@ -27,7 +27,7 @@ class Handler implements Comparable<Handler> {
 		this.target = target;
 	}
 
-	public Match getMatch(Map<String, ?> variables, Member member) {
+	Match getMatch(Map<String, ?> variables, Member member) {
 		if(variables.keySet().containsAll(names)) {
 			Class<?>[] types = method.getParameterTypes();
 			Match match = new Match(member);
@@ -41,7 +41,7 @@ class Handler implements Comparable<Handler> {
 		return null;
 	}
 
-	public JSONObject invoke(Match match) throws IllegalAccessException, InvocationTargetException {
+	JSONObject invoke(Match match) throws IllegalAccessException, InvocationTargetException {
 		return (JSONObject) method.invoke(target, match.getArguments());
 	}
 

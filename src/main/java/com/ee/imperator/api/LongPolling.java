@@ -10,6 +10,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
+import org.json.JSONObject;
 
 import com.ee.imperator.Imperator;
 import com.ee.imperator.exception.RequestException;
@@ -28,7 +29,8 @@ public class LongPolling {
 				sleep(arguments);
 			}
 			try {
-				return Response.ok(Api.handleRequest(arguments, context.getUser())).type(MediaType.APPLICATION_JSON_TYPE).build();
+				JSONObject response = Api.handleRequest(arguments, context.getUser());
+				return Response.ok(response == null ? null : response.toString()).type(MediaType.APPLICATION_JSON_TYPE).build();
 			} catch (RequestException e) {
 				return Response.status(e.getStatus()).type(MediaType.APPLICATION_JSON_TYPE).entity(e.getMessage(context.getUser().getLanguage())).build();
 			}

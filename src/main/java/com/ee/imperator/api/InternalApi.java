@@ -14,6 +14,7 @@ public class InternalApi {
 		Api.handleRequest(new MapBuilder<String, Object>()
 				.put("mode", "game")
 				.put("type", "join")
+				.put("gid", game.getId())
 				.put("game", game)
 				.put("player", player)
 				.build(), player.getMember());
@@ -23,6 +24,7 @@ public class InternalApi {
 		Api.handleRequest(new MapBuilder<String, Object>()
 				.put("mode", "game")
 				.put("type", "start")
+				.put("gid", game.getId())
 				.put("game", game)
 				.build(), game.getOwner().getMember());
 	}
@@ -31,6 +33,7 @@ public class InternalApi {
 		Api.handleRequest(new MapBuilder<String, Object>()
 				.put("mode", "game")
 				.put("type", "leave")
+				.put("gid", game.getId())
 				.put("game", game)
 				.build(), player.getMember());
 	}

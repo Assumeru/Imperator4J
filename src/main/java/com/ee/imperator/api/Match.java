@@ -13,12 +13,12 @@ class Match {
 	private static final Logger LOG = LogManager.createLogger();
 	private List<Object> arguments;
 
-	public Match(Member member) {
+	Match(Member member) {
 		arguments = new ArrayList<>();
 		arguments.add(member);
 	}
 
-	public boolean add(Class<?> type, Object value) {
+	boolean add(Class<?> type, Object value) {
 		if(type.isAssignableFrom(value.getClass()) || (type.isPrimitive() && PrimitiveUtils.equals(type, value.getClass()))) {
 			return arguments.add(value);
 		}
@@ -38,7 +38,7 @@ class Match {
 		return false;
 	}
 
-	public Object[] getArguments() {
+	Object[] getArguments() {
 		return arguments.toArray();
 	}
 }

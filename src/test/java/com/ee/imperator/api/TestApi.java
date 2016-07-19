@@ -3,6 +3,7 @@ package com.ee.imperator.api;
 import java.util.Map;
 
 import org.ee.collection.MapBuilder;
+import org.json.JSONObject;
 
 import com.ee.imperator.exception.RequestException;
 import com.ee.imperator.game.Cards.Card;
@@ -119,7 +120,8 @@ public class TestApi extends InternalApi {
 
 	public String handle(com.ee.imperator.api.TestApi.Context input) {
 		try {
-			return Api.handleRequest(input.getVariables(), input.getMember());
+			JSONObject response = Api.handleRequest(input.getVariables(), input.getMember());
+			return response == null ? null : response.toString();
 		} catch (RequestException e) {
 			throw new RuntimeException(e);
 		}
