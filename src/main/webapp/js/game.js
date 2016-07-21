@@ -5,7 +5,6 @@
 	$currentTab = ['territories'],
 	$time = 0,
 	$dialogs = {},
-	$updateErrors = 0,
 	$missed = {
 		chat: null,
 		log: null
@@ -36,6 +35,7 @@
 		Imperator.API.onError(parseErrorMessage);
 		Imperator.API.onMessage(parseUpdateMessage);
 		Imperator.API.onOpen(sendUpdateRequest);
+		Imperator.API.onDisconnect(handleDisconnect);
 		initEventListeners();
 		$('#settings input[name="unitgraphics"][value="'+$unitGraphics+'"]').prop('checked', true);
 		$emptyBorder = $('#territory [data-value="border"]');
@@ -46,16 +46,18 @@
 		initTabSwiping();
 	}
 
+	function handleDisconnect($updateErrors) {
+		if($updateErrors < Imperator.API.MAX_GAME_ERRORS) {
+			setTimeout(sendUpdateRequest, 100 + $updateErrors * 400);
+		} else {
+			Imperator.Dialog.showDialog(__('An error has occurred'), __('Connection to the server has been lost.'), true);
+		}
+	}
+
 	function parseErrorMessage($msg) {
-		console.error($msg);
 		if($msg !== undefined && $msg !== '' && $msg.error !== undefined && $msg.request !== undefined && (($msg.request.mode === 'update' && $msg.request.type === 'game') || $msg.request.mode === 'game')) {
 			if($msg.request.mode === 'update') {
-				if($updateErrors < Imperator.API.MAX_GAME_ERRORS) {
-					$updateErrors++;
-					setTimeout(sendUpdateRequest, 100 + $updateErrors * 400);
-				} else {
-					Imperator.Dialog.showDialog(__('An error has occurred'), __('Connection to the server has been lost.'), true);
-				}
+				Imperator.API.incrementDisconnects();
 			} else if($msg.error !== '') {
 				Imperator.Dialog.showDialog(__('An error has occurred'), $msg.error, true);
 			}
@@ -551,7 +553,7 @@
 					$('#combatlog > div').empty();
 				}
 				$time = $msg.update;
-				$updateErrors = 0;
+				Imperator.API.resetDisconnects();
 			}
 			if($game === undefined && $msg.regions !== undefined && $msg.territories !== undefined && $msg.players !== undefined && $msg.units !== undefined && $msg.state !== undefined && $msg.turn !== undefined && $msg.conquered !== undefined) {
 				$game = new Imperator.Game(Imperator.settings.gid, $msg.players, $msg.regions, $msg.territories, $msg.cards, $msg.units, $msg.state, $msg.turn, $msg.conquered);

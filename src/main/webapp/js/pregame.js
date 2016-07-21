@@ -1,25 +1,28 @@
 (function($) {
 	var $gid = Imperator.settings.gid,
 	$time = 0,
-	$updateErrors = 0,
 	__ = Imperator.Language.__;
 
 	function init() {
 		Imperator.API.onError(parseErrorMessage);
 		Imperator.API.onMessage(parseGameUpdate);
 		Imperator.API.onOpen(sendUpdateRequest);
+		Imperator.API.onDisconnect(handleDisconnect);
 		addKickListeners();
 		$('#owner-controls input[name="startgame"]').removeClass('hidden').hide();
 	}
 
+	function handleDisconnect($updateErrors) {
+		if($updateErrors < Imperator.API.MAX_GAME_ERRORS) {
+			setTimeout(sendUpdateRequest, 100 + $updateErrors * 400);
+		} else {
+			Imperator.Dialog.showDialog(__('An error has occurred'), __('Connection to the server has been lost.'), true);
+		}
+	}
+
 	function parseErrorMessage($msg) {
 		if($msg !== undefined && $msg !== '' && $msg.error !== undefined && $msg.request !== undefined && $msg.request.mode === 'update' && $msg.request.type === 'pregame') {
-			if($updateErrors < Imperator.API.MAX_GAME_ERRORS) {
-				$updateErrors++;
-				sendUpdateRequest();
-			} else {
-				Imperator.Dialog.showDialog(__('An error has occurred'), __('Connection to the server has been lost.'), true);
-			}
+			Imperator.API.incrementDisconnects();
 		}
 	}
 
@@ -50,7 +53,7 @@
 	function parseGameUpdate($msg) {
 		var $n, $playerLi, $playerList = $('#player-list');
 		if($msg !== undefined && $msg !== '' && $msg.update !== undefined) {
-			$updateErrors = 0;
+			Imperator.API.resetDisconnects();
 			$time = $msg.update;
 			if($msg.gameState !== undefined) {
 				window.alert($msg.gameState);

@@ -5,12 +5,12 @@
 	$loading = true,
 	$postgame = Imperator.settings.postgame !== undefined ? Imperator.settings.postgame : false,
 	$canDelete = Imperator.settings.chat.canDelete,
-	$updateErrors = 0,
 	__ = Imperator.Language.__;
 
 	function create() {
 		var $chat = $('#chat');
 		$chatWindow = $('#chat-window');
+		Imperator.API.onDisconnect(handleDisconnect);
 		Imperator.API.onError(parseErrorMessage);
 		Imperator.API.onMessage(parseChatMessage);
 		Imperator.API.onOpen(function() {
@@ -58,15 +58,18 @@
 		}
 	}
 
+	function handleDisconnect($updateErrors) {
+		if($updateErrors < Imperator.API.MAX_CHAT_ERRORS) {
+			setTimeout(sendUpdateRequest, 100 + $updateErrors * 400);
+		} else {
+			Imperator.Dialog.showDialog(__('An error has occurred'), __('Connection to the server has been lost.'), true);
+		}
+	}
+
 	function parseErrorMessage($msg) {
 		if($msg !== undefined && $msg !== '' && $msg.error !== undefined && $msg.request !== undefined && (($msg.request.mode === 'update' && $msg.request.type === 'chat') || $msg.request.mode === 'chat')) {
 			if($msg.request.mode === 'update') {
-				if($updateErrors < Imperator.API.MAX_CHAT_ERRORS) {
-					$updateErrors++;
-					setTimeout(sendUpdateRequest, 100 + $updateErrors * 400);
-				} else {
-					Imperator.Dialog.showDialog(__('An error has occurred'), __('Connection to the server has been lost.'), true);
-				}
+				Imperator.API.incrementDisconnects();
 			} else if($msg.error !== '') {
 				Imperator.Dialog.showDialog(__('Chat Error'), $msg.error, true);
 			}
@@ -87,7 +90,7 @@
 			}
 			$time = $msg.update;
 			sendUpdateRequest();
-			$updateErrors = 0;
+			Imperator.API.resetDisconnects();
 		}
 	}
 
