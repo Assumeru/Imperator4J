@@ -117,7 +117,7 @@ class WebSocketListener implements RequestListener {
 	}
 
 	private JSONObject sendGameUpdate(Member member, long time, Game game, String type) throws RequestException {
-		return Api.handleRequest(new MapBuilder<String, Object>()
+		return api.handleRequest(new MapBuilder<String, Object>()
 				.put("mode", "update")
 				.put("type", getType(game, type))
 				.put("gid", game.getId())
@@ -136,7 +136,7 @@ class WebSocketListener implements RequestListener {
 	}
 
 	private JSONObject sendChatUpdate(Member member, long time) throws RequestException {
-		return Api.handleRequest(new MapBuilder<String, Object>()
+		return api.handleRequest(new MapBuilder<String, Object>()
 				.put("mode", "update")
 				.put("type", "chat")
 				.put("time", time)

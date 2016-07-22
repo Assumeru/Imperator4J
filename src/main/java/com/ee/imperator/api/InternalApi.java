@@ -6,12 +6,12 @@ import com.ee.imperator.exception.RequestException;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.user.Player;
 
-public class InternalApi {
+public class InternalApi extends ApiImplementation {
 	InternalApi() {
 	}
 
 	public void joinGame(Game game, Player player) throws RequestException {
-		Api.handleRequest(new MapBuilder<String, Object>()
+		handleRequest(new MapBuilder<String, Object>()
 				.put("mode", "game")
 				.put("type", "join")
 				.put("gid", game.getId())
@@ -21,7 +21,7 @@ public class InternalApi {
 	}
 
 	public void startGame(Game game) throws RequestException {
-		Api.handleRequest(new MapBuilder<String, Object>()
+		handleRequest(new MapBuilder<String, Object>()
 				.put("mode", "game")
 				.put("type", "start")
 				.put("gid", game.getId())
@@ -30,7 +30,7 @@ public class InternalApi {
 	}
 
 	public void leaveGame(Game game, Player player) throws RequestException {
-		Api.handleRequest(new MapBuilder<String, Object>()
+		handleRequest(new MapBuilder<String, Object>()
 				.put("mode", "game")
 				.put("type", "leave")
 				.put("gid", game.getId())

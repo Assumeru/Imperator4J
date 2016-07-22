@@ -16,7 +16,7 @@ import com.ee.imperator.Imperator;
 import com.ee.imperator.exception.RequestException;
 import com.ee.imperator.request.context.PageContext;
 
-public class LongPolling {
+public class LongPolling extends ApiImplementation {
 	private static final Logger LOG = LogManager.createLogger();
 
 	LongPolling() {
@@ -29,7 +29,7 @@ public class LongPolling {
 				sleep(arguments);
 			}
 			try {
-				JSONObject response = Api.handleRequest(arguments, context.getUser());
+				JSONObject response = handleRequest(arguments, context.getUser());
 				return Response.ok(response == null ? null : response.toString()).type(MediaType.APPLICATION_JSON_TYPE).build();
 			} catch (RequestException e) {
 				return Response.status(e.getStatus()).type(MediaType.APPLICATION_JSON_TYPE).entity(e.getMessage(context.getUser().getLanguage())).build();

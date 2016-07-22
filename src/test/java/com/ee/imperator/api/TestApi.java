@@ -120,7 +120,7 @@ public class TestApi extends InternalApi {
 
 	public String handle(com.ee.imperator.api.TestApi.Context input) {
 		try {
-			JSONObject response = Api.handleRequest(input.getVariables(), input.getMember());
+			JSONObject response = handleRequest(input.getVariables(), input.getMember());
 			return response == null ? null : response.toString();
 		} catch (RequestException e) {
 			throw new RuntimeException(e);

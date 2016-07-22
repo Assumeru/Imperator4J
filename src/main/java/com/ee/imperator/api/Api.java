@@ -26,17 +26,21 @@ import com.ee.imperator.user.Member;
 
 public class Api {
 	private static final Logger LOG = LogManager.createLogger();
-	private static final Map<String, List<Handler>> HANDLERS = getHandlers();
-	private static final List<RequestListener> LISTENERS = new ArrayList<>();
+	static final Api INSTANCE = new Api();
 	public static final LongPolling LONG_POLLING = new LongPolling();
 	public static final WebSocket WEB_SOCKET = new WebSocket();
 	public static final InternalApi INTERNAL = new InternalApi();
 	public static final String DATE_ATOM = "yyyy-MM-dd'T'HH:mm:ssXXX";
+	private final Map<String, List<Handler>> handlers;
+	private final List<RequestListener> listeners;
 
-	private Api() {}
+	private Api() {
+		handlers = getHandlers();
+		listeners = new ArrayList<>();
+	}
 
 	@SuppressWarnings("unchecked")
-	private static Map<String, List<Handler>> getHandlers() {
+	private Map<String, List<Handler>> getHandlers() {
 		Map<String, List<Handler>> handlers = new HashMap<>();
 		Set<Class<?>> types = new Reflections(Request.class.getPackage().getName()).getTypesAnnotatedWith(Request.class);
 		for(Class<?> type : types) {
@@ -49,10 +53,10 @@ public class Api {
 			list.sort(null);
 			((ArrayList<?>) list).trimToSize();
 		}
-		return handlers;
+		return Collections.unmodifiableMap(handlers);
 	}
 
-	static JSONObject handleRequest(Map<String, ?> variables, Member member) throws RequestException {
+	JSONObject handleRequest(Map<String, ?> variables, Member member) throws RequestException {
 		try {
 			JSONObject output = handleInternal(variables, Objects.requireNonNull(member));
 			runListeners(member, variables, output);
@@ -65,7 +69,7 @@ public class Api {
 		}
 	}
 
-	private static JSONObject handleInternal(Map<String, ?> variables, Member member) throws RequestException, IllegalAccessException {
+	private JSONObject handleInternal(Map<String, ?> variables, Member member) throws RequestException, IllegalAccessException {
 		String mode = String.valueOf(variables.get("mode"));
 		String type = String.valueOf(variables.get("type"));
 		try {
@@ -86,22 +90,15 @@ public class Api {
 		throw new InvalidRequestException("Unknown request", mode, type);
 	}
 
-	private static JSONObject getReply(JSONObject reply, String mode, String type) {
-		if(reply == null) {
-			return null;
-		}
-		return reply.put("request", new JSONObject().put("mode", mode).put("type", type));
-	}
-
-	private static List<Handler> getHandlers(String mode, String type) {
-		List<Handler> list = HANDLERS.get(getKey(mode, type));
+	private List<Handler> getHandlers(String mode, String type) {
+		List<Handler> list = handlers.get(getKey(mode, type));
 		if(list != null) {
 			return list;
 		}
 		return Collections.emptyList();
 	}
 
-	private static void findHandler(Map<String, List<Handler>> handlers, Set<Method> methods, Class<?> type) {
+	private void findHandler(Map<String, List<Handler>> handlers, Set<Method> methods, Class<?> type) {
 		Request request = type.getAnnotation(Request.class);
 		if(request.type() == null || request.type().isEmpty() || request.mode() == null || request.mode().isEmpty()) {
 			LOG.w("Classes annotated with " + Request.class + " must specify a non-empty mode and type");
@@ -117,7 +114,7 @@ public class Api {
 		addHandlers(handlers, methods, type, getKey(request.mode(), request.type()), instance);
 	}
 
-	private static void addHandlers(Map<String, List<Handler>> handlers, Set<Method> methods, Class<?> type, String key, Object instance) {
+	private void addHandlers(Map<String, List<Handler>> handlers, Set<Method> methods, Class<?> type, String key, Object instance) {
 		for(Method method : methods) {
 			if((method.getReturnType() == void.class || method.getReturnType().isAssignableFrom(JSONObject.class)) && method.getParameterCount() > 0) {
 				Parameter[] params = method.getParameters();
@@ -130,11 +127,11 @@ public class Api {
 		}
 	}
 
-	private static String getKey(String mode, String type) {
+	private String getKey(String mode, String type) {
 		return mode + "_" + type;
 	}
 
-	private static void addHandler(Map<String, List<Handler>> handlers, String key, Handler handler) {
+	private void addHandler(Map<String, List<Handler>> handlers, String key, Handler handler) {
 		List<Handler> list = handlers.get(key);
 		if(list == null) {
 			list = new ArrayList<>();
@@ -143,7 +140,7 @@ public class Api {
 		list.add(handler);
 	}
 
-	private static boolean parameterised(Parameter[] params) {
+	private boolean parameterised(Parameter[] params) {
 		for(int i = 1; i < params.length; i++) {
 			Param annotation = params[i].getAnnotation(Param.class);
 			if(annotation == null) {
@@ -160,16 +157,23 @@ public class Api {
 		return getReply(new JSONObject().put("error", error), mode, type).toString();
 	}
 
-	public static void addRequestListener(RequestListener listener) {
-		LISTENERS.add(listener);
+	private static JSONObject getReply(JSONObject reply, String mode, String type) {
+		if(reply == null) {
+			return null;
+		}
+		return reply.put("request", new JSONObject().put("mode", mode).put("type", type));
 	}
 
-	public static void removeRequestListener(RequestListener listener) {
-		LISTENERS.remove(listener);
+	public void addRequestListener(RequestListener listener) {
+		listeners.add(listener);
 	}
 
-	private static void runListeners(Member member, Map<String, ?> input, JSONObject output) {
-		for(RequestListener listener : LISTENERS) {
+	public void removeRequestListener(RequestListener listener) {
+		listeners.remove(listener);
+	}
+
+	private void runListeners(Member member, Map<String, ?> input, JSONObject output) {
+		for(RequestListener listener : listeners) {
 			try {
 				listener.onRequest(member, input, output);
 			} catch(Exception e) {

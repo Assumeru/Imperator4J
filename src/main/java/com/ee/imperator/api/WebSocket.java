@@ -13,12 +13,12 @@ import com.ee.imperator.exception.RequestException;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.user.Member;
 
-public class WebSocket {
+public class WebSocket extends ApiImplementation {
 	private final Map<Game, Map<Session, Long>> sessions;
 
 	WebSocket() {
 		sessions = new WeakHashMap<>();
-		Api.addRequestListener(new WebSocketListener(this));
+		Api.INSTANCE.addRequestListener(new WebSocketListener(this));
 	}
 
 	Map<Game, Map<Session, Long>> getSessions() {
@@ -27,7 +27,7 @@ public class WebSocket {
 
 	public String handle(Member member, JSONObject input) {
 		try {
-			JSONObject response = Api.handleRequest(getVariables(input), member);
+			JSONObject response = handleRequest(getVariables(input), member);
 			return response == null ? null : response.toString();
 		} catch(RequestException e) {
 			return new JSONObject().put("type", e.getType()).put("mode", e.getMode()).put("error", e.getMessage(member.getLanguage())).toString();
