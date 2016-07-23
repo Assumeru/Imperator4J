@@ -23,7 +23,8 @@ public class Fortify {
 		}
 		try(GameTransaction transaction = Imperator.getState().modify(game)) {
 			transaction.setState(Game.State.FORTIFY);
-			transaction.setUnits(game.getPlayerById(member.getId()).getUnitsFromTerritoriesPerTurn());
+			int units = game.getPlayerById(member.getId()).getUnitsFromTerritoriesPerTurn();
+			transaction.setUnits(game.getUnits() + units);
 			transaction.commit();
 		}
 		return new JSONObject()

@@ -49,7 +49,7 @@
 	function handleDisconnect($updateErrors) {
 		if($updateErrors < Imperator.API.MAX_GAME_ERRORS) {
 			setTimeout(sendUpdateRequest, 100 + $updateErrors * 400);
-		} else {
+		} else if($updateErrors === Imperator.API.MAX_GAME_ERRORS) {
 			Imperator.Dialog.showDialog(__('An error has occurred'), __('Connection to the server has been lost.'), true);
 		}
 	}

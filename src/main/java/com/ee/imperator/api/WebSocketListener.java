@@ -72,6 +72,9 @@ class WebSocketListener implements RequestListener {
 					JSONObject response = sendGameUpdate(member, entry.getValue(), game, type);
 					if(output != null && cause.equals(member)) {
 						merge(output, response, entry);
+						if(output.has("card") && output.has("cards")) {
+							output.remove("cards");
+						}
 					} else {
 						send(game, entry.getKey(), response);
 					}
@@ -140,6 +143,7 @@ class WebSocketListener implements RequestListener {
 				.put("mode", "update")
 				.put("type", "chat")
 				.put("time", time)
+				.put("gid", 0)
 				.build(), member);
 	}
 
