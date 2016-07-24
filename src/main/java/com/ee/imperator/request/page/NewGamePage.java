@@ -13,6 +13,7 @@ import org.ee.web.request.page.NavigationPage;
 import com.ee.imperator.Imperator;
 import com.ee.imperator.exception.ConfigurationException;
 import com.ee.imperator.exception.FormException;
+import com.ee.imperator.exception.TransactionException;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.request.context.PageContext;
 import com.ee.imperator.request.page.form.NewGameForm;
@@ -39,6 +40,8 @@ public class NewGamePage extends ImperatorPage {
 			} catch (FormException e) {
 				context.setVariable("error", e.getMessage());
 				LOG.v(e);
+			} catch(TransactionException e) {
+				LOG.e(e);
 			}
 		}
 		context.setVariable(PageContext.VARIABLE_CSS, Arrays.asList("newgame.css"));
@@ -47,7 +50,7 @@ public class NewGamePage extends ImperatorPage {
 		context.setVariable("name", context.getUser().getLanguage().translate("%1$s's game", context.getUser().getName()));
 	}
 
-	private void createNewGame(NewGameForm form, PageContext context) {
+	private void createNewGame(NewGameForm form, PageContext context) throws TransactionException {
 		Player owner = new Player(context.getUser());
 		owner.setColor(form.getColor());
 		String password = form.getPassword();

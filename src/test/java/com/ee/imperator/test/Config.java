@@ -10,6 +10,7 @@ import com.ee.imperator.data.GameState;
 import com.ee.imperator.data.MemberState;
 import com.ee.imperator.i18n.ClientSideLanguageProvider;
 import com.ee.imperator.map.MapProvider;
+import com.ee.imperator.task.CleanUp;
 import com.ee.imperator.template.TemplateProvider;
 import com.ee.imperator.test.i18n.DummyClientSideLanguageProvider;
 import com.ee.imperator.test.map.MemoryMapProvider;
@@ -32,6 +33,11 @@ public class Config extends AbstractConfig {
 		values.put(ClientSideLanguageProvider.class.getName(), DummyClientSideLanguageProvider.class.getName());
 		values.put(TemplateProvider.class.getName(), DummyTemplateProvider.class.getName());
 		values.put(MapProvider.class.getName(), MemoryMapProvider.class.getName());
+		values.put(CleanUp.class.getName() + ".inactiveGameTime", "1209600000");
+		values.put(CleanUp.class.getName() + ".maxChatMessageAge", "86400000");
+		values.put(CleanUp.class.getName() + ".maxFinishedGameAge", "86400000");
+		values.put(CleanUp.class.getName() + ".numberOfMessagesToKeep", "10");
+		values.put(CleanUp.class.getName() + ".sleep", "86400000");
 	}
 
 	@Override

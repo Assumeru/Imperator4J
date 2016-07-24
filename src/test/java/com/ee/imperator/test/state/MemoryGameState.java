@@ -2,6 +2,7 @@ package com.ee.imperator.test.state;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -46,9 +47,8 @@ public class MemoryGameState implements GameState {
 	}
 
 	@Override
-	public boolean deleteGame(Game game) {
+	public void deleteGame(Game game) {
 		games.remove(game.getId());
-		return true;
 	}
 
 	@Override
@@ -59,5 +59,10 @@ public class MemoryGameState implements GameState {
 	@Override
 	public GameTransaction modify(Game game) throws TransactionException {
 		return new MemoryGameTransaction(game);
+	}
+
+	@Override
+	public Collection<Integer> deleteOldGames(long finishedTime, long time) {
+		return Collections.emptySet();
 	}
 }

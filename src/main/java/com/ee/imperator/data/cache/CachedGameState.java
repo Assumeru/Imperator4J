@@ -112,19 +112,16 @@ public class CachedGameState implements GameState {
 	}
 
 	@Override
-	public Game createGame(Player owner, com.ee.imperator.map.Map map, String name, String password) {
+	public Game createGame(Player owner, com.ee.imperator.map.Map map, String name, String password) throws TransactionException {
 		Game game = gameProvider.createGame(owner, map, name, password);
 		cache(game);
 		return game;
 	}
 
 	@Override
-	public boolean deleteGame(Game game) {
-		if(gameProvider.deleteGame(game)) {
-			cache.remove(game.getId());
-			return true;
-		}
-		return false;
+	public void deleteGame(Game game) throws TransactionException {
+		gameProvider.deleteGame(game);
+		cache.remove(game.getId());
 	}
 
 	@Override
@@ -135,5 +132,14 @@ public class CachedGameState implements GameState {
 	@Override
 	public GameTransaction modify(Game game) throws TransactionException {
 		return gameProvider.modify(game);
+	}
+
+	@Override
+	public Collection<Integer> deleteOldGames(long finishedTime, long time) {
+		Collection<Integer> deleted = gameProvider.deleteOldGames(finishedTime, time);
+		for(Integer id : deleted) {
+			cache.remove(id);
+		}
+		return deleted;
 	}
 }

@@ -23,12 +23,15 @@ public class DummyChatState implements ChatState {
 	}
 
 	@Override
-	public boolean addMessage(ChatMessage message) {
-		return true;
+	public void addMessage(ChatMessage message) {
 	}
 
 	@Override
-	public boolean deleteMessage(int gid, long time) {
-		return true;
+	public void deleteMessage(int gid, long time) {
+	}
+
+	@Override
+	public int deleteOldMessages(long time, int keep) {
+		return 0;
 	}
 }

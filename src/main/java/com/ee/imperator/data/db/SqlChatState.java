@@ -15,6 +15,7 @@ import org.ee.logger.Logger;
 import com.ee.imperator.Imperator;
 import com.ee.imperator.chat.ChatMessage;
 import com.ee.imperator.data.ChatState;
+import com.ee.imperator.exception.TransactionException;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.user.User;
 
@@ -65,7 +66,7 @@ public class SqlChatState extends CloseableDataSource implements ChatState {
 	}
 
 	@Override
-	public boolean addMessage(ChatMessage message) {
+	public void addMessage(ChatMessage message) throws TransactionException {
 		try(Connection conn = dataSource.getConnection()) {
 			PreparedStatement statement = conn.prepareStatement("INSERT INTO `chat` (`gid`, `message`, `time`, `uid`) VALUES(?, ?, ?, ?)");
 			int gid = message.getGame() == null ? 0 : message.getGame().getId();
@@ -75,25 +76,42 @@ public class SqlChatState extends CloseableDataSource implements ChatState {
 			statement.setInt(4, message.getUser().getId());
 			statement.execute();
 			conn.commit();
-			return true;
 		} catch(SQLException e) {
-			LOG.e("Failed to add chat message", e);
+			throw new TransactionException("Failed to add chat message", e);
 		}
-		return false;
 	}
 
 	@Override
-	public boolean deleteMessage(int gid, long time) {
+	public void deleteMessage(int gid, long time) throws TransactionException {
 		try(Connection conn = dataSource.getConnection()) {
 			PreparedStatement statement = conn.prepareStatement("DELETE FROM `chat` WHERE `gid` = ? AND `time` = ?");
 			statement.setInt(1, gid);
 			statement.setLong(2, time);
 			statement.execute();
 			conn.commit();
-			return true;
 		} catch(SQLException e) {
-			LOG.e("Failed to delete chat message", e);
+			throw new TransactionException("Failed to delete chat message", e);
 		}
-		return false;
+	}
+
+	@Override
+	public int deleteOldMessages(long time, int keep) {
+		try(Connection conn = dataSource.getConnection()) {
+			ResultSet result = conn.createStatement().executeQuery("SELECT COUNT(1) FROM `chat` WHERE `gid` = 0");
+			if(result.next()) {
+				int limit = Math.max(0, result.getInt(1) - keep);
+				if(limit > 0) {
+					PreparedStatement statement = conn.prepareStatement("DELETE FROM `chat` WHERE `time` < ? AND `gid` = 0 ORDER BY `time` ASC LIMIT ?");
+					statement.setLong(1, time);
+					statement.setInt(2, limit);
+					statement.execute();
+					conn.commit();
+					return limit;
+				}
+			}
+		} catch(SQLException e) {
+			LOG.e(e);
+		}
+		return 0;
 	}
 }

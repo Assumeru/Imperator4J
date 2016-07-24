@@ -15,10 +15,6 @@ public abstract class WebApplication extends Application {
 	private static ServletContext context;
 	private static Config config;
 
-	public WebApplication(ServletContext context) {
-		WebApplication.context = context;
-	}
-
 	@Override
 	public Set<Class<?>> getClasses() {
 		Set<Class<?>> classes = new HashSet<>();
@@ -30,6 +26,10 @@ public abstract class WebApplication extends Application {
 
 	public static ServletContext getContext() {
 		return context;
+	}
+
+	protected static void setContext(ServletContext context) {
+		WebApplication.context = context;
 	}
 
 	public static Config getConfig() {

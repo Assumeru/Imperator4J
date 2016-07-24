@@ -1,7 +1,8 @@
 package com.ee.imperator;
 
+import java.io.IOException;
+
 import javax.servlet.ServletContext;
-import javax.ws.rs.core.Context;
 
 import org.ee.config.Config;
 import org.ee.logger.LogManager;
@@ -21,6 +22,7 @@ import com.ee.imperator.exception.ConfigurationException;
 import com.ee.imperator.i18n.ClientSideLanguageProvider;
 import com.ee.imperator.map.MapProvider;
 import com.ee.imperator.request.RequestResolver;
+import com.ee.imperator.task.CleanUp;
 import com.ee.imperator.template.TemplateProvider;
 import com.ee.imperator.url.UrlBuilder;
 
@@ -32,9 +34,10 @@ public class Imperator extends WebApplication {
 	private static ClientSideLanguageProvider languageProvider;
 	private static TemplateProvider templateProvider;
 	private static MapProvider mapProvider;
+	private static CleanUp cleanup;
 
-	public Imperator(@Context ServletContext context) {
-		super(context);
+	public static void init(ServletContext context) {
+		setContext(context);
 		initConfig();
 		initState();
 		initHasher();
@@ -42,9 +45,11 @@ public class Imperator extends WebApplication {
 		languageProvider = getProviderInstance(ClientSideLanguageProvider.class);
 		templateProvider = getProviderInstance(TemplateProvider.class);
 		mapProvider = getProviderInstance(MapProvider.class);
+		cleanup = new CleanUp();
+		cleanup.start();
 	}
 
-	private void initConfig() {
+	private static void initConfig() {
 		try {
 			String config = System.getProperty("com.ee.imperator.Config");
 			if(config == null) {
@@ -110,5 +115,18 @@ public class Imperator extends WebApplication {
 
 	public static MapProvider getMapProvider() {
 		return mapProvider;
+	}
+
+	static void stop() {
+		if(cleanup != null) {
+			cleanup.stop();
+		}
+		if(state != null) {
+			try {
+				state.close();
+			} catch (IOException e) {
+				LOG.e("Failed to close dataProvider", e);
+			}
+		}
 	}
 }

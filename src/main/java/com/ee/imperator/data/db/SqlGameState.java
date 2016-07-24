@@ -18,8 +18,8 @@ import org.ee.sql.PreparedStatementBuilder;
 
 import com.ee.imperator.Imperator;
 import com.ee.imperator.data.BatchGameState;
+import com.ee.imperator.data.db.transaction.SqlGameTransaction;
 import com.ee.imperator.data.transaction.GameTransaction;
-import com.ee.imperator.data.transaction.sql.SqlGameTransaction;
 import com.ee.imperator.exception.TransactionException;
 import com.ee.imperator.game.Attack;
 import com.ee.imperator.game.Game;
@@ -205,7 +205,7 @@ public class SqlGameState extends CloseableDataSource implements BatchGameState 
 	}
 
 	@Override
-	public Game createGame(Player owner, com.ee.imperator.map.Map map, String name, String password) {
+	public Game createGame(Player owner, com.ee.imperator.map.Map map, String name, String password) throws TransactionException {
 		try(Connection conn = dataSource.getConnection()) {
 			StringBuilder query = new StringBuilder("INSERT INTO `games` (`map`, `name`, `uid`, `time`");
 			if(password != null) {
@@ -227,16 +227,14 @@ public class SqlGameState extends CloseableDataSource implements BatchGameState 
 			}
 			statement.execute();
 			ResultSet result = statement.getGeneratedKeys();
-			if(result.next()) {
-				Game game = new Game(result.getInt(1), map.copy(), name, owner, password, time);
-				addPlayerToGame(conn, owner, game);
-				conn.commit();
-				return game;
-			}
+			result.next();
+			Game game = new Game(result.getInt(1), map.copy(), name, owner, password, time);
+			addPlayerToGame(conn, owner, game);
+			conn.commit();
+			return game;
 		} catch(SQLException e) {
-			LOG.e("Failed to create game", e);
+			throw new TransactionException("Failed to create game", e);
 		}
-		return null;
 	}
 
 	private void addPlayerToGame(Connection conn, Player player, Game game) throws SQLException {
@@ -248,20 +246,22 @@ public class SqlGameState extends CloseableDataSource implements BatchGameState 
 	}
 
 	@Override
-	public boolean deleteGame(Game game) {
+	public void deleteGame(Game game) throws TransactionException {
 		try(Connection conn = dataSource.getConnection()) {
-			PreparedStatement statement = conn.prepareStatement("DELETE FROM `chat` WHERE `gid` = ?");
-			statement.setInt(1, game.getId());
-			statement.execute();
-			statement = conn.prepareStatement("DELETE FROM `games` WHERE `gid` = ?");
-			statement.setInt(1, game.getId());
-			statement.execute();
+			deleteGame(conn, game.getId());
 			conn.commit();
-			return true;
 		} catch (SQLException e) {
-			LOG.e("Failed to delete game", e);
+			throw new TransactionException("Failed to delete game", e);
 		}
-		return false;
+	}
+
+	private void deleteGame(Connection conn, int id) throws SQLException {
+		PreparedStatement statement = conn.prepareStatement("DELETE FROM `chat` WHERE `gid` = ?");
+		statement.setInt(1, id);
+		statement.execute();
+		statement = conn.prepareStatement("DELETE FROM `games` WHERE `gid` = ?");
+		statement.setInt(1, id);
+		statement.execute();
 	}
 
 	@Override
@@ -308,5 +308,26 @@ public class SqlGameState extends CloseableDataSource implements BatchGameState 
 		} catch (SQLException e) {
 			throw new TransactionException(e);
 		}
+	}
+
+	@Override
+	public Collection<Integer> deleteOldGames(long finishedTime, long time) {
+		List<Integer> ids = new ArrayList<>();
+		try(Connection conn = dataSource.getConnection()) {
+			PreparedStatement statement = conn.prepareStatement("SELECT `gid` FROM `games` WHERE (`state` = ? AND `time` < ?) OR `time` < ?");
+			statement.setInt(1, Game.State.FINISHED.ordinal());
+			statement.setLong(2, finishedTime);
+			statement.setLong(3, time);
+			ResultSet result = statement.executeQuery();
+			while(result.next()) {
+				int id = result.getInt(1);
+				deleteGame(conn, id);
+				ids.add(id);
+			}
+			conn.commit();
+		} catch(SQLException e) {
+			LOG.e(e);
+		}
+		return ids;
 	}
 }

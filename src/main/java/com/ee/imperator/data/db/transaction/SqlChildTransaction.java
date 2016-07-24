@@ -1,4 +1,4 @@
-package com.ee.imperator.data.transaction.sql;
+package com.ee.imperator.data.db.transaction;
 
 import com.ee.imperator.data.transaction.Revertible;
 import com.ee.imperator.exception.TransactionException;

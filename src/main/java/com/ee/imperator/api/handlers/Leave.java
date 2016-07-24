@@ -27,9 +27,7 @@ public class Leave {
 			if(game.hasStarted() || game.hasEnded()) {
 				throw new InvalidRequestException("Cannot delete game after starting", "game", "leave");
 			}
-			if(!Imperator.getState().deleteGame(game)) {
-				throw new RequestException("Failed to delete game", "game", "leave");
-			}
+			Imperator.getState().deleteGame(game);
 		} else {
 			game.removePlayer(player);
 		}

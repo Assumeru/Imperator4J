@@ -9,7 +9,7 @@ import com.ee.imperator.map.HasFlag;
 import com.ee.imperator.map.Map;
 
 public class DefaultUrlBuilder implements UrlBuilder {
-	private String contextPath;
+	private final String contextPath;
 
 	public DefaultUrlBuilder() {
 		String contextPath = Imperator.getContext().getContextPath();

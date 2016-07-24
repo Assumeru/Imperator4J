@@ -31,7 +31,7 @@ public class TestGame {
 	@Before
 	public void init() throws TransactionException, RequestException {
 		System.setProperty("com.ee.imperator.Config", Config.class.getName());
-		new Imperator(null);
+		Imperator.init(null);
 		createGame();
 		addPlayers();
 		TestApi.INSTANCE.startGame(game);
@@ -219,7 +219,7 @@ public class TestGame {
 		endTurn();
 	}
 
-	private void createGame() {
+	private void createGame() throws TransactionException {
 		player1 = new Player(Imperator.getState().getMember(1));
 		player1.setColor("FF0000");
 		Map map = Imperator.getMapProvider().getMap(0);

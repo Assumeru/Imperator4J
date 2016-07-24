@@ -1,6 +1,7 @@
 package com.ee.imperator.data;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 
 import org.ee.web.request.Request;
@@ -42,13 +43,13 @@ public class JoinedState implements State {
 	}
 
 	@Override
-	public Game createGame(Player owner, Map map, String name, String password) {
+	public Game createGame(Player owner, Map map, String name, String password) throws TransactionException {
 		return gameProvider.createGame(owner, map, name, password);
 	}
 
 	@Override
-	public boolean deleteGame(Game game) {
-		return gameProvider.deleteGame(game);
+	public void deleteGame(Game game) throws TransactionException {
+		gameProvider.deleteGame(game);
 	}
 
 	@Override
@@ -59,6 +60,11 @@ public class JoinedState implements State {
 	@Override
 	public GameTransaction modify(Game game) throws TransactionException {
 		return gameProvider.modify(game);
+	}
+
+	@Override
+	public Collection<Integer> deleteOldGames(long finishedTime, long time) {
+		return gameProvider.deleteOldGames(finishedTime, time);
 	}
 
 	@Override
@@ -105,12 +111,17 @@ public class JoinedState implements State {
 	}
 
 	@Override
-	public boolean addMessage(ChatMessage message) {
-		return chatProvider.addMessage(message);
+	public void addMessage(ChatMessage message) throws TransactionException {
+		chatProvider.addMessage(message);
 	}
 
 	@Override
-	public boolean deleteMessage(int gid, long time) {
-		return chatProvider.deleteMessage(gid, time);
+	public void deleteMessage(int gid, long time) throws TransactionException {
+		chatProvider.deleteMessage(gid, time);
+	}
+
+	@Override
+	public int deleteOldMessages(long time, int keep) {
+		return chatProvider.deleteOldMessages(time, keep);
 	}
 }

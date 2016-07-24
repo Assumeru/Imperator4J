@@ -23,6 +23,8 @@ public interface GameTransaction extends Transaction {
 
 	/**
 	 * Creates a child transaction for one of this game's territories.
+	 * <p>
+	 * Calling this method for the same territory returns the same transaction.
 	 * 
 	 * @param territory The territory's id
 	 * @return A transaction for the given territory
