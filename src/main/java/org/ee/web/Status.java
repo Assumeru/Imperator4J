@@ -37,4 +37,17 @@ public class Status {
 	public Family getFamily() {
 		return Family.of(code);
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(obj instanceof Status) {
+			return ((Status) obj).code == code;
+		}
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		return 31 * code;
+	}
 }

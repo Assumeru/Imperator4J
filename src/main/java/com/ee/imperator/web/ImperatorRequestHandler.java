@@ -24,11 +24,7 @@ import com.ee.imperator.web.page.Http500;
 
 public class ImperatorRequestHandler extends RequestFilterHandler {
 	private static final Logger LOG = LogManager.createLogger();
-	private static final Map<Status, RequestHandler> STATUS_PAGES = new MapBuilder<Status, RequestHandler>()
-			.put(Status.FORBIDDEN, new Http403())
-			.put(Status.NOT_FOUND, new Http404())
-			.put(Status.INTERNAL_SERVER_ERROR, new Http500())
-			.build(true);
+	private final Map<Status, WebPage> statusPages;
 	private final ImperatorApplicationContext context;
 	private final List<RequestFilter> navigationPages;
 
@@ -36,6 +32,12 @@ public class ImperatorRequestHandler extends RequestFilterHandler {
 		super(initRequestHandlers());
 		this.context = context;
 		this.navigationPages = init();
+		statusPages = new MapBuilder<Status, WebPage>()
+				.put(Status.FORBIDDEN, new Http403())
+				.put(Status.NOT_FOUND, new Http404())
+				.put(Status.INTERNAL_SERVER_ERROR, new Http500())
+				.build(true);
+		statusPages.values().forEach(p -> p.setRequestHandler(this));
 	}
 
 	private static Set<RequestFilter> initRequestHandlers() {
@@ -76,7 +78,7 @@ public class ImperatorRequestHandler extends RequestFilterHandler {
 
 	@Override
 	protected RequestHandler getStatusPage(Status status) {
-		return STATUS_PAGES.get(status);
+		return statusPages.get(status);
 	}
 
 	public ImperatorApplicationContext getContext() {
