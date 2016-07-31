@@ -7,7 +7,7 @@ import java.util.Map;
 import org.ee.cache.SoftReferenceCache;
 import org.ee.web.request.Request;
 
-import com.ee.imperator.Imperator;
+import com.ee.imperator.ImperatorApplicationContext;
 import com.ee.imperator.data.MemberState;
 import com.ee.imperator.user.Member;
 
@@ -20,8 +20,8 @@ public class CachedMemberState implements MemberState {
 		cache = new SoftReferenceCache<>(timeToKeep);
 	}
 
-	public CachedMemberState(MemberState memberProvider) {
-		this(memberProvider, Imperator.getConfig().getLong(CachedMemberState.class, "timeToKeep"));
+	public CachedMemberState(MemberState memberProvider, ImperatorApplicationContext context) {
+		this(memberProvider, context.getConfig().getLong(CachedMemberState.class, "timeToKeep"));
 	}
 
 	@Override

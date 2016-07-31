@@ -20,9 +20,9 @@
 			<button th:if="${canKick &amp;&amp; !player.equals(ctx.user)}" class="btn btn-danger" th:title="${i18n.__('Kick')}" th:attr="data-kick=${player.id}"><span class="glyphicon glyphicon-remove"></span></button>
 		</li>
 	</ul>
-	<div th:if="${game.inviteCode != null &amp;&amp; game.players.contains(ctx.user)}">
+	<div th:if="${game.getInviteCode(ctx) != null &amp;&amp; game.players.contains(ctx.user)}">
 		<h4 th:text="${i18n.__('Invite code')}"></h4>
-		<p><code><a th:href="@{${url.game(game)}(code=${game.inviteCode})}" th:text="${game.inviteCode}"></a></code></p>
+		<p><code><a th:href="@{${url.game(game)}(code=${game.getInviteCode(ctx)})}" th:text="${game.getInviteCode(ctx)}"></a></code></p>
 	</div>
 </section>
 <section id="owner-controls" th:if="${game.owner.equals(ctx.user)}">

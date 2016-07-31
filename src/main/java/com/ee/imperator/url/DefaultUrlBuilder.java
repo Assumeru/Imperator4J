@@ -3,7 +3,7 @@ package com.ee.imperator.url;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
-import com.ee.imperator.Imperator;
+import com.ee.imperator.ImperatorApplicationContext;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.map.HasFlag;
 import com.ee.imperator.map.Map;
@@ -11,8 +11,8 @@ import com.ee.imperator.map.Map;
 public class DefaultUrlBuilder implements UrlBuilder {
 	private final String contextPath;
 
-	public DefaultUrlBuilder() {
-		String contextPath = Imperator.getContext().getContextPath();
+	public DefaultUrlBuilder(ImperatorApplicationContext context) {
+		String contextPath = context.getContextPath();
 		if(contextPath.endsWith("/")) {
 			this.contextPath = contextPath.substring(0, contextPath.length() - 1);
 		} else {

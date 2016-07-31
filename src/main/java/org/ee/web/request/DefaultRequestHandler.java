@@ -1,28 +1,22 @@
 package org.ee.web.request;
 
-import javax.ws.rs.core.Response;
+import org.ee.web.Status;
+import org.ee.web.response.Response;
+import org.ee.web.response.SimpleResponse;
 
-import org.ee.web.request.page.Ignore;
-
-@Ignore
 public class DefaultRequestHandler implements RequestHandler {
-	private final int status;
+	private final Status status;
 
 	public DefaultRequestHandler() {
-		this(Response.Status.OK.getStatusCode());
+		this(Status.NO_CONTENT);
 	}
 
-	public DefaultRequestHandler(int status) {
+	public DefaultRequestHandler(Status status) {
 		this.status = status;
 	}
 
 	@Override
-	public boolean matches(String path) {
-		return true;
-	}
-
-	@Override
-	public Response getResponse(Request request) {
-		return Response.status(status).build();
+	public Response handle(Request request) {
+		return new SimpleResponse(status);
 	}
 }

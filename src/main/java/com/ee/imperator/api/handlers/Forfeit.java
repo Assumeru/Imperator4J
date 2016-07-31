@@ -1,6 +1,6 @@
 package com.ee.imperator.api.handlers;
 
-import com.ee.imperator.Imperator;
+import com.ee.imperator.ImperatorApplicationContext;
 import com.ee.imperator.exception.InvalidRequestException;
 import com.ee.imperator.exception.RequestException;
 import com.ee.imperator.exception.TransactionException;
@@ -10,10 +10,16 @@ import com.ee.imperator.user.Member;
 
 @Request(mode = "game", type = "forfeit")
 public class Forfeit {
+	private final ImperatorApplicationContext context;
+
+	public Forfeit(ImperatorApplicationContext context) {
+		this.context = context;
+	}
+
 	public void handle(Member member, @Param("gid") int gid) throws RequestException, TransactionException {
-		Game game = Imperator.getState().getGame(gid);
+		Game game = context.getState().getGame(gid);
 		checkParams(game, member);
-		game.forfeit(game.getPlayerById(member.getId()));
+		game.forfeit(context, game.getPlayerById(member.getId()));
 	}
 
 	private void checkParams(Game game, Member member) throws InvalidRequestException {

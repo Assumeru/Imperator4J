@@ -8,7 +8,7 @@ import java.util.Locale;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.ee.imperator.Imperator;
+import com.ee.imperator.ImperatorApplicationContext;
 import com.ee.imperator.api.Api;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.game.log.LogEntry;
@@ -20,18 +20,24 @@ import com.ee.imperator.user.User;
 
 @Request(mode = "update", type = "game")
 public class GameUpdate {
+	protected final ImperatorApplicationContext context;
+
+	public GameUpdate(ImperatorApplicationContext context) {
+		this.context = context;
+	}
+
 	public JSONObject handle(Member member, @Param("gid") int gid, @Param("time") long time) {
-		Game game = Imperator.getState().getGame(gid);
+		Game game = context.getState().getGame(gid);
 		JSONObject output = new JSONObject()
 				.put("update", System.currentTimeMillis());
 		if(game == null) {
 			output.put("gameState", member.getLanguage().translate("This game has been disbanded."))
-					.put("redirect", Imperator.getUrlBuilder().buildLink(""));
+					.put("redirect", context.getUrlBuilder().buildLink(""));
 			return output;
 		}
 		output.put("state", game.getState().ordinal());
 		if(game.getPlayers().contains(member)) {
-			output.put("messages", ChatUpdate.getMessages(gid, time));
+			output.put("messages", ChatUpdate.getMessages(gid, time, context));
 		}
 		if(game.getTime() > time && game.getState() != Game.State.FINISHED) {
 			fillOutput(time, game, member, output);
@@ -63,7 +69,7 @@ public class GameUpdate {
 		JSONArray combatLog = new JSONArray();
 		output.put("combatlog", combatLog);
 		DateFormat format = new SimpleDateFormat(Api.DATE_ATOM, Locale.US);
-		for(LogEntry entry : Imperator.getState().getCombatLogs(game, time)) {
+		for(LogEntry entry : context.getState().getCombatLogs(game, time)) {
 			combatLog.put(new JSONObject()
 					.put("type", entry.getType().ordinal())
 					.put("time", format.format(new Date(entry.getTime())))
@@ -118,8 +124,8 @@ public class GameUpdate {
 		}
 	}
 
-	static boolean playerInGame(User user, int gid) {
-		Game game = Imperator.getState().getGame(gid);
+	static boolean playerInGame(User user, int gid, ImperatorApplicationContext context) {
+		Game game = context.getState().getGame(gid);
 		if(game != null) {
 			return game.getPlayers().contains(user);
 		}

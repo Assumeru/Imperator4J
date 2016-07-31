@@ -1,6 +1,12 @@
 package com.ee.imperator.test;
 
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 
 import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
@@ -22,6 +28,8 @@ import com.ee.imperator.user.Player;
 public class TestGame {
 	private static final Logger LOG = LogManager.createLogger();
 	private static final int[] CARD_COMBINATIONS = {10, 8, 6, 4};
+	private Imperator imperator;
+	private TestApi api;
 	private Game game;
 	private Player player1;
 	private Player player2;
@@ -29,12 +37,34 @@ public class TestGame {
 	private java.util.Map<Player, Territory> territories = new HashMap<>();
 
 	@Before
-	public void init() throws TransactionException, RequestException {
+	public void init() throws TransactionException, RequestException, ServletException {
 		System.setProperty("com.ee.imperator.Config", Config.class.getName());
-		Imperator.init(null);
+		imperator = new Imperator();
+		imperator.init(new ServletConfig() {
+			@Override
+			public String getServletName() {
+				return "test";
+			}
+			
+			@Override
+			public ServletContext getServletContext() {
+				return null;
+			}
+			
+			@Override
+			public Enumeration<String> getInitParameterNames() {
+				return Collections.emptyEnumeration();
+			}
+			
+			@Override
+			public String getInitParameter(String name) {
+				return null;
+			}
+		});
+		api = new TestApi(imperator.getApi());
 		createGame();
 		addPlayers();
-		TestApi.INSTANCE.startGame(game);
+		api.startGame(game);
 		skipTo(player1);
 	}
 
@@ -220,19 +250,19 @@ public class TestGame {
 	}
 
 	private void createGame() throws TransactionException {
-		player1 = new Player(Imperator.getState().getMember(1));
+		player1 = new Player(imperator.getState().getMember(1));
 		player1.setColor("FF0000");
-		Map map = Imperator.getMapProvider().getMap(0);
-		game = Imperator.getState().createGame(player1, map, "Test game", null);
+		Map map = imperator.getMapProvider().getMap(0);
+		game = imperator.getState().createGame(player1, map, "Test game", null);
 	}
 
 	private void addPlayers() throws RequestException {
-		player2 = new Player(Imperator.getState().getMember(2));
+		player2 = new Player(imperator.getState().getMember(2));
 		player2.setColor("00FF00");
-		player3 = new Player(Imperator.getState().getMember(3));
+		player3 = new Player(imperator.getState().getMember(3));
 		player3.setColor("0000FF");
-		TestApi.INSTANCE.joinGame(game, player2);
-		TestApi.INSTANCE.joinGame(game, player3);
+		api.joinGame(game, player2);
+		api.joinGame(game, player3);
 	}
 
 	private void skipTo(Player player) {
@@ -243,42 +273,42 @@ public class TestGame {
 
 	private void endTurn() {
 		Player player = game.getCurrentPlayer();
-		TestApi.INSTANCE.handle(new TestApi.EndTurn(player, null));
+		api.handle(new TestApi.EndTurn(player, null));
 		LOG.i(player.getId() + " ended turn");
 	}
 
 	private void stack(Player player, Territory territory, int units) {
-		TestApi.INSTANCE.handle(new TestApi.Stack(player, territory, units));
+		api.handle(new TestApi.Stack(player, territory, units));
 		LOG.i("Placed " + units + " units in " + territory.getId());
 	}
 
 	private void fortify(Player player) {
-		TestApi.INSTANCE.handle(new TestApi.Fortify(player));
+		api.handle(new TestApi.Fortify(player));
 		LOG.i(player.getId() + " fortified");
 	}
 
 	private void attack(Player player, Territory from, Territory to, int units, int move) {
-		TestApi.INSTANCE.handle(new TestApi.Attack(player, from, to, units, move));
+		api.handle(new TestApi.Attack(player, from, to, units, move));
 		LOG.i(from.getId() + " attacked " + to.getId());
 	}
 
 	private void startMove() {
-		TestApi.INSTANCE.handle(new TestApi.StartMove(game.getCurrentPlayer()));
+		api.handle(new TestApi.StartMove(game.getCurrentPlayer()));
 		LOG.i("started moving units");
 	}
 
 	private void moveUnits(Player player, Territory from, Territory to, int move) {
-		TestApi.INSTANCE.handle(new TestApi.MoveUnits(player, from, to, move));
+		api.handle(new TestApi.MoveUnits(player, from, to, move));
 		LOG.i(move + " moved from " + from.getId() + " to " + to.getId());
 	}
 
 	private void playCards(Player player, int combo) {
-		TestApi.INSTANCE.handle(new TestApi.PlayCards(player, combo));
+		api.handle(new TestApi.PlayCards(player, combo));
 		LOG.i(player.getId() + " played cards for " + combo + " units");
 	}
 
 	private void forfeit(Player player) {
-		TestApi.INSTANCE.handle(new TestApi.Forfeit(player));
+		api.handle(new TestApi.Forfeit(player));
 		LOG.i(player.getId() + " forfeited");
 	}
 }

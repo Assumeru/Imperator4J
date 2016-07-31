@@ -15,7 +15,7 @@ import org.ee.crypt.Hasher;
 import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
 
-import com.ee.imperator.Imperator;
+import com.ee.imperator.ImperatorApplicationContext;
 import com.ee.imperator.data.transaction.GameTransaction;
 import com.ee.imperator.data.transaction.PlayerTransaction;
 import com.ee.imperator.data.transaction.TerritoryTransaction;
@@ -106,7 +106,7 @@ public class Game implements Comparable<Game> {
 		return owner;
 	}
 
-	public void addPlayer(Player player) throws TransactionException {
+	public void addPlayer(ImperatorApplicationContext context, Player player) throws TransactionException {
 		synchronized(players) {
 			if(!players.contains(player)) {
 				if(hasStarted() || hasEnded()) {
@@ -119,7 +119,7 @@ public class Game implements Comparable<Game> {
 						throw new IllegalArgumentException("Color already in use");
 					}
 				}
-				try(GameTransaction transaction = Imperator.getState().modify(this)) {
+				try(GameTransaction transaction = context.getState().modify(this)) {
 					transaction.addPlayer(player);
 					transaction.setTime(System.currentTimeMillis());
 					transaction.commit();
@@ -129,12 +129,12 @@ public class Game implements Comparable<Game> {
 		}
 	}
 
-	public void removePlayer(Player player) throws TransactionException {
+	public void removePlayer(ImperatorApplicationContext context, Player player) throws TransactionException {
 		synchronized(players) {
 			if(hasStarted() || hasEnded()) {
 				throw new IllegalStateException("Cannot remove players after starting");
 			}
-			try(GameTransaction transaction = Imperator.getState().modify(this)) {
+			try(GameTransaction transaction = context.getState().modify(this)) {
 				transaction.removePlayer(player);
 				transaction.setTime(System.currentTimeMillis());
 				transaction.commit();
@@ -192,20 +192,20 @@ public class Game implements Comparable<Game> {
 		return units;
 	}
 
-	public String getInviteCode() {
+	public String getInviteCode(ImperatorApplicationContext context) {
 		if(password == null) {
 			return null;
 		} else if(inviteCode == null) {
-			generateInviteCode();
+			generateInviteCode(context);
 		}
 		return inviteCode;
 	}
 
-	private synchronized void generateInviteCode() {
+	private synchronized void generateInviteCode(ImperatorApplicationContext context) {
 		if(inviteCode == null) {
 			try {
 				byte[] input = (id + password).getBytes("UTF-8");
-				inviteCode = new Hasher(Imperator.getConfig().getString(getClass(), "inviteCode", "MD5")).digest(input).toString(16);
+				inviteCode = new Hasher(context.getConfig().getString(getClass(), "inviteCode", "MD5")).digest(input).toString(16);
 			} catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
 				LOG.e(e);
 			}
@@ -253,13 +253,13 @@ public class Game implements Comparable<Game> {
 		return c;
 	}
 
-	public void start() throws TransactionException {
+	public void start(ImperatorApplicationContext context) throws TransactionException {
 		synchronized(players) {
 			if(players.size() != map.getPlayers()) {
 				throw new IllegalStateException("Incorrect player amount");
 			}
 			Random random = new Random();
-			try(GameTransaction transaction = Imperator.getState().modify(this)) {
+			try(GameTransaction transaction = context.getState().modify(this)) {
 				distributeTerritories(random, transaction);
 				distributeMissions(random, transaction);
 				transaction.setCurrentTurn(players.get(random.nextInt(players.size())));
@@ -302,8 +302,8 @@ public class Game implements Comparable<Game> {
 		}
 	}
 
-	public Card endTurn(Card discard) throws TransactionException {
-		try(GameTransaction transaction = Imperator.getState().modify(this)) {
+	public Card endTurn(ImperatorApplicationContext context, Card discard) throws TransactionException {
+		try(GameTransaction transaction = context.getState().modify(this)) {
 			Card random = null;
 			if(conquered && (discard != null && currentTurn.getCards().contains(discard) || currentTurn.getCards().size() < Cards.MAX_CARDS)) {
 				random = Card.getRandom(currentTurn.getCards());
@@ -358,8 +358,8 @@ public class Game implements Comparable<Game> {
 		}
 	}
 
-	public void forfeit(Player player) throws TransactionException {
-		try(GameTransaction transaction = Imperator.getState().modify(this)) {
+	public void forfeit(ImperatorApplicationContext context, Player player) throws TransactionException {
+		try(GameTransaction transaction = context.getState().modify(this)) {
 			PlayerTransaction playerTransaction = transaction.getPlayer(player);
 			playerTransaction.setState(Player.State.GAME_OVER);
 			playerTransaction.setAutoRoll(true);
@@ -427,8 +427,8 @@ public class Game implements Comparable<Game> {
 		return conquered;
 	}
 
-	public void moveUnits(Territory from, Territory to, int move) throws TransactionException {
-		try(GameTransaction transaction = Imperator.getState().modify(this)) {
+	public void moveUnits(ImperatorApplicationContext context, Territory from, Territory to, int move) throws TransactionException {
+		try(GameTransaction transaction = context.getState().modify(this)) {
 			transaction.setUnits(units - move);
 			transaction.getTerritory(from).setUnits(from.getUnits() - move);
 			transaction.getTerritory(to).setUnits(to.getUnits() + move);
@@ -436,9 +436,9 @@ public class Game implements Comparable<Game> {
 		}
 	}
 
-	public void defend(Attack attack, int units) throws TransactionException {
+	public void defend(ImperatorApplicationContext context, Attack attack, int units) throws TransactionException {
 		attack.rollDefence(units);
-		try(GameTransaction transaction = Imperator.getState().modify(this)) {
+		try(GameTransaction transaction = context.getState().modify(this)) {
 			executeAttack(attack, transaction);
 			transaction.getAttacks().remove(attack);
 			transaction.commit();

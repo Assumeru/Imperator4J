@@ -1,6 +1,6 @@
 package com.ee.imperator.exception;
 
-import javax.ws.rs.core.Response.Status;
+import org.ee.web.Status;
 
 public class InvalidRequestException extends RequestException {
 	private static final long serialVersionUID = 4361443940202449253L;

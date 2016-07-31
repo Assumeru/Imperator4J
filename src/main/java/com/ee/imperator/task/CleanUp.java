@@ -5,11 +5,12 @@ import java.util.Collection;
 import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
 
-import com.ee.imperator.Imperator;
+import com.ee.imperator.ImperatorApplicationContext;
 import com.ee.imperator.exception.ConfigurationException;
 
 public class CleanUp implements Runnable {
 	private static final Logger LOG = LogManager.createLogger();
+	private final ImperatorApplicationContext context;
 	private final long maxFinishedGameAge;
 	private final long inactiveGameTime;
 	private final long maxChatMessageAge;
@@ -18,7 +19,8 @@ public class CleanUp implements Runnable {
 	private boolean running;
 	private Thread thread;
 
-	public CleanUp() {
+	public CleanUp(ImperatorApplicationContext context) {
+		this.context = context;
 		maxFinishedGameAge = getLongSetting("maxFinishedGameAge");
 		inactiveGameTime = getLongSetting("inactiveGameTime");
 		maxChatMessageAge = getLongSetting("maxChatMessageAge");
@@ -27,7 +29,7 @@ public class CleanUp implements Runnable {
 	}
 
 	private long getLongSetting(String key) {
-		Long value = Imperator.getConfig().getLong(CleanUp.class, key);
+		Long value = context.getConfig().getLong(CleanUp.class, key);
 		if(value == null) {
 			throw new ConfigurationException("Missing config value for " + key);
 		}
@@ -35,7 +37,7 @@ public class CleanUp implements Runnable {
 	}
 
 	private int getIntSetting(String key) {
-		Integer value = Imperator.getConfig().getInt(CleanUp.class, key);
+		Integer value = context.getConfig().getInt(CleanUp.class, key);
 		if(value == null) {
 			throw new ConfigurationException("Missing config value for " + key);
 		}
@@ -46,9 +48,9 @@ public class CleanUp implements Runnable {
 	public void run() {
 		while(running) {
 			long time = System.currentTimeMillis();
-			Collection<Integer> games = Imperator.getState().deleteOldGames(time - maxFinishedGameAge, time - inactiveGameTime);
+			Collection<Integer> games = context.getState().deleteOldGames(time - maxFinishedGameAge, time - inactiveGameTime);
 			LOG.i("Deleted " + games.size() + " games");
-			int messages = Imperator.getState().deleteOldMessages(time - maxChatMessageAge, numberOfMessagesToKeep);
+			int messages = context.getState().deleteOldMessages(time - maxChatMessageAge, numberOfMessagesToKeep);
 			LOG.i("Deleted " + messages + " chat messages");
 			try {
 				Thread.sleep(sleep);

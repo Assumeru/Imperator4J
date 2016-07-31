@@ -3,7 +3,7 @@ package com.ee.imperator.api.handlers;
 import org.ee.i18n.Language;
 import org.json.JSONObject;
 
-import com.ee.imperator.Imperator;
+import com.ee.imperator.ImperatorApplicationContext;
 import com.ee.imperator.exception.InvalidRequestException;
 import com.ee.imperator.exception.RequestException;
 import com.ee.imperator.exception.TransactionException;
@@ -13,8 +13,14 @@ import com.ee.imperator.user.Member;
 
 @Request(mode = "game", type = "move")
 public class MoveUnits {
+	private final ImperatorApplicationContext context;
+
+	public MoveUnits(ImperatorApplicationContext context) {
+		this.context = context;
+	}
+
 	public JSONObject handle(Member member, @Param("gid") int gid, @Param("to") String tid, @Param("from") String fid, @Param("move") int move) throws RequestException, TransactionException {
-		Game game = Imperator.getState().getGame(gid);
+		Game game = context.getState().getGame(gid);
 		checkParameters(game, member, move);
 		Territory to = game.getMap().getTerritories().get(tid);
 		Territory from = game.getMap().getTerritories().get(fid);
@@ -23,7 +29,7 @@ public class MoveUnits {
 		} else if(!from.getOwner().equals(member) || !to.getOwner().equals(member) || move >= from.getUnits() || move < 1 || !from.getBorders().contains(to)) {
 			throw new InvalidRequestException("Invalid move", "game", "move");
 		}
-		game.moveUnits(from, to, move);
+		game.moveUnits(context, from, to, move);
 		return new JSONObject()
 				.put("territories", new JSONObject()
 						.put(to.getId(), new JSONObject()

@@ -7,7 +7,8 @@ import com.ee.imperator.game.Game;
 import com.ee.imperator.user.Player;
 
 public class InternalApi extends ApiImplementation {
-	InternalApi() {
+	InternalApi(Api api) {
+		super(api);
 	}
 
 	public void joinGame(Game game, Player player) throws RequestException {

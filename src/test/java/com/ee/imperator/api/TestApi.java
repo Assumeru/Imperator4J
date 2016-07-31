@@ -12,8 +12,6 @@ import com.ee.imperator.user.Member;
 import com.ee.imperator.user.Player;
 
 public class TestApi extends InternalApi {
-	public static final TestApi INSTANCE = new TestApi();
-
 	public static class Context {
 		private final Member member;
 		private final Map<String, ?> variables;
@@ -115,7 +113,8 @@ public class TestApi extends InternalApi {
 		}
 	}
 
-	private TestApi() {
+	public TestApi(Api api) {
+		super(api);
 	}
 
 	public String handle(com.ee.imperator.api.TestApi.Context input) {

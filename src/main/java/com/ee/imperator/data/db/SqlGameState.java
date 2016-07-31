@@ -16,7 +16,7 @@ import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
 import org.ee.sql.PreparedStatementBuilder;
 
-import com.ee.imperator.Imperator;
+import com.ee.imperator.ImperatorApplicationContext;
 import com.ee.imperator.data.BatchGameState;
 import com.ee.imperator.data.db.transaction.SqlGameTransaction;
 import com.ee.imperator.data.transaction.GameTransaction;
@@ -38,9 +38,11 @@ import com.mysql.cj.api.jdbc.Statement;
 
 public class SqlGameState extends CloseableDataSource implements BatchGameState {
 	private static final Logger LOG = LogManager.createLogger();
+	private final ImperatorApplicationContext context;
 
-	public SqlGameState(DataSource dataSource) {
+	public SqlGameState(DataSource dataSource, ImperatorApplicationContext context) {
 		super(dataSource);
+		this.context = context;
 	}
 
 	@Override
@@ -131,7 +133,7 @@ public class SqlGameState extends CloseableDataSource implements BatchGameState 
 		while(result.next()) {
 			try {
 				int id = result.getInt(1);
-				com.ee.imperator.map.Map map = Imperator.getMapProvider().getMap(result.getInt(2)).copy();
+				com.ee.imperator.map.Map map = context.getMapProvider().getMap(result.getInt(2)).copy();
 				Map<Integer, Player> players = loadPlayers(id, map.getMissions());
 				Game game = new Game(id, map, result.getString(3), result.getInt(4), result.getInt(5), result.getLong(6), Game.State.values()[result.getInt(7)], result.getInt(8), result.getBoolean(9), result.getString(10), players.values());
 				loadTerritories(game, conn);
@@ -155,7 +157,7 @@ public class SqlGameState extends CloseableDataSource implements BatchGameState 
 			statement.setInt(1, id);
 			ResultSet result = statement.executeQuery();
 			while(result.next()) {
-				Player player = new Player(Imperator.getState().getMember(result.getInt(1)));
+				Player player = new Player(context.getState().getMember(result.getInt(1)));
 				player.setColor(result.getString(2));
 				player.setAutoRoll(result.getBoolean(3));
 				Integer muid = result.getInt(5);

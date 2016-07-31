@@ -2,7 +2,7 @@ package com.ee.imperator.api.handlers;
 
 import org.json.JSONObject;
 
-import com.ee.imperator.Imperator;
+import com.ee.imperator.ImperatorApplicationContext;
 import com.ee.imperator.exception.InvalidRequestException;
 import com.ee.imperator.exception.RequestException;
 import com.ee.imperator.exception.TransactionException;
@@ -12,11 +12,17 @@ import com.ee.imperator.user.Member;
 
 @Request(mode = "game", type = "defend")
 public class Defend {
+	private final ImperatorApplicationContext context;
+
+	public Defend(ImperatorApplicationContext context) {
+		this.context = context;
+	}
+
 	public JSONObject handle(Member member, @Param("gid") int gid, @Param("to") String tid, @Param("from") String fid, @Param("units") int units) throws RequestException, TransactionException {
 		if(units < 1 || units > Game.MAX_DEFENDERS) {
 			throw new InvalidRequestException("Invalid number of defenders", "game", "defend");
 		}
-		Game game = Imperator.getState().getGame(gid);
+		Game game = context.getState().getGame(gid);
 		if(game == null) {
 			throw new InvalidRequestException("Game does not exist", "game", "defend");
 		}
@@ -28,7 +34,7 @@ public class Defend {
 			throw new InvalidRequestException("Not your territory", "game", "defend");
 		}
 		com.ee.imperator.game.Attack attack = getAttack(game, to, from);
-		game.defend(attack, units);
+		game.defend(context, attack, units);
 		return Attack.getAttackResponse(game, to, from, attack);
 	}
 

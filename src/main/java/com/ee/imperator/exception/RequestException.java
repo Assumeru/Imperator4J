@@ -1,8 +1,7 @@
 package com.ee.imperator.exception;
 
-import javax.ws.rs.core.Response.Status;
-
 import org.ee.i18n.Language;
+import org.ee.web.Status;
 
 import com.ee.imperator.api.Api;
 

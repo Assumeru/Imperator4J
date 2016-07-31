@@ -7,46 +7,39 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.io.IOUtils;
 import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
+import org.ee.web.Status;
+import org.ee.web.request.filter.RequestFilter;
+import org.ee.web.response.Response;
+import org.ee.web.response.SimpleResponse;
 
-public abstract class ResourceHandler implements RequestHandler {
+public abstract class ResourceHandler implements RequestFilter {
 	private static final Logger LOG = LogManager.createLogger();
 
 	@Override
-	public Response getResponse(Request request) {
+	public Response handle(Request request) {
 		final File file = getFile(request);
-		final ByteArrayOutputStream response = new ByteArrayOutputStream();
+		final ByteArrayOutputStream output = new ByteArrayOutputStream();
 		try(InputStream input = new BufferedInputStream(new FileInputStream(file))) {
-			IOUtils.copy(input, response);
+			IOUtils.copy(input, output);
 		} catch (FileNotFoundException e) {
-			LOG.w("Could not find resource for " + file);
-			return Response.status(Status.NOT_FOUND).build();
+			LOG.w("Could not find resource", e);
+			return new SimpleResponse(Status.NOT_FOUND);
 		} catch (IOException e) {
 			LOG.e("Error reading resource " + file, e);
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			return new SimpleResponse(Status.INTERNAL_SERVER_ERROR);
 		}
-		return Response.ok().entity(new StreamingOutput() {
-			@Override
-			public void write(OutputStream output) throws IOException, WebApplicationException {
-				response.writeTo(output);
-				output.flush();
-			}
-		}).type(getType(request)).build();
+		Response response = new SimpleResponse(Status.OK, output);
+		response.setContentType(getType(request));
+		return response;
 	}
 
-	protected abstract MediaType getType(Request request);
+	protected abstract String getType(Request request);
 
 	protected File getFile(Request request) {
-		return new File(request.getServletContext().getRealPath(request.getPath()));
+		return request.getContext().getFile(request.getPath());
 	}
 }

@@ -1,54 +1,56 @@
 package org.ee.web;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.util.HashSet;
-import java.util.Set;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Map;
 
-import javax.servlet.ServletContext;
-import javax.ws.rs.core.Application;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-import org.ee.config.Config;
-import org.ee.web.request.AbstractRequestResolver;
+import org.ee.collection.ListMap;
+import org.ee.web.request.RequestHandler;
+import org.ee.web.request.servlet.ServletRequest;
+import org.ee.web.response.Response;
+import org.ee.web.response.ResponseWriter;
 
-public abstract class WebApplication extends Application {
-	private static ServletContext context;
-	private static Config config;
+public abstract class WebApplication extends HttpServlet {
+	private static final long serialVersionUID = 262671820208940735L;
 
 	@Override
-	public Set<Class<?>> getClasses() {
-		Set<Class<?>> classes = new HashSet<>();
-		classes.add(getRequestResolver());
-		return classes;
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		handle(request, response);
 	}
 
-	protected abstract Class<? extends AbstractRequestResolver> getRequestResolver();
-
-	public static ServletContext getContext() {
-		return context;
+	@Override
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		handle(request, response);
 	}
 
-	protected static void setContext(ServletContext context) {
-		WebApplication.context = context;
+	private void handle(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		Response res = getRequestHandler().handle(new ServletRequest(request, response));
+		response.setStatus(res.getStatus().getCode());
+		setHeaders(res.getHeaders(), response);
+		writeOutput(res, response);
 	}
 
-	public static Config getConfig() {
-		return config;
+	private void setHeaders(ListMap<String, String> headers, HttpServletResponse response) {
+		for(Map.Entry<String, List<String>> entry : headers.entrySet()) {
+			for(String value : entry.getValue()) {
+				response.addHeader(entry.getKey(), value);
+			}
+		}
 	}
 
-	public static void setConfig(Config config) {
-		WebApplication.config = config;
+	private void writeOutput(Response res, HttpServletResponse response) throws IOException {
+		ResponseWriter responseWriter = getResponseWriter();
+		try(OutputStream out = response.getOutputStream()) {
+			responseWriter.write(res.getOutput(), out);
+		}
 	}
 
-	public static File[] getFiles(final String path, final String suffix) {
-		return getFiles(path, (dir, name) -> name.endsWith(suffix));
-	}
+	protected abstract RequestHandler getRequestHandler();
 
-	public static File[] getFiles(String path, FilenameFilter filter) {
-		return getFile(path).listFiles(filter);
-	}
-
-	public static File getFile(String path) {
-		return new File(context.getRealPath(path));
-	}
+	protected abstract ResponseWriter getResponseWriter();
 }

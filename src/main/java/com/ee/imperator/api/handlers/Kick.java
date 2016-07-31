@@ -1,6 +1,6 @@
 package com.ee.imperator.api.handlers;
 
-import com.ee.imperator.Imperator;
+import com.ee.imperator.ImperatorApplicationContext;
 import com.ee.imperator.exception.InvalidRequestException;
 import com.ee.imperator.exception.RequestException;
 import com.ee.imperator.exception.TransactionException;
@@ -10,8 +10,14 @@ import com.ee.imperator.user.Player;
 
 @Request(mode = "game", type = "kick")
 public class Kick {
+	private final ImperatorApplicationContext context;
+
+	public Kick(ImperatorApplicationContext context) {
+		this.context = context;
+	}
+
 	public void handle(Member member, @Param("gid") int gid, @Param("uid") int uid) throws RequestException, TransactionException {
-		Game game = Imperator.getState().getGame(gid);
+		Game game = context.getState().getGame(gid);
 		if(game == null) {
 			throw new InvalidRequestException("Game does not exist", "game", "kick");
 		} else if(!game.getOwner().equals(member)) {
@@ -23,7 +29,7 @@ public class Kick {
 		}
 		Player player = game.getPlayerById(uid);
 		if(player != null) {
-			game.removePlayer(player);
+			game.removePlayer(context, player);
 		}
 	}
 }

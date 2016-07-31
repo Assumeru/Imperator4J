@@ -4,38 +4,27 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.ee.imperator.Imperator;
+import com.ee.imperator.ImperatorApplicationContext;
 
 public class CachedMapProvider implements MapProvider {
-	private volatile java.util.Map<Integer, Map> maps;
+	private java.util.Map<Integer, Map> maps;
 	private List<Map> sortedMaps;
+
+	public CachedMapProvider(ImperatorApplicationContext context) {
+		maps = MapParser.parseMaps(context.getFiles(context.getConfig().getString(getClass(), "path"), ".xml"));
+		ArrayList<Map> sorted = new ArrayList<>(maps.values());
+		sorted.sort(null);
+		sorted.trimToSize();
+		sortedMaps = Collections.unmodifiableList(sorted);
+	}
 
 	@Override
 	public List<Map> getMaps() {
-		if(sortedMaps == null) {
-			ArrayList<Map> maps = new ArrayList<>(maps().values());
-			maps.sort(null);
-			maps.trimToSize();
-			sortedMaps = Collections.unmodifiableList(maps);
-		}
 		return sortedMaps;
 	}
 
 	@Override
 	public Map getMap(int id) {
-		return maps().get(id);
-	}
-
-	private java.util.Map<Integer, Map> maps() {
-		if(maps == null) {
-			loadMaps();
-		}
-		return maps;
-	}
-
-	private synchronized void loadMaps() {
-		if(maps == null) {
-			maps = MapParser.parseMaps(Imperator.getFiles(Imperator.getConfig().getString(getClass(), "path"), ".xml"));
-		}
+		return maps.get(id);
 	}
 }

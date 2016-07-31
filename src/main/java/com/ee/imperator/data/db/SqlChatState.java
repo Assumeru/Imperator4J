@@ -12,7 +12,7 @@ import javax.sql.DataSource;
 import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
 
-import com.ee.imperator.Imperator;
+import com.ee.imperator.ImperatorApplicationContext;
 import com.ee.imperator.chat.ChatMessage;
 import com.ee.imperator.data.ChatState;
 import com.ee.imperator.exception.TransactionException;
@@ -21,9 +21,11 @@ import com.ee.imperator.user.User;
 
 public class SqlChatState extends CloseableDataSource implements ChatState {
 	private static final Logger LOG = LogManager.createLogger();
+	private final ImperatorApplicationContext context;
 
-	public SqlChatState(DataSource dataSource) {
+	public SqlChatState(DataSource dataSource, ImperatorApplicationContext context) {
 		super(dataSource);
+		this.context = context;
 	}
 
 	@Override
@@ -35,14 +37,14 @@ public class SqlChatState extends CloseableDataSource implements ChatState {
 			statement.setInt(2, id);
 			ResultSet result = statement.executeQuery();
 			while(result.next()) {
-				Game game = id == 0 ? null : Imperator.getState().getGame(id);
+				Game game = id == 0 ? null : context.getState().getGame(id);
 				int uid = result.getInt(1);
 				User user = null;
 				if(game != null) {
 					user = game.getPlayerById(uid);
 				}
 				if(user == null) {
-					user = Imperator.getState().getMember(uid);
+					user = context.getState().getMember(uid);
 				}
 				messages.add(new ChatMessage(game, user, result.getLong(2), result.getString(3)));
 			}

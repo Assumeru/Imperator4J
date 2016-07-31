@@ -2,7 +2,7 @@ package com.ee.imperator.api.handlers;
 
 import org.json.JSONObject;
 
-import com.ee.imperator.Imperator;
+import com.ee.imperator.ImperatorApplicationContext;
 import com.ee.imperator.data.transaction.GameTransaction;
 import com.ee.imperator.exception.InvalidRequestException;
 import com.ee.imperator.exception.RequestException;
@@ -13,8 +13,14 @@ import com.ee.imperator.user.Player;
 
 @Request(mode = "game", type = "autoroll")
 public class SetAutoRoll {
+	private final ImperatorApplicationContext context;
+
+	public SetAutoRoll(ImperatorApplicationContext context) {
+		this.context = context;
+	}
+
 	public JSONObject handle(Member member, @Param("gid") int gid, @Param("autoroll") boolean autoroll) throws RequestException, TransactionException {
-		Game game = Imperator.getState().getGame(gid);
+		Game game = context.getState().getGame(gid);
 		if(game == null) {
 			throw new InvalidRequestException("Game does not exist", "game", "autoroll");
 		}
@@ -22,7 +28,7 @@ public class SetAutoRoll {
 		if(player == null) {
 			throw new InvalidRequestException("Player not in game", "game", "autoroll");
 		}
-		try(GameTransaction transaction = Imperator.getState().modify(game)) {
+		try(GameTransaction transaction = context.getState().modify(game)) {
 			transaction.getPlayer(player).setAutoRoll(autoroll);
 			transaction.commit();
 		}

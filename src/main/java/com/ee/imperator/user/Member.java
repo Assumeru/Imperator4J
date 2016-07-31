@@ -1,10 +1,6 @@
 package com.ee.imperator.user;
 
-import java.util.Locale;
-
 import org.ee.i18n.Language;
-
-import com.ee.imperator.Imperator;
 
 public class Member implements User, Comparable<Member> {
 	private final int id;
@@ -16,12 +12,8 @@ public class Member implements User, Comparable<Member> {
 	private int wins;
 	private int losses;
 
-	public Member() {
-		this(0);
-	}
-
-	public Member(int id) {
-		this(id, "Guest", Imperator.getLanguageProvider().getLanguage(Locale.US), true, false, 0, 0, 0);
+	public Member(int id, Language language) {
+		this(id, "Guest", language, true, false, 0, 0, 0);
 	}
 
 	public Member(int id, String name, Language language, boolean guest, boolean canDeleteMessages, int score, int wins, int losses) {

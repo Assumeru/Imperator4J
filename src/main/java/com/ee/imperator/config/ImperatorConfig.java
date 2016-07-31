@@ -7,16 +7,16 @@ import org.ee.config.properties.PropertiesConfig;
 import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
 
-import com.ee.imperator.Imperator;
+import com.ee.imperator.ImperatorApplicationContext;
 
 public class ImperatorConfig extends PropertiesConfig {
 	private static final Logger LOG = LogManager.createLogger();
 
-	public ImperatorConfig() throws IOException {
-		super(getConfigPath());
+	public ImperatorConfig(ImperatorApplicationContext context) throws IOException {
+		super(getConfigPath(context));
 	}
 
-	private static File getConfigPath() {
+	private static File getConfigPath(ImperatorApplicationContext context) {
 		String path = System.getProperty(ImperatorConfig.class.getName() + ".file");
 		if(path != null) {
 			File file = new File(path);
@@ -26,6 +26,6 @@ public class ImperatorConfig extends PropertiesConfig {
 			LOG.w("Failed to find " + file);
 		}
 		LOG.w("Falling back on /WEB-INF/default.properties");
-		return Imperator.getFile("/WEB-INF/default.properties");
+		return context.getFile("/WEB-INF/default.properties");
 	}
 }

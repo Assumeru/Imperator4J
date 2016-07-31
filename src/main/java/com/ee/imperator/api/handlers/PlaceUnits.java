@@ -3,7 +3,7 @@ package com.ee.imperator.api.handlers;
 import org.ee.i18n.Language;
 import org.json.JSONObject;
 
-import com.ee.imperator.Imperator;
+import com.ee.imperator.ImperatorApplicationContext;
 import com.ee.imperator.data.transaction.GameTransaction;
 import com.ee.imperator.exception.InvalidRequestException;
 import com.ee.imperator.exception.RequestException;
@@ -14,8 +14,14 @@ import com.ee.imperator.user.Member;
 
 @Request(mode = "game", type = "place-units")
 public class PlaceUnits {
+	private final ImperatorApplicationContext context;
+
+	public PlaceUnits(ImperatorApplicationContext context) {
+		this.context = context;
+	}
+
 	public JSONObject handle(Member member, @Param("gid") int gid, @Param("units") int units, @Param("territory") String tid) throws RequestException, TransactionException {
-		Game game = Imperator.getState().getGame(gid);
+		Game game = context.getState().getGame(gid);
 		checkParams(game, member, units);
 		Territory territory = game.getMap().getTerritories().get(tid);
 		if(territory == null) {
@@ -24,7 +30,7 @@ public class PlaceUnits {
 			throw new InvalidRequestException("Not your territory", "game", "place-units");
 		}
 		units = Math.max(1, units);
-		try(GameTransaction transaction = Imperator.getState().modify(game)) {
+		try(GameTransaction transaction = context.getState().modify(game)) {
 			transaction.setTime(System.currentTimeMillis());
 			transaction.setUnits(game.getUnits() - units);
 			transaction.getTerritory(territory).setUnits(territory.getUnits() + units);

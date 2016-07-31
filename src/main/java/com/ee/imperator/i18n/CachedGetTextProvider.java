@@ -12,14 +12,14 @@ import org.ee.i18n.gettext.GetTextProvider;
 import org.ee.i18n.gettext.Mo;
 import org.ee.i18n.gettext.MoParser;
 
-import com.ee.imperator.Imperator;
-import com.ee.imperator.request.context.PageContext;
+import com.ee.imperator.ImperatorApplicationContext;
+import com.ee.imperator.web.context.PageContext;
 
 public class CachedGetTextProvider extends CachedLanguageProvider implements ClientSideLanguageProvider {
 	private final Map<Mo, Map<String, Object>> cache;
 
-	public CachedGetTextProvider() {
-		super(new GetTextProvider(Imperator.getFile(Imperator.getConfig().getString(CachedGetTextProvider.class, "path"))));
+	public CachedGetTextProvider(ImperatorApplicationContext context) {
+		super(new GetTextProvider(context.getFile(context.getConfig().getString(CachedGetTextProvider.class, "path"))));
 		cache = new WeakHashMap<>();
 	}
 

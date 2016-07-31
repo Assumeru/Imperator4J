@@ -1,15 +1,24 @@
 package com.ee.imperator;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
-import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.websocket.DeploymentException;
+import javax.websocket.server.ServerContainer;
+import javax.websocket.server.ServerEndpointConfig;
 
 import org.ee.config.Config;
 import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
 import org.ee.reflection.ReflectionUtils;
 import org.ee.web.WebApplication;
+import org.ee.web.request.RequestHandler;
+import org.ee.web.response.ResponseWriter;
 
+import com.ee.imperator.api.Api;
 import com.ee.imperator.config.ImperatorConfig;
 import com.ee.imperator.crypt.PasswordHasher;
 import com.ee.imperator.crypt.bcrypt.BCryptHasher;
@@ -21,50 +30,81 @@ import com.ee.imperator.data.State;
 import com.ee.imperator.exception.ConfigurationException;
 import com.ee.imperator.i18n.ClientSideLanguageProvider;
 import com.ee.imperator.map.MapProvider;
-import com.ee.imperator.request.RequestResolver;
 import com.ee.imperator.task.CleanUp;
 import com.ee.imperator.template.TemplateProvider;
 import com.ee.imperator.url.UrlBuilder;
+import com.ee.imperator.websocket.WebSocket;
+import com.ee.imperator.websocket.WebSocketConfigurator;
 
+@WebServlet(urlPatterns = "/*")
 public class Imperator extends WebApplication {
+	private static final long serialVersionUID = -6119169366807789039L;
 	private static final Logger LOG = LogManager.createLogger();
-	private static State state;
-	private static PasswordHasher hasher;
-	private static UrlBuilder urlBuilder;
-	private static ClientSideLanguageProvider languageProvider;
-	private static TemplateProvider templateProvider;
-	private static MapProvider mapProvider;
-	private static CleanUp cleanup;
+	private ImperatorApplicationContext context;
+	private Config config;
+	private State state;
+	private PasswordHasher hasher;
+	private UrlBuilder urlBuilder;
+	private ClientSideLanguageProvider languageProvider;
+	private TemplateProvider templateProvider;
+	private MapProvider mapProvider;
+	private RequestHandler requestHandler;
+	private ResponseWriter responseWriter;
+	private CleanUp cleanup;
+	private Api api;
 
-	public static void init(ServletContext context) {
-		setContext(context);
-		initConfig();
-		initState();
-		initHasher();
+	@Override
+	public void init() throws ServletException {
+		context = new ImperatorContext(this);
+		config = initConfig();
+		api = new Api(context);
+		state = initState();
+		hasher = initHasher();
 		urlBuilder = getProviderInstance(UrlBuilder.class);
 		languageProvider = getProviderInstance(ClientSideLanguageProvider.class);
 		templateProvider = getProviderInstance(TemplateProvider.class);
 		mapProvider = getProviderInstance(MapProvider.class);
-		cleanup = new CleanUp();
-		cleanup.start();
+		requestHandler = getProviderInstance(RequestHandler.class);
+		responseWriter = getProviderInstance(ResponseWriter.class);
+		cleanup = new CleanUp(context);
+		initWebSocket();
 	}
 
-	private static void initConfig() {
+	@SuppressWarnings("unchecked")
+	private <T> T getInstance(Class<T> type) throws InstantiationException, IllegalAccessException, InvocationTargetException {
+		Class<? extends ImperatorApplicationContext> contextType = context.getClass();
+		for(Constructor<?> constructor : type.getConstructors()) {
+			if(constructor.getParameterCount() == 1 && constructor.getParameterTypes()[0].isAssignableFrom(contextType)) {
+				return (T) constructor.newInstance(context);
+			}
+		}
+		return type.newInstance();
+	}
+
+	private <T> T getProviderInstance(Class<T> type) {
+		try {
+			return getInstance(ReflectionUtils.getSubclass(config.getClass(type, null), type));
+		} catch(Exception e) {
+			throw new ConfigurationException("Failed to create provider for " + type, e);
+		}
+	}
+
+	private Config initConfig() {
 		try {
 			String config = System.getProperty("com.ee.imperator.Config");
 			if(config == null) {
 				config = ImperatorConfig.class.getName();
 				LOG.w("Using default config, use jvm argument -Dcom.ee.imperator.Config=<class name> to define another config implementation.");
 			}
-			setConfig(ReflectionUtils.getSubclass(config, Config.class).newInstance());
+			return getInstance(ReflectionUtils.getSubclass(config, Config.class));
 		} catch(Exception e) {
 			throw new ConfigurationException("Failed to init config", e);
 		}
 	}
 
-	private static void initState() {
+	private State initState() {
 		try {
-			state = new JoinedState(getProviderInstance(GameState.class),
+			return new JoinedState(getProviderInstance(GameState.class),
 					getProviderInstance(MemberState.class),
 					getProviderInstance(ChatState.class));
 		} catch(Exception e) {
@@ -72,52 +112,68 @@ public class Imperator extends WebApplication {
 		}
 	}
 
-	private static <T> T getProviderInstance(Class<T> type) {
+	private PasswordHasher initHasher() {
 		try {
-			return ReflectionUtils.getSubclass(Imperator.getConfig().getClass(type, null), type).newInstance();
-		} catch(Exception e) {
-			throw new ConfigurationException("Failed to create provider for " + type, e);
-		}
-	}
-
-	private static void initHasher() {
-		try {
-			hasher = ReflectionUtils.getSubclass(getConfig().getClass(PasswordHasher.class, null, BCryptHasher.class), PasswordHasher.class).newInstance();
+			return getInstance(ReflectionUtils.getSubclass(getConfig().getClass(PasswordHasher.class, null, BCryptHasher.class), PasswordHasher.class));
 		} catch(Exception e) {
 			throw new ConfigurationException("Failed to init password hasher", e);
 		}
 	}
 
-	@Override
-	protected Class<RequestResolver> getRequestResolver() {
-		return RequestResolver.class;
+	private void initWebSocket() {
+		ServerContainer serverContainer = (ServerContainer) getServletContext().getAttribute(ServerContainer.class.getName());
+		ServerEndpointConfig endpoint = ServerEndpointConfig.Builder.create(WebSocket.class, com.ee.imperator.api.WebSocket.PATH).configurator(new WebSocketConfigurator(context)).build();
+		try {
+			serverContainer.addEndpoint(endpoint);
+		} catch(DeploymentException e) {
+			throw new ConfigurationException("Failed to init websockets", e);
+		}
 	}
 
-	public static State getState() {
+	@Override
+	protected RequestHandler getRequestHandler() {
+		return requestHandler;
+	}
+
+	@Override
+	protected ResponseWriter getResponseWriter() {
+		return responseWriter;
+	}
+
+	public Config getConfig() {
+		return config;
+	}
+
+	public State getState() {
 		return state;
 	}
 
-	public static PasswordHasher getHasher() {
-		return hasher;
-	}
-
-	public static ClientSideLanguageProvider getLanguageProvider() {
+	public ClientSideLanguageProvider getLanguageProvider() {
 		return languageProvider;
 	}
 
-	public static UrlBuilder getUrlBuilder() {
-		return urlBuilder;
-	}
-
-	public static TemplateProvider getTemplateProvider() {
-		return templateProvider;
-	}
-
-	public static MapProvider getMapProvider() {
+	public MapProvider getMapProvider() {
 		return mapProvider;
 	}
 
-	static void stop() {
+	public PasswordHasher getHasher() {
+		return hasher;
+	}
+
+	public UrlBuilder getUrlBuilder() {
+		return urlBuilder;
+	}
+
+	public TemplateProvider getTemplateProvider() {
+		return templateProvider;
+	}
+
+	public Api getApi() {
+		return api;
+	}
+
+	@Override
+	public void destroy() {
 		if(cleanup != null) {
 			cleanup.stop();
 		}

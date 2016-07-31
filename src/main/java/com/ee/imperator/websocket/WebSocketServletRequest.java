@@ -8,6 +8,7 @@ import java.security.Principal;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -34,9 +35,12 @@ import javax.servlet.http.HttpUpgradeHandler;
 import javax.servlet.http.Part;
 import javax.websocket.server.HandshakeRequest;
 
-import com.ee.imperator.Imperator;
+import org.ee.logger.LogManager;
+import org.ee.logger.Logger;
 
 public class WebSocketServletRequest implements HttpServletRequest {
+	private static final Logger LOG = LogManager.createLogger();
+	private final ServletContext context;
 	private final Map<String, String[]> parameterMap;
 	private final URI requestURI;
 	private final String queryString;
@@ -44,7 +48,8 @@ public class WebSocketServletRequest implements HttpServletRequest {
 	private final Cookie[] cookies;
 	private final Map<String, List<String>> headers;
 
-	public WebSocketServletRequest(HandshakeRequest request, Map<String, javax.ws.rs.core.Cookie> cookies) {
+	public WebSocketServletRequest(ServletContext context, HandshakeRequest request) {
+		this.context = context;
 		parameterMap = new HashMap<>();
 		for(Entry<String, List<String>> entry : request.getParameterMap().entrySet()) {
 			parameterMap.put(entry.getKey(), entry.getValue().toArray(new String[entry.getValue().size()]));
@@ -52,12 +57,33 @@ public class WebSocketServletRequest implements HttpServletRequest {
 		queryString = request.getQueryString();
 		userPrincipal = request.getUserPrincipal();
 		requestURI = request.getRequestURI();
-		this.cookies = new Cookie[cookies.size()];
-		int i = 0;
-		for(javax.ws.rs.core.Cookie cookie : cookies.values()) {
-			this.cookies[i++] = new Cookie(cookie.getName(), cookie.getValue());
-		}
+		cookies = getCookies(request.getHeaders());
 		headers = request.getHeaders();
+	}
+
+	private Cookie[] getCookies(Map<String, List<String>> headers) {
+		List<Cookie> cookies = new ArrayList<>();
+		List<String> header = headers.get("Cookie");
+		if(header != null) {
+			for(String raw : header) {
+				parseCookies(cookies, raw);
+			}
+		}
+		return cookies.toArray(new Cookie[cookies.size()]);
+	}
+
+	private void parseCookies(List<Cookie> cookies, String raw) {
+		for(String cookie : raw.split(";")) {
+			String[] parts = cookie.split("=");
+			if(parts.length > 1) {
+				String name = parts[0].trim();
+				String value = parts[1].trim();
+				cookies.add(new Cookie(name, value));
+				if(parts.length > 2) {
+					LOG.w("Excess cookie parts: " + Arrays.asList(parts));
+				}
+			}
+		}
 	}
 
 	@Override
@@ -188,7 +214,7 @@ public class WebSocketServletRequest implements HttpServletRequest {
 
 	@Override
 	public String getRealPath(String path) {
-		return Imperator.getContext().getRealPath(path);
+		return context.getRealPath(path);
 	}
 
 	@Override
@@ -213,7 +239,7 @@ public class WebSocketServletRequest implements HttpServletRequest {
 
 	@Override
 	public ServletContext getServletContext() {
-		return Imperator.getContext();
+		return context;
 	}
 
 	@Override
@@ -297,7 +323,7 @@ public class WebSocketServletRequest implements HttpServletRequest {
 
 	@Override
 	public String getPathInfo() {
-		return null;
+		return com.ee.imperator.api.WebSocket.PATH;
 	}
 
 	@Override
@@ -307,7 +333,7 @@ public class WebSocketServletRequest implements HttpServletRequest {
 
 	@Override
 	public String getContextPath() {
-		return Imperator.getContext().getContextPath();
+		return context.getContextPath();
 	}
 
 	@Override
@@ -347,7 +373,7 @@ public class WebSocketServletRequest implements HttpServletRequest {
 
 	@Override
 	public String getServletPath() {
-		return Imperator.getContext().getContextPath();
+		return context.getContextPath();
 	}
 
 	@Override

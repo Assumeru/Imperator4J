@@ -11,7 +11,6 @@ import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
 import org.json.JSONObject;
 
-import com.ee.imperator.Imperator;
 import com.ee.imperator.exception.RequestException;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.user.Member;
@@ -40,7 +39,7 @@ class WebSocketListener implements RequestListener {
 				if(gid == 0) {
 					sendChatUpdates(member, output);
 				} else {
-					sendGameUpdates(member, output, Imperator.getState().getGame(gid));
+					sendGameUpdates(member, output, api.api.getContext().getState().getGame(gid));
 				}
 			}
 		}

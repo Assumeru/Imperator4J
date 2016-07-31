@@ -1,6 +1,7 @@
 package com.ee.imperator.websocket;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
@@ -14,8 +15,7 @@ import org.ee.web.request.Request;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.ee.imperator.Imperator;
-import com.ee.imperator.api.Api;
+import com.ee.imperator.ImperatorApplicationContext;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.user.Member;
 
@@ -24,9 +24,9 @@ public class WebSocket {
 
 	@OnOpen
 	public void onOpen(Session session) {
-		Request request = (Request) session.getUserProperties().get(Request.class.getName());
+		Request request = getProperty(session, Request.class);
 		if(request != null) {
-			Member member = Imperator.getState().getMember(request);
+			Member member = getContext(session).getState().getMember(request);
 			if(!member.isGuest()) {
 				session.getUserProperties().put(Member.class.getName(), member);
 				return;
@@ -37,6 +37,15 @@ public class WebSocket {
 		} catch(IOException e) {
 			LOG.e("Failed to close socket", e);
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private <T> T getProperty(Session session, Class<T> type) {
+		return (T) session.getUserProperties().get(type.getName());
+	}
+
+	private ImperatorApplicationContext getContext(Session session) {
+		return Objects.requireNonNull(getProperty(session, ImperatorApplicationContext.class));
 	}
 
 	@OnMessage
@@ -52,7 +61,7 @@ public class WebSocket {
 				if("pregame".equals(type) || "game".equals(type)) {
 					session.getUserProperties().put(Game.State.class.getName(), type);
 				}
-				String response = Api.WEB_SOCKET.handle(member, variables);
+				String response = getContext(session).getApi().getWebSocket().handle(member, variables);
 				if(response != null) {
 					session.getBasicRemote().sendText(response);
 				}
@@ -70,7 +79,7 @@ public class WebSocket {
 		if(variables.has("gid") && variables.has("time")) {
 			try {
 				session.getUserProperties().put(Game.class.getName(), variables.getInt("gid"));
-				Api.WEB_SOCKET.register(session, variables.getInt("gid"), variables.getLong("time"));
+				getContext(session).getApi().getWebSocket().register(session, variables.getInt("gid"), variables.getLong("time"));
 			} catch(Exception e) {
 				LOG.w("Error registering", e);
 			}
@@ -79,7 +88,7 @@ public class WebSocket {
 
 	@OnClose
 	public void onClose(Session session) {
-		Api.WEB_SOCKET.deregister(session);
+		getContext(session).getApi().getWebSocket().deregister(session);
 	}
 
 	@OnError

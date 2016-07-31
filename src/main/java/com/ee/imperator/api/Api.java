@@ -1,5 +1,6 @@
 package com.ee.imperator.api;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -18,6 +19,7 @@ import org.json.JSONObject;
 import org.reflections.ReflectionUtils;
 import org.reflections.Reflections;
 
+import com.ee.imperator.ImperatorApplicationContext;
 import com.ee.imperator.api.handlers.Param;
 import com.ee.imperator.api.handlers.Request;
 import com.ee.imperator.exception.InvalidRequestException;
@@ -26,17 +28,21 @@ import com.ee.imperator.user.Member;
 
 public class Api {
 	private static final Logger LOG = LogManager.createLogger();
-	static final Api INSTANCE = new Api();
-	public static final LongPolling LONG_POLLING = new LongPolling();
-	public static final WebSocket WEB_SOCKET = new WebSocket();
-	public static final InternalApi INTERNAL = new InternalApi();
 	public static final String DATE_ATOM = "yyyy-MM-dd'T'HH:mm:ssXXX";
+	private final LongPolling longPolling;
+	private final WebSocket webSocket;
+	private final InternalApi internal;
 	private final Map<String, List<Handler>> handlers;
 	private final List<RequestListener> listeners;
+	private final ImperatorApplicationContext context;
 
-	private Api() {
+	public Api(ImperatorApplicationContext context) {
+		this.context = context;
 		handlers = getHandlers();
 		listeners = new ArrayList<>();
+		longPolling = new LongPolling(this);
+		webSocket = new WebSocket(this);
+		internal = new InternalApi(this);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -106,12 +112,23 @@ public class Api {
 		}
 		Object instance;
 		try {
-			instance = type.newInstance();
-		} catch(InstantiationException | IllegalAccessException e) {
+			instance = getInstance(type);
+		} catch(InstantiationException | IllegalAccessException | InvocationTargetException e) {
 			LOG.w("Classes annotated with " + Request.class + " must specify a default constructor", e);
 			return;
 		}
 		addHandlers(handlers, methods, type, getKey(request.mode(), request.type()), instance);
+	}
+
+	@SuppressWarnings("unchecked")
+	private <T> T getInstance(Class<T> type) throws InstantiationException, IllegalAccessException, InvocationTargetException {
+		Class<? extends ImperatorApplicationContext> contextType = context.getClass();
+		for(Constructor<?> constructor : type.getConstructors()) {
+			if(constructor.getParameterCount() == 1 && constructor.getParameterTypes()[0].isAssignableFrom(contextType)) {
+				return (T) constructor.newInstance(context);
+			}
+		}
+		return type.newInstance();
 	}
 
 	private void addHandlers(Map<String, List<Handler>> handlers, Set<Method> methods, Class<?> type, String key, Object instance) {
@@ -180,5 +197,21 @@ public class Api {
 				LOG.e(e);
 			}
 		}
+	}
+
+	ImperatorApplicationContext getContext() {
+		return context;
+	}
+
+	public LongPolling getLongPolling() {
+		return longPolling;
+	}
+
+	public WebSocket getWebSocket() {
+		return webSocket;
+	}
+
+	public InternalApi getInternal() {
+		return internal;
 	}
 }

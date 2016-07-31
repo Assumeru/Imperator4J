@@ -2,58 +2,37 @@ package org.ee.web.request;
 
 import java.util.Map;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Cookie;
-import javax.ws.rs.core.MultivaluedMap;
+import javax.servlet.http.Cookie;
 
-public class Request {
-	private final ServletContext servletContext;
-	private final HttpServletRequest request;
-	private final String path;
-	private final Map<String, Cookie> cookies;
-	private final MultivaluedMap<String, String> getParams;
-	private final MultivaluedMap<String, String> postParams;
-	private Object context;
+import org.ee.collection.ListMap;
 
-	public Request(ServletContext servletContext, HttpServletRequest request, Map<String, Cookie> cookies, MultivaluedMap<String, String> getParams, MultivaluedMap<String, String> postParams, String path) {
-		this.servletContext = servletContext;
-		this.request = request;
-		this.cookies = cookies;
-		this.getParams = getParams;
-		this.postParams = postParams;
-		this.path = path;
+public interface Request {
+	enum Method {
+		GET, POST, PUT, DELETE, CONNECT, HEAD, OPTIONS, PATCH, TRACE;
+
+		public static Method fromString(String method) {
+			for(Method m : values()) {
+				if(m.name().equalsIgnoreCase(method)) {
+					return m;
+				}
+			}
+			throw new IllegalArgumentException("Unknown method: " + method);
+		}
 	}
 
-	public ServletContext getServletContext() {
-		return servletContext;
-	}
+	ListMap<String, String> getGetParameters();
 
-	public HttpServletRequest getRequest() {
-		return request;
-	}
+	ListMap<String, String> getPostParameters();
 
-	public String getPath() {
-		return path;
-	}
+	ListMap<String, String> getHeaders();
 
-	public Object getContext() {
-		return context;
-	}
+	Map<String, Cookie> getCookies();
 
-	void setContext(Object context) {
-		this.context = context;
-	}
+	String getPath();
 
-	public Map<String, Cookie> getCookies() {
-		return cookies;
-	}
+	String getFullPath();
 
-	public MultivaluedMap<String, String> getGetParams() {
-		return getParams;
-	}
+	Method getMethod();
 
-	public MultivaluedMap<String, String> getPostParams() {
-		return postParams;
-	}
+	RequestContext getContext();
 }

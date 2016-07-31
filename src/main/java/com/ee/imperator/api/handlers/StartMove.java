@@ -2,7 +2,7 @@ package com.ee.imperator.api.handlers;
 
 import org.json.JSONObject;
 
-import com.ee.imperator.Imperator;
+import com.ee.imperator.ImperatorApplicationContext;
 import com.ee.imperator.data.transaction.GameTransaction;
 import com.ee.imperator.exception.InvalidRequestException;
 import com.ee.imperator.exception.RequestException;
@@ -12,8 +12,14 @@ import com.ee.imperator.user.Member;
 
 @Request(mode = "game", type = "start-move")
 public class StartMove {
+	private final ImperatorApplicationContext context;
+
+	public StartMove(ImperatorApplicationContext context) {
+		this.context = context;
+	}
+
 	public JSONObject handle(Member member, @Param("gid") int gid) throws RequestException, TransactionException {
-		Game game = Imperator.getState().getGame(gid);
+		Game game = context.getState().getGame(gid);
 		if(game == null) {
 			throw new InvalidRequestException("Game does not exist", "game", "start-move");
 		} else if(!game.getCurrentPlayer().equals(member)) {
@@ -23,7 +29,7 @@ public class StartMove {
 		} else if(!game.getAttacks().isEmpty()) {
 			throw new InvalidRequestException(String.valueOf(member.getLanguage().translate("All battles need to finish before units can be moved.")), "game", "start-move");
 		}
-		try(GameTransaction transaction = Imperator.getState().modify(game)) {
+		try(GameTransaction transaction = context.getState().modify(game)) {
 			transaction.setState(Game.State.POST_COMBAT);
 			transaction.setUnits(Game.MAX_MOVE_UNITS);
 			transaction.commit();

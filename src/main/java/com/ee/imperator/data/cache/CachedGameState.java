@@ -9,7 +9,7 @@ import java.util.Map;
 
 import org.ee.cache.SoftReferenceCache;
 
-import com.ee.imperator.Imperator;
+import com.ee.imperator.ImperatorApplicationContext;
 import com.ee.imperator.data.BatchGameState;
 import com.ee.imperator.data.GameState;
 import com.ee.imperator.data.transaction.GameTransaction;
@@ -28,8 +28,8 @@ public class CachedGameState implements GameState {
 		cache = new SoftReferenceCache<>(timeToKeep);
 	}
 
-	public CachedGameState(GameState gameProvider) {
-		this(gameProvider, Imperator.getConfig().getLong(CachedGameState.class, "timeToKeep"));
+	public CachedGameState(GameState gameProvider, ImperatorApplicationContext context) {
+		this(gameProvider, context.getConfig().getLong(CachedGameState.class, "timeToKeep"));
 	}
 
 	private void cache(Game game) {

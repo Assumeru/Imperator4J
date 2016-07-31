@@ -11,17 +11,17 @@ import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
-import com.ee.imperator.Imperator;
+import com.ee.imperator.ImperatorApplicationContext;
 import com.ee.imperator.template.Template;
 import com.ee.imperator.template.TemplateProvider;
 
 public class ThymeleafTemplateProvider implements TemplateProvider {
 	private final TemplateEngine engine;
 
-	public ThymeleafTemplateProvider() {
-		Config config = Imperator.getConfig();
+	public ThymeleafTemplateProvider(ImperatorApplicationContext context) {
+		Config config = context.getConfig();
 		engine = new TemplateEngine();
-		ServletContextTemplateResolver templateResolver = new ServletContextTemplateResolver(Imperator.getContext());
+		ServletContextTemplateResolver templateResolver = new ServletContextTemplateResolver(context.getContext());
 		templateResolver.setTemplateMode(config.getString(ThymeleafTemplateProvider.class, "mode", TemplateMode.HTML.name()));
 		templateResolver.setPrefix(config.getString(ThymeleafTemplateProvider.class, "path", "/WEB-INF/templates/"));
 		templateResolver.setSuffix(config.getString(ThymeleafTemplateProvider.class, "suffix", ".html"));

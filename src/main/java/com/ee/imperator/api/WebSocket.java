@@ -8,17 +8,18 @@ import javax.websocket.Session;
 
 import org.json.JSONObject;
 
-import com.ee.imperator.Imperator;
 import com.ee.imperator.exception.RequestException;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.user.Member;
 
 public class WebSocket extends ApiImplementation {
+	public static final String PATH = "/websocket";
 	private final Map<Game, Map<Session, Long>> sessions;
 
-	WebSocket() {
+	WebSocket(Api api) {
+		super(api);
 		sessions = new WeakHashMap<>();
-		Api.INSTANCE.addRequestListener(new WebSocketListener(this));
+		api.addRequestListener(new WebSocketListener(this));
 	}
 
 	Map<Game, Map<Session, Long>> getSessions() {
@@ -51,7 +52,7 @@ public class WebSocket extends ApiImplementation {
 			if(gid == 0) {
 				update(null, session, time);
 			} else {
-				Game game = Imperator.getState().getGame(gid);
+				Game game = api.getContext().getState().getGame(gid);
 				if(game != null && game.getPlayers().contains(member)) {
 					update(game, session, time);
 				}
@@ -82,7 +83,7 @@ public class WebSocket extends ApiImplementation {
 			if(gid == 0) {
 				remove(null, session);
 			} else {
-				Game game = Imperator.getState().getGame(gid);
+				Game game = api.getContext().getState().getGame(gid);
 				if(game != null) {
 					remove(game, session);
 				}

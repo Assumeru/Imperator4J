@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.sql.DataSource;
 
@@ -13,19 +14,22 @@ import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
 import org.ee.web.request.Request;
 
+import com.ee.imperator.ImperatorApplicationContext;
 import com.ee.imperator.data.MemberState;
 import com.ee.imperator.user.Member;
 
 public class SqlMemberState extends CloseableDataSource implements MemberState {
 	private static final Logger LOG = LogManager.createLogger();
+	private final ImperatorApplicationContext context;
 
-	public SqlMemberState(DataSource dataSource) {
+	public SqlMemberState(DataSource dataSource, ImperatorApplicationContext context) {
 		super(dataSource);
+		this.context = context;
 	}
 
 	@Override
 	public Member getMember(int id) {
-		Member member = new Member(id);
+		Member member = new Member(id, context.getLanguageProvider().getLanguage(Locale.US));
 		try(Connection conn = dataSource.getConnection()) {
 			PreparedStatement statement = conn.prepareStatement("SELECT `wins`, `losses`, `score` FROM `users` WHERE `uid` = ?");
 			statement.setInt(1, id);

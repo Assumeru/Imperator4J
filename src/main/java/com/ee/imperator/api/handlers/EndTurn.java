@@ -2,7 +2,7 @@ package com.ee.imperator.api.handlers;
 
 import org.json.JSONObject;
 
-import com.ee.imperator.Imperator;
+import com.ee.imperator.ImperatorApplicationContext;
 import com.ee.imperator.exception.InvalidRequestException;
 import com.ee.imperator.exception.RequestException;
 import com.ee.imperator.exception.TransactionException;
@@ -12,12 +12,18 @@ import com.ee.imperator.user.Member;
 
 @Request(mode = "game", type = "end-turn")
 public class EndTurn {
+	private final ImperatorApplicationContext context;
+
+	public EndTurn(ImperatorApplicationContext context) {
+		this.context = context;
+	}
+
 	public JSONObject handle(Member member, @Param("gid") int gid, @Param("card") int cid) throws RequestException, TransactionException {
-		Game game = Imperator.getState().getGame(gid);
+		Game game = context.getState().getGame(gid);
 		checkParams(game, member);
 		JSONObject out = new JSONObject();
 		boolean conquered = game.hasConquered();
-		Cards.Card card = game.endTurn(Cards.Card.valueOf(cid));
+		Cards.Card card = game.endTurn(context, Cards.Card.valueOf(cid));
 		if(conquered) {
 			out.put("card", card == null ? -1 : card.ordinal());
 		}
