@@ -1,6 +1,5 @@
 package com.ee.imperator.web.page;
 
-
 import com.ee.imperator.web.NavigationPage;
 import com.ee.imperator.web.context.PageContext;
 

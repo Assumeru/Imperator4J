@@ -12,6 +12,7 @@ import javax.websocket.server.ServerEndpointConfig;
 
 import org.ee.config.Config;
 import org.ee.logger.LogManager;
+import org.ee.logger.LogProvider;
 import org.ee.logger.Logger;
 import org.ee.reflection.ReflectionUtils;
 import org.ee.web.WebApplication;
@@ -57,6 +58,7 @@ public class Imperator extends WebApplication {
 	public void init() throws ServletException {
 		context = new ImperatorContext(this);
 		config = initConfig();
+		LogManager.setLogProvider(getProviderInstance(LogProvider.class));
 		api = new Api(context);
 		state = initState();
 		hasher = initHasher();

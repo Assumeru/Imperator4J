@@ -3,6 +3,7 @@ package org.ee.web.request.servlet;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.Cookie;
@@ -24,6 +25,7 @@ public class ServletRequest implements Request {
 	private final Method method;
 	private final RequestContext context;
 	private final Map<String, Cookie> cookies;
+	private final Locale locale;
 
 	public ServletRequest(HttpServletRequest request, HttpServletResponse response) {
 		headers = initHeaders(request);
@@ -38,6 +40,7 @@ public class ServletRequest implements Request {
 		}
 		cookies = initCookies(request.getCookies());
 		context = new ServletRequestContext(request.getServletContext(), request, response);
+		locale = request.getLocale();
 	}
 
 	private ParamMap initHeaders(HttpServletRequest request) {
@@ -101,5 +104,10 @@ public class ServletRequest implements Request {
 	@Override
 	public ListMap<String, String> getHeaders() {
 		return headers;
+	}
+
+	@Override
+	public Locale getLocale() {
+		return locale;
 	}
 }

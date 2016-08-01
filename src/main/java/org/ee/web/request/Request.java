@@ -1,5 +1,6 @@
 package org.ee.web.request;
 
+import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.Cookie;
@@ -35,4 +36,6 @@ public interface Request {
 	Method getMethod();
 
 	RequestContext getContext();
+
+	Locale getLocale();
 }

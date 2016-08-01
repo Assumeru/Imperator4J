@@ -2,7 +2,7 @@ package org.ee.logger;
 
 import org.ee.logger.system.SystemLogProvider;
 
-public class LogManager {
+public final class LogManager {
 	private static LogProvider provider = new SystemLogProvider();
 
 	private LogManager() {
