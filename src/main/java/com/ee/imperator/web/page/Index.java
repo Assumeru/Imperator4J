@@ -12,11 +12,11 @@ public class Index extends ImperatorPage {
 	@Override
 	protected void setVariables(PageContext context) {
 		if(context.getUser().isGuest()) {
-			context.setVariable(PageContext.VARIABLE_BODY, "splash");
+			context.setVariable(PageContext.VARIABLE_BODY, "splash::fragment");
 		} else {
 			addChatJavascript(context, 0, context.getUser().canDeleteMessages());
 			PageContext.VARIABLE_JAVASCRIPT.add(context, "gamelist-filter.js");
-			context.setVariable(PageContext.VARIABLE_BODY, "gamelist");
+			context.setVariable(PageContext.VARIABLE_BODY, "gamelist::fragment");
 			context.setVariable("games", context.getState().getGames());
 		}
 	}

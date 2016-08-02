@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
-<body th:fragment="fragment">
+<body th:fragment="fragment" th:remove="tag">
 <section>
 	<h1 th:text="${i18n.__(title)}"></h1>
 	<div th:if="${games.empty}" class="jumbotron">

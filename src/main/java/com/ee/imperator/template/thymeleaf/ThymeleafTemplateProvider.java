@@ -27,7 +27,7 @@ public class ThymeleafTemplateProvider implements TemplateProvider {
 		templateResolver.setSuffix(config.getString(ThymeleafTemplateProvider.class, "suffix", ".html"));
 		templateResolver.setCacheTTLMs(config.getLong(ThymeleafTemplateProvider.class, "cacheTTL", 3600000L));
 		engine.setTemplateResolver(templateResolver);
-		//TODO engine.setLinkBuilder()
+		engine.setLinkBuilder(new ThymeleafLinkBuilder(context));
 	}
 
 	@Override
