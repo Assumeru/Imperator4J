@@ -6,16 +6,17 @@ import org.thymeleaf.context.IExpressionContext;
 import org.thymeleaf.linkbuilder.StandardLinkBuilder;
 
 import com.ee.imperator.ImperatorApplicationContext;
+import com.ee.imperator.url.UrlBuilder;
 
 public class ThymeleafLinkBuilder extends StandardLinkBuilder {
-	private final String basepath;
+	private final UrlBuilder urlBuilder;
 
 	public ThymeleafLinkBuilder(ImperatorApplicationContext context) {
-		basepath = context.getConfig().getString(getClass(), "basepath");
+		urlBuilder = context.getUrlBuilder();
 	}
 
 	@Override
 	protected String computeContextPath(IExpressionContext context, String base, Map<String, Object> parameters) {
-		return basepath + super.computeContextPath(context, base, parameters);
+		return urlBuilder.buildLink("");
 	}
 }

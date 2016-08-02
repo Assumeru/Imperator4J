@@ -9,9 +9,11 @@ import com.ee.imperator.map.HasFlag;
 import com.ee.imperator.map.Map;
 
 public class DefaultUrlBuilder implements UrlBuilder {
+	private final String basepath;
 	private final String contextPath;
 
 	public DefaultUrlBuilder(ImperatorApplicationContext context) {
+		basepath = context.getConfig().getString(getClass(), "basepath");
 		String contextPath = context.getContextPath();
 		if(contextPath.endsWith("/")) {
 			this.contextPath = contextPath.substring(0, contextPath.length() - 1);
@@ -22,7 +24,7 @@ public class DefaultUrlBuilder implements UrlBuilder {
 
 	@Override
 	public String buildLink(String url) {
-		return contextPath + url;
+		return basepath + contextPath + url;
 	}
 
 	@Override
