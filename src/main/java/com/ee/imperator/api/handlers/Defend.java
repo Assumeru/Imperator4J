@@ -3,6 +3,7 @@ package com.ee.imperator.api.handlers;
 import org.json.JSONObject;
 
 import com.ee.imperator.ImperatorApplicationContext;
+import com.ee.imperator.api.handlers.Endpoint.Mode;
 import com.ee.imperator.exception.InvalidRequestException;
 import com.ee.imperator.exception.RequestException;
 import com.ee.imperator.exception.TransactionException;
@@ -10,7 +11,7 @@ import com.ee.imperator.game.Game;
 import com.ee.imperator.map.Territory;
 import com.ee.imperator.user.Member;
 
-@Request(mode = "game", type = "defend")
+@Endpoint(mode = Mode.GAME, type = "defend")
 public class Defend {
 	private final ImperatorApplicationContext context;
 
@@ -20,18 +21,18 @@ public class Defend {
 
 	public JSONObject handle(Member member, @Param("gid") int gid, @Param("to") String tid, @Param("from") String fid, @Param("units") int units) throws RequestException, TransactionException {
 		if(units < 1 || units > Game.MAX_DEFENDERS) {
-			throw new InvalidRequestException("Invalid number of defenders", "game", "defend");
+			throw new InvalidRequestException("Invalid number of defenders", Mode.GAME, "defend");
 		}
 		Game game = context.getState().getGame(gid);
 		if(game == null) {
-			throw new InvalidRequestException("Game does not exist", "game", "defend");
+			throw new InvalidRequestException("Game does not exist", Mode.GAME, "defend");
 		}
 		Territory to = game.getMap().getTerritories().get(tid);
 		Territory from = game.getMap().getTerritories().get(fid);
 		if(to == null || from == null) {
-			throw new InvalidRequestException("Territory not found", "game", "defend");
+			throw new InvalidRequestException("Territory not found", Mode.GAME, "defend");
 		} else if(!to.getOwner().equals(member)) {
-			throw new InvalidRequestException("Not your territory", "game", "defend");
+			throw new InvalidRequestException("Not your territory", Mode.GAME, "defend");
 		}
 		com.ee.imperator.game.Attack attack = getAttack(game, to, from);
 		game.defend(context, attack, units);
@@ -46,6 +47,6 @@ public class Defend {
 				}
 			}
 		}
-		throw new InvalidRequestException("Attack not found", "game", "defend");
+		throw new InvalidRequestException("Attack not found", Mode.GAME, "defend");
 	}
 }

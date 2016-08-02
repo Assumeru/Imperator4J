@@ -11,6 +11,7 @@ import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
 import org.json.JSONObject;
 
+import com.ee.imperator.api.handlers.Endpoint;
 import com.ee.imperator.exception.RequestException;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.user.Member;
@@ -35,7 +36,7 @@ class WebSocketListener implements RequestListener {
 	private void sendUpdates(Member member, Map<String, ?> input, JSONObject output) {
 		if(input.containsKey("mode") && input.containsKey("type") && input.containsKey("gid")) {
 			int gid = getInt(input.get("gid"));
-			if(shouldUpdate(input.get("mode"), input.get("type"))) {
+			if(shouldUpdate(Endpoint.Mode.of(input.get("mode")), input.get("type"))) {
 				if(gid == 0) {
 					sendChatUpdates(member, output);
 				} else {
@@ -52,10 +53,10 @@ class WebSocketListener implements RequestListener {
 		return Integer.parseInt(object.toString());
 	}
 
-	private boolean shouldUpdate(Object mode, Object type) {
-		if("chat".equals(mode)) {
+	private boolean shouldUpdate(Endpoint.Mode mode, Object type) {
+		if(mode == Endpoint.Mode.CHAT) {
 			return "add".equals(type);
-		} else if("game".equals(mode)) {
+		} else if(mode == Endpoint.Mode.GAME) {
 			return !"start-move".equals(type) && !"autoroll".equals(type);
 		}
 		return false;
@@ -120,7 +121,7 @@ class WebSocketListener implements RequestListener {
 
 	private JSONObject sendGameUpdate(Member member, long time, Game game, String type) throws RequestException {
 		return api.handleRequest(new MapBuilder<String, Object>()
-				.put("mode", "update")
+				.put("mode", Endpoint.Mode.UPDATE)
 				.put("type", getType(game, type))
 				.put("gid", game.getId())
 				.put("time", time)
@@ -139,7 +140,7 @@ class WebSocketListener implements RequestListener {
 
 	private JSONObject sendChatUpdate(Member member, long time) throws RequestException {
 		return api.handleRequest(new MapBuilder<String, Object>()
-				.put("mode", "update")
+				.put("mode", Endpoint.Mode.UPDATE)
 				.put("type", "chat")
 				.put("time", time)
 				.put("gid", 0)

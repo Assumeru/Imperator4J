@@ -14,7 +14,7 @@ import com.ee.imperator.url.UrlBuilder;
 public class ImperatorContext extends AbstractApplicationContext implements ImperatorApplicationContext {
 	private final Imperator imperator;
 
-	public ImperatorContext(Imperator imperator) {
+	protected ImperatorContext(Imperator imperator) {
 		super(imperator.getServletContext());
 		this.imperator = imperator;
 	}

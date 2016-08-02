@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.ee.imperator.ImperatorApplicationContext;
+import com.ee.imperator.api.handlers.Endpoint.Mode;
 import com.ee.imperator.data.transaction.GameTransaction;
 import com.ee.imperator.exception.InvalidRequestException;
 import com.ee.imperator.exception.RequestException;
@@ -12,7 +13,7 @@ import com.ee.imperator.game.Game;
 import com.ee.imperator.map.Territory;
 import com.ee.imperator.user.Member;
 
-@Request(mode = "game", type = "attack")
+@Endpoint(mode = Mode.GAME, type = "attack")
 public class Attack {
 	private final ImperatorApplicationContext context;
 
@@ -26,16 +27,16 @@ public class Attack {
 		Territory to = game.getMap().getTerritories().get(tid);
 		Territory from = game.getMap().getTerritories().get(fid);
 		if(to == null || from == null) {
-			throw new InvalidRequestException("Territory does not exist", "game", "attack");
+			throw new InvalidRequestException("Territory does not exist", Mode.GAME, "attack");
 		} else if(!from.getOwner().equals(member) || to.getOwner().equals(member) || units >= from.getUnits() || move >= from.getUnits() || !from.getBorders().contains(to)) {
-			throw new InvalidRequestException("Invalid attack", "game", "attack");
+			throw new InvalidRequestException("Invalid attack", Mode.GAME, "attack");
 		}
 		com.ee.imperator.game.Attack attack;
 		boolean autoRoll;
 		synchronized(game.getAttacks()) {
 			for(com.ee.imperator.game.Attack a : game.getAttacks()) {
 				if(a.getAttacker().equals(to) || a.getAttacker().equals(from) || a.getDefender().equals(to) || a.getDefender().equals(from)) {
-					throw new InvalidRequestException(String.valueOf(member.getLanguage().translate("One of these territories is already engaged in combat.")), "game", "attack");
+					throw new InvalidRequestException(String.valueOf(member.getLanguage().translate("One of these territories is already engaged in combat.")), Mode.GAME, "attack");
 				}
 			}
 			attack = new com.ee.imperator.game.Attack(from, to, Math.max(1, move));
@@ -63,13 +64,13 @@ public class Attack {
 
 	private void checkParams(Game game, Member member, int units) throws InvalidRequestException {
 		if(game == null) {
-			throw new InvalidRequestException("Game does not exist", "game", "attack");
+			throw new InvalidRequestException("Game does not exist", Mode.GAME, "attack");
 		} else if(!game.getCurrentPlayer().equals(member)) {
-			throw new InvalidRequestException("Not your turn", "game", "attack");
+			throw new InvalidRequestException("Not your turn", Mode.GAME, "attack");
 		} else if(game.getState() != Game.State.COMBAT && game.getState() != Game.State.TURN_START) {
-			throw new InvalidRequestException("Cannot attack now", "game", "attack");
+			throw new InvalidRequestException("Cannot attack now", Mode.GAME, "attack");
 		} else if(units < 1 || units > Game.MAX_ATTACKERS) {
-			throw new InvalidRequestException("Invalid amount of attackers", "game", "attack");
+			throw new InvalidRequestException("Invalid amount of attackers", Mode.GAME, "attack");
 		}
 	}
 

@@ -4,12 +4,13 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.ee.imperator.ImperatorApplicationContext;
+import com.ee.imperator.api.handlers.Endpoint.Mode;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.url.UrlBuilder;
 import com.ee.imperator.user.Member;
 import com.ee.imperator.user.Player;
 
-@Request(mode = "update", type = "pregame")
+@Endpoint(mode = Mode.UPDATE, type = "pregame")
 public class PreGameUpdate extends GameUpdate {
 	public PreGameUpdate(ImperatorApplicationContext context) {
 		super(context);

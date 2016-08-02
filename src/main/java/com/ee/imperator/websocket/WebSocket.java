@@ -16,6 +16,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.ee.imperator.ImperatorApplicationContext;
+import com.ee.imperator.api.handlers.Endpoint;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.user.Member;
 
@@ -53,7 +54,7 @@ public class WebSocket {
 		try {
 			JSONObject variables = new JSONObject(message);
 			Member member = (Member) session.getUserProperties().get(Member.class.getName());
-			if((variables.has("mode") && !"update".equals(variables.get("mode"))) || !session.getUserProperties().containsKey(Game.class.getName())) {
+			if((variables.has("mode") && Endpoint.Mode.of(variables.get("mode")) != Endpoint.Mode.UPDATE) || !session.getUserProperties().containsKey(Game.class.getName())) {
 				if(!session.getUserProperties().containsKey(Game.class.getName())) {
 					register(session, variables);
 				}

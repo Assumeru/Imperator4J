@@ -3,6 +3,7 @@ package com.ee.imperator.api.handlers;
 import org.json.JSONObject;
 
 import com.ee.imperator.ImperatorApplicationContext;
+import com.ee.imperator.api.handlers.Endpoint.Mode;
 import com.ee.imperator.data.transaction.GameTransaction;
 import com.ee.imperator.exception.InvalidRequestException;
 import com.ee.imperator.exception.RequestException;
@@ -13,7 +14,7 @@ import com.ee.imperator.game.log.CardsPlayedEntry;
 import com.ee.imperator.user.Member;
 import com.ee.imperator.user.Player;
 
-@Request(mode = "game", type = "play-cards")
+@Endpoint(mode = Mode.GAME, type = "play-cards")
 public class PlayCards {
 	private final ImperatorApplicationContext context;
 
@@ -24,13 +25,13 @@ public class PlayCards {
 	public JSONObject handle(Member member, @Param("gid") int gid, @Param("units") int units) throws RequestException, TransactionException {
 		Game game = context.getState().getGame(gid);
 		if(game == null) {
-			throw new InvalidRequestException("Game does not exist", "game", "play-cards");
+			throw new InvalidRequestException("Game does not exist", Mode.GAME, "play-cards");
 		} else if(!game.getCurrentPlayer().equals(member)) {
-			throw new InvalidRequestException("Not your turn", "game", "play-cards");
+			throw new InvalidRequestException("Not your turn", Mode.GAME, "play-cards");
 		} else if(game.getState() != Game.State.TURN_START && game.getState() != Game.State.FORTIFY) {
-			throw new InvalidRequestException("Cannot play cards after attacking.", "game", "play-cards");
+			throw new InvalidRequestException("Cannot play cards after attacking.", Mode.GAME, "play-cards");
 		} else if(!game.getCurrentPlayer().getCards().canPlay(units)) {
-			throw new InvalidRequestException("Combination not playable", "game", "play-cards");
+			throw new InvalidRequestException("Combination not playable", Mode.GAME, "play-cards");
 		}
 		try(GameTransaction transaction = context.getState().modify(game)) {
 			Player player = game.getCurrentPlayer();

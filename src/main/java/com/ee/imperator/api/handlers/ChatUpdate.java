@@ -10,13 +10,14 @@ import org.json.JSONObject;
 
 import com.ee.imperator.ImperatorApplicationContext;
 import com.ee.imperator.api.Api;
+import com.ee.imperator.api.handlers.Endpoint.Mode;
 import com.ee.imperator.chat.ChatMessage;
 import com.ee.imperator.exception.InvalidRequestException;
 import com.ee.imperator.user.Member;
 import com.ee.imperator.user.Player;
 import com.ee.imperator.user.User;
 
-@Request(mode = "update", type = "chat")
+@Endpoint(mode = Mode.UPDATE, type = "chat")
 public class ChatUpdate {
 	private final ImperatorApplicationContext context;
 
@@ -26,7 +27,7 @@ public class ChatUpdate {
 
 	public JSONObject handle(Member member, @Param("time") long time, @Param("gid") int gid) throws InvalidRequestException {
 		if(member.isGuest() || !canUseChat(member, gid, context)) {
-			throw new InvalidRequestException(member.getId() + " cannot use chat", "update", "chat");
+			throw new InvalidRequestException(member.getId() + " cannot use chat", Mode.UPDATE, "chat");
 		}
 		return new JSONObject().put("update", System.currentTimeMillis()).put("messages", getMessages(gid, time, context));
 	}

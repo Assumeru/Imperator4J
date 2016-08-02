@@ -10,6 +10,7 @@ import org.json.JSONObject;
 
 import com.ee.imperator.ImperatorApplicationContext;
 import com.ee.imperator.api.Api;
+import com.ee.imperator.api.handlers.Endpoint.Mode;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.game.log.LogEntry;
 import com.ee.imperator.map.Region;
@@ -18,7 +19,7 @@ import com.ee.imperator.user.Member;
 import com.ee.imperator.user.Player;
 import com.ee.imperator.user.User;
 
-@Request(mode = "update", type = "game")
+@Endpoint(mode = Mode.UPDATE, type = "game")
 public class GameUpdate {
 	protected final ImperatorApplicationContext context;
 

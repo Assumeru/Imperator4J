@@ -945,6 +945,9 @@
 		}
 		updateRegionDivision();
 		updateUnitBoxes();
+		if($currentTab[0] === 'territory') {
+			fillTerritoryTab();
+		}
 	}
 
 	function updateUnitBoxes() {
@@ -1076,7 +1079,7 @@
 				if(['players', 'regions', 'territories', 'map', 'settings', 'log'].indexOf($page[1]) >= 0 || ($userIsPlayer && ($page[1] === 'cards' || $page[1] === 'chatbox'))) {
 					$currentTab = [$page[1]];
 				}
-			} else if($page.length === 3 && $page[1] === 'territory'&& $game !== undefined && $game.map.territories[$page[2]] !== undefined) {
+			} else if($page.length === 3 && $page[1] === 'territory' && $game !== undefined && $game.map.territories[$page[2]] !== undefined) {
 				$page.shift();
 				$currentTab = $page;
 				$a.text($game.map.territories[$page[1]].name);

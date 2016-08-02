@@ -31,7 +31,7 @@ public class WebSocket extends ApiImplementation {
 			JSONObject response = handleRequest(getVariables(input), member);
 			return response == null ? null : response.toString();
 		} catch(RequestException e) {
-			return new JSONObject().put("type", e.getType()).put("mode", e.getMode()).put("error", e.getMessage(member.getLanguage())).toString();
+			return new JSONObject().put("type", e.getType()).put("mode", e.getMode().toString()).put("error", e.getMessage(member.getLanguage())).toString();
 		}
 	}
 

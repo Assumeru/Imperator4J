@@ -21,11 +21,15 @@ import org.reflections.Reflections;
 
 import com.ee.imperator.ImperatorApplicationContext;
 import com.ee.imperator.api.handlers.Param;
-import com.ee.imperator.api.handlers.Request;
+import com.ee.imperator.api.handlers.Endpoint;
+import com.ee.imperator.api.handlers.Endpoint.Mode;
 import com.ee.imperator.exception.InvalidRequestException;
 import com.ee.imperator.exception.RequestException;
 import com.ee.imperator.user.Member;
 
+/**
+ * Provides a standard way of interacting with games through simple requests.
+ */
 public class Api {
 	private static final Logger LOG = LogManager.createLogger();
 	public static final String DATE_ATOM = "yyyy-MM-dd'T'HH:mm:ssXXX";
@@ -36,6 +40,11 @@ public class Api {
 	private final List<RequestListener> listeners;
 	private final ImperatorApplicationContext context;
 
+	/**
+	 * Creates a new API.
+	 * 
+	 * @param context The context to use
+	 */
 	public Api(ImperatorApplicationContext context) {
 		this.context = context;
 		handlers = getHandlers();
@@ -47,19 +56,19 @@ public class Api {
 
 	@SuppressWarnings("unchecked")
 	private Map<String, List<Handler>> getHandlers() {
-		Map<String, List<Handler>> handlers = new HashMap<>();
-		Set<Class<?>> types = new Reflections(Request.class.getPackage().getName()).getTypesAnnotatedWith(Request.class);
+		Map<String, List<Handler>> found = new HashMap<>();
+		Set<Class<?>> types = new Reflections(Endpoint.class.getPackage().getName()).getTypesAnnotatedWith(Endpoint.class);
 		for(Class<?> type : types) {
 			if(type.isInterface() || Modifier.isAbstract(type.getModifiers())) {
 				continue;
 			}
-			findHandler(handlers, ReflectionUtils.getAllMethods(type, method -> "handle".equals(method.getName())), type);
+			findHandler(found, ReflectionUtils.getAllMethods(type, method -> "handle".equals(method.getName())), type);
 		}
-		for(List<Handler> list : handlers.values()) {
+		for(List<Handler> list : found.values()) {
 			list.sort(null);
 			((ArrayList<?>) list).trimToSize();
 		}
-		return Collections.unmodifiableMap(handlers);
+		return Collections.unmodifiableMap(found);
 	}
 
 	JSONObject handleRequest(Map<String, ?> variables, Member member) throws RequestException {
@@ -71,12 +80,12 @@ public class Api {
 			throw e;
 		} catch(Exception e) {
 			LOG.e("Failed to handle request", e);
-			throw new RequestException("Fatal error", String.valueOf(variables.get("mode")), String.valueOf(variables.get("type")), e);
+			throw new RequestException("Fatal error", Endpoint.Mode.of(variables.get("mode")), String.valueOf(variables.get("type")), e);
 		}
 	}
 
 	private JSONObject handleInternal(Map<String, ?> variables, Member member) throws RequestException, IllegalAccessException {
-		String mode = String.valueOf(variables.get("mode"));
+		Endpoint.Mode mode = Endpoint.Mode.of(variables.get("mode"));
 		String type = String.valueOf(variables.get("type"));
 		try {
 			for(Handler handler : getHandlers(mode, type)) {
@@ -96,7 +105,7 @@ public class Api {
 		throw new InvalidRequestException("Unknown request", mode, type);
 	}
 
-	private List<Handler> getHandlers(String mode, String type) {
+	private List<Handler> getHandlers(Endpoint.Mode mode, String type) {
 		List<Handler> list = handlers.get(getKey(mode, type));
 		if(list != null) {
 			return list;
@@ -105,16 +114,16 @@ public class Api {
 	}
 
 	private void findHandler(Map<String, List<Handler>> handlers, Set<Method> methods, Class<?> type) {
-		Request request = type.getAnnotation(Request.class);
-		if(request.type() == null || request.type().isEmpty() || request.mode() == null || request.mode().isEmpty()) {
-			LOG.w("Classes annotated with " + Request.class + " must specify a non-empty mode and type");
+		Endpoint request = type.getAnnotation(Endpoint.class);
+		if(request.type() == null || request.type().isEmpty() || request.mode() == null) {
+			LOG.w("Classes annotated with " + Endpoint.class + " must specify a non-empty mode and type");
 			return;
 		}
 		Object instance;
 		try {
 			instance = getInstance(type);
 		} catch(InstantiationException | IllegalAccessException | InvocationTargetException e) {
-			LOG.w("Classes annotated with " + Request.class + " must specify a default constructor", e);
+			LOG.w("Classes annotated with " + Endpoint.class + " must specify a default constructor", e);
 			return;
 		}
 		addHandlers(handlers, methods, type, getKey(request.mode(), request.type()), instance);
@@ -144,7 +153,7 @@ public class Api {
 		}
 	}
 
-	private String getKey(String mode, String type) {
+	private String getKey(Endpoint.Mode mode, String type) {
 		return mode + "_" + type;
 	}
 
@@ -170,21 +179,37 @@ public class Api {
 		return true;
 	}
 
-	public static String getErrorMessage(String error, String mode, String type) {
+	/**
+	 * @param error The error message
+	 * @param mode The request mode
+	 * @param type The request type
+	 * @return A standard reply containing the given error message
+	 */
+	public static String getErrorMessage(String error, Mode mode, String type) {
 		return getReply(new JSONObject().put("error", error), mode, type).toString();
 	}
 
-	private static JSONObject getReply(JSONObject reply, String mode, String type) {
+	private static JSONObject getReply(JSONObject reply, Mode mode, String type) {
 		if(reply == null) {
 			return null;
 		}
-		return reply.put("request", new JSONObject().put("mode", mode).put("type", type));
+		return reply.put("request", new JSONObject().put("mode", mode.toString()).put("type", type));
 	}
 
+	/**
+	 * Registers a listener to be called on successful API calls.
+	 * 
+	 * @param listener The listener to register
+	 */
 	public void addRequestListener(RequestListener listener) {
 		listeners.add(listener);
 	}
 
+	/**
+	 * Deregisters a listener.
+	 * 
+	 * @param listener The listener to remove
+	 */
 	public void removeRequestListener(RequestListener listener) {
 		listeners.remove(listener);
 	}

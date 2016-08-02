@@ -7,10 +7,10 @@ import org.json.JSONObject;
 import com.ee.imperator.exception.RequestException;
 import com.ee.imperator.user.Member;
 
-public class ApiImplementation {
+class ApiImplementation {
 	protected final Api api;
 
-	public ApiImplementation(Api api) {
+	protected ApiImplementation(Api api) {
 		this.api = api;
 	}
 

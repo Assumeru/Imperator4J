@@ -3,6 +3,7 @@ package com.ee.imperator.api.handlers;
 import org.json.JSONObject;
 
 import com.ee.imperator.ImperatorApplicationContext;
+import com.ee.imperator.api.handlers.Endpoint.Mode;
 import com.ee.imperator.data.transaction.GameTransaction;
 import com.ee.imperator.exception.InvalidRequestException;
 import com.ee.imperator.exception.RequestException;
@@ -10,7 +11,7 @@ import com.ee.imperator.exception.TransactionException;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.user.Member;
 
-@Request(mode = "game", type = "start-move")
+@Endpoint(mode = Mode.GAME, type = "start-move")
 public class StartMove {
 	private final ImperatorApplicationContext context;
 
@@ -21,13 +22,13 @@ public class StartMove {
 	public JSONObject handle(Member member, @Param("gid") int gid) throws RequestException, TransactionException {
 		Game game = context.getState().getGame(gid);
 		if(game == null) {
-			throw new InvalidRequestException("Game does not exist", "game", "start-move");
+			throw new InvalidRequestException("Game does not exist", Mode.GAME, "start-move");
 		} else if(!game.getCurrentPlayer().equals(member)) {
-			throw new InvalidRequestException("Not your turn", "game", "start-move");
+			throw new InvalidRequestException("Not your turn", Mode.GAME, "start-move");
 		} else if(game.getState() != Game.State.COMBAT) {
-			throw new InvalidRequestException("Cannot move before attacking", "game", "start-move");
+			throw new InvalidRequestException("Cannot move before attacking", Mode.GAME, "start-move");
 		} else if(!game.getAttacks().isEmpty()) {
-			throw new InvalidRequestException(String.valueOf(member.getLanguage().translate("All battles need to finish before units can be moved.")), "game", "start-move");
+			throw new InvalidRequestException(String.valueOf(member.getLanguage().translate("All battles need to finish before units can be moved.")), Mode.GAME, "start-move");
 		}
 		try(GameTransaction transaction = context.getState().modify(game)) {
 			transaction.setState(Game.State.POST_COMBAT);

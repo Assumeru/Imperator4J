@@ -5,6 +5,7 @@ import java.util.Map;
 import org.ee.collection.MapBuilder;
 import org.json.JSONObject;
 
+import com.ee.imperator.api.handlers.Endpoint;
 import com.ee.imperator.exception.RequestException;
 import com.ee.imperator.game.Cards.Card;
 import com.ee.imperator.map.Territory;
@@ -33,7 +34,7 @@ public class TestApi extends InternalApi {
 	public static class EndTurn extends Context {
 		public EndTurn(Player player, Card card) {
 			super(player.getMember(), new MapBuilder<String, Object>()
-					.put("mode", "game")
+					.put("mode", Endpoint.Mode.GAME)
 					.put("type", "end-turn")
 					.put("gid", player.getGame().getId())
 					.put("card", card == null ? -1 : card.ordinal()).build());
@@ -43,7 +44,7 @@ public class TestApi extends InternalApi {
 	public static class Fortify extends Context {
 		public Fortify(Player player) {
 			super(player.getMember(), new MapBuilder<String, Object>()
-					.put("mode", "game")
+					.put("mode", Endpoint.Mode.GAME)
 					.put("type", "fortify")
 					.put("gid", player.getGame().getId()).build());
 		}
@@ -52,7 +53,7 @@ public class TestApi extends InternalApi {
 	public static class Stack extends Context {
 		public Stack(Player player, Territory territory, int units) {
 			super(player.getMember(), new MapBuilder<String, Object>()
-					.put("mode", "game")
+					.put("mode", Endpoint.Mode.GAME)
 					.put("type", "place-units")
 					.put("gid", player.getGame().getId())
 					.put("territory", territory.getId())
@@ -63,7 +64,7 @@ public class TestApi extends InternalApi {
 	public static class Attack extends Context {
 		public Attack(Player player, Territory from, Territory to, int units, int move) {
 			super(player.getMember(), new MapBuilder<String, Object>()
-					.put("mode", "game")
+					.put("mode", Endpoint.Mode.GAME)
 					.put("type", "attack")
 					.put("gid", player.getGame().getId())
 					.put("from", from.getId())
@@ -76,7 +77,7 @@ public class TestApi extends InternalApi {
 	public static class StartMove extends Context {
 		public StartMove(Player player) {
 			super(player.getMember(), new MapBuilder<String, Object>()
-					.put("mode", "game")
+					.put("mode", Endpoint.Mode.GAME)
 					.put("type", "start-move")
 					.put("gid", player.getGame().getId()).build());
 		}
@@ -85,7 +86,7 @@ public class TestApi extends InternalApi {
 	public static class MoveUnits extends Context {
 		public MoveUnits(Player player, Territory from, Territory to, int move) {
 			super(player.getMember(), new MapBuilder<String, Object>()
-					.put("mode", "game")
+					.put("mode", Endpoint.Mode.GAME)
 					.put("type", "move")
 					.put("gid", player.getGame().getId())
 					.put("from", from.getId())
@@ -97,7 +98,7 @@ public class TestApi extends InternalApi {
 	public static class PlayCards extends Context {
 		public PlayCards(Player player, int units) {
 			super(player.getMember(), new MapBuilder<String, Object>()
-					.put("mode", "game")
+					.put("mode", Endpoint.Mode.GAME)
 					.put("type", "play-cards")
 					.put("gid", player.getGame().getId())
 					.put("units", units).build());
@@ -107,7 +108,7 @@ public class TestApi extends InternalApi {
 	public static class Forfeit extends Context {
 		public Forfeit(Player player) {
 			super(player.getMember(), new MapBuilder<String, Object>()
-					.put("mode", "game")
+					.put("mode", Endpoint.Mode.GAME)
 					.put("type", "forfeit")
 					.put("gid", player.getGame().getId()).build());
 		}

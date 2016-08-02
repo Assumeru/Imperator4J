@@ -2,6 +2,7 @@ package com.ee.imperator.api;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 
 import org.ee.collection.ListMap;
 import org.ee.logger.LogManager;
@@ -12,20 +13,40 @@ import org.ee.web.response.Response;
 import org.ee.web.response.SimpleResponse;
 import org.json.JSONObject;
 
+import com.ee.imperator.api.handlers.Endpoint;
+import com.ee.imperator.exception.ConfigurationException;
 import com.ee.imperator.exception.RequestException;
 import com.ee.imperator.user.Member;
 
+/**
+ * Provides a way of accessing the API through HTTP requests.
+ */
 public class LongPolling extends ApiImplementation {
 	private static final Logger LOG = LogManager.createLogger();
+	private final int maxTries;
+	private final long sleep;
 
 	LongPolling(Api api) {
 		super(api);
+		try {
+			maxTries = api.getContext().getConfig().getInt(getClass(), "maxTries");
+			sleep = api.getContext().getConfig().getLong(getClass(), "sleep");
+		} catch(NullPointerException e) {
+			throw new ConfigurationException(e);
+		}
 	}
 
-	public org.ee.web.response.Response handle(Request request) {
+	/**
+	 * Handles a request by sending its POST parameters to the API.
+	 * If the request mode is {@code update} the thread will wait until there is data to send or the configured time limit has been exceeded.
+	 * 
+	 * @param request The request to handle
+	 * @return A response to send to the user
+	 */
+	public Response handle(Request request) {
 		Map<String, String> arguments = getArguments(request);
 		if(arguments != null) {
-			if("update".equals(arguments.get("mode"))) {
+			if(Endpoint.Mode.of(arguments.get("mode")) == Endpoint.Mode.UPDATE) {
 				sleep(arguments);
 			}
 			Member user = api.getContext().getState().getMember(request);
@@ -57,13 +78,11 @@ public class LongPolling extends ApiImplementation {
 			}
 			long time = Long.parseLong(arguments.get("time"));
 			int gid = Integer.parseInt(arguments.get("gid"));
-			int maxTries = api.getContext().getConfig().getInt(getClass(), "maxTries");
-			long sleep = api.getContext().getConfig().getLong(getClass(), "sleep");
 			for(int i = 0; shouldSleep(gid, time, game) && i < maxTries || maxTries == 0; i++) {
 				Thread.sleep(sleep);
 			}
 		} catch(NumberFormatException e) {
-			// Do nothing
+			LOG.log(Level.ALL, e);
 		} catch(InterruptedException e) {
 			LOG.e(e);
 		}
