@@ -5,7 +5,9 @@ import org.ee.web.AbstractApplicationContext;
 
 import com.ee.imperator.api.Api;
 import com.ee.imperator.crypt.PasswordHasher;
+import com.ee.imperator.crypt.csrf.CSRFTokenBuilder;
 import com.ee.imperator.data.State;
+import com.ee.imperator.exception.ConfigurationException;
 import com.ee.imperator.i18n.ClientSideLanguageProvider;
 import com.ee.imperator.map.MapProvider;
 import com.ee.imperator.template.TemplateProvider;
@@ -62,5 +64,41 @@ public class ImperatorContext extends AbstractApplicationContext implements Impe
 	@Override
 	public Api getApi() {
 		return imperator.getApi();
+	}
+
+	@Override
+	public CSRFTokenBuilder getCsrfTokenBuilder() {
+		return imperator.getCsrfTokenBuilder();
+	}
+
+	@Override
+	public int getIntSetting(Class<?> type, String key) {
+		return checkValue(getConfig().getInt(type, key), type, key);
+	}
+
+	@Override
+	public long getLongSetting(Class<?> type, String key) {
+		return checkValue(getConfig().getLong(type, key), type, key);
+	}
+
+	@Override
+	public String getStringSetting(Class<?> type, String key) {
+		String value = getConfig().getString(type, key);
+		if(value == null || value.isEmpty()) {
+			throw new ConfigurationException("Missing config value for " + Config.getKey(type, key));
+		}
+		return value;
+	}
+
+	@Override
+	public String[] getStringsSetting(Class<?> type, String key) {
+		return checkValue(getConfig().getStrings(type, key), type, key);
+	}
+
+	private <T> T checkValue(T value, Class<?> type, String key) {
+		if(value == null) {
+			throw new ConfigurationException("Missing config value for " + Config.getKey(type, key));
+		}
+		return value;
 	}
 }

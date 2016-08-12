@@ -11,9 +11,11 @@ import org.ee.collection.MapBuilder;
 import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
 import org.ee.web.Status;
+import org.ee.web.request.Request;
 import org.ee.web.request.RequestHandler;
 import org.ee.web.request.filter.RequestFilter;
 import org.ee.web.request.filter.RequestFilterHandler;
+import org.ee.web.response.Response;
 import org.reflections.Reflections;
 import org.reflections.util.ConfigurationBuilder;
 
@@ -38,6 +40,15 @@ public class ImperatorRequestHandler extends RequestFilterHandler {
 				.put(Status.INTERNAL_SERVER_ERROR, new Http500())
 				.build(true);
 		statusPages.values().forEach(p -> p.setRequestHandler(this));
+	}
+
+	@Override
+	public Response handle(Request request) {
+		Response response = super.handle(request);
+		if(context.getCsrfTokenBuilder().shouldSetToken(request)) {
+			context.getCsrfTokenBuilder().setToken(request, response);
+		}
+		return response;
 	}
 
 	private static Set<RequestFilter> initRequestHandlers() {

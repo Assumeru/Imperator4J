@@ -23,6 +23,7 @@ import com.ee.imperator.api.Api;
 import com.ee.imperator.config.ImperatorConfig;
 import com.ee.imperator.crypt.PasswordHasher;
 import com.ee.imperator.crypt.bcrypt.BCryptHasher;
+import com.ee.imperator.crypt.csrf.CSRFTokenBuilder;
 import com.ee.imperator.data.ChatState;
 import com.ee.imperator.data.GameState;
 import com.ee.imperator.data.JoinedState;
@@ -51,6 +52,7 @@ public class Imperator extends WebApplication {
 	private MapProvider mapProvider;
 	private RequestHandler requestHandler;
 	private ResponseWriter responseWriter;
+	private CSRFTokenBuilder csrfTokenBuilder;
 	private CleanUp cleanup;
 	private Api api;
 
@@ -68,6 +70,7 @@ public class Imperator extends WebApplication {
 		mapProvider = getProviderInstance(MapProvider.class);
 		requestHandler = getProviderInstance(RequestHandler.class);
 		responseWriter = getProviderInstance(ResponseWriter.class);
+		csrfTokenBuilder = getProviderInstance(CSRFTokenBuilder.class);
 		cleanup = new CleanUp(context);
 		initWebSocket();
 	}
@@ -172,6 +175,10 @@ public class Imperator extends WebApplication {
 
 	public Api getApi() {
 		return api;
+	}
+
+	public CSRFTokenBuilder getCsrfTokenBuilder() {
+		return csrfTokenBuilder;
 	}
 
 	@Override

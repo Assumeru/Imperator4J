@@ -21,7 +21,7 @@ public class CachedMemberState implements MemberState {
 	}
 
 	public CachedMemberState(MemberState memberProvider, ImperatorApplicationContext context) {
-		this(memberProvider, context.getConfig().getLong(CachedMemberState.class, "timeToKeep"));
+		this(memberProvider, context.getLongSetting(CachedMemberState.class, "timeToKeep"));
 	}
 
 	@Override

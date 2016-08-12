@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,6 +32,9 @@ public abstract class WebApplication extends HttpServlet {
 	private void handle(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		Response res = getRequestHandler().handle(new ServletRequest(request, response));
 		response.setStatus(res.getStatus().getCode());
+		for(Cookie cookie : res.getCookies()) {
+			response.addCookie(cookie);
+		}
 		setHeaders(res.getHeaders(), response);
 		writeOutput(res, response);
 	}

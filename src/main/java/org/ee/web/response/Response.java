@@ -1,5 +1,9 @@
 package org.ee.web.response;
 
+import java.util.Collection;
+
+import javax.servlet.http.Cookie;
+
 import org.ee.collection.ListMap;
 import org.ee.web.Status;
 
@@ -18,13 +22,17 @@ public interface Response {
 
 	void setStatus(Status status);
 
-	Status getStatus();
-
 	void setHeader(String key, String value);
 
 	void setOutput(Object output);
 
+	void addCookie(Cookie cookie);
+
 	ListMap<String, String> getHeaders();
 
 	Object getOutput();
+
+	Status getStatus();
+
+	Collection<Cookie> getCookies();
 }

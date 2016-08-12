@@ -28,7 +28,7 @@ public class Join {
 		if(game == null) {
 			throw new InvalidRequestException("Game does not exist", Mode.GAME, "join");
 		}
-		List<String> colors = Arrays.asList(context.getConfig().getStrings(Player.class, "color.hex"));
+		List<String> colors = Arrays.asList(context.getStringsSetting(Player.class, "color.hex"));
 		if(!colors.contains(color)) {
 			throw new InvalidRequestException("Unknown color", Mode.GAME, "join");
 		}

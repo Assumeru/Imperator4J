@@ -10,6 +10,7 @@ Imperator.API = (function($) {
 	$ws,
 	$disconnects = 0,
 	$onDisconnect = [],
+	$ajaxModifiers = (Imperator.settings.API.ajaxModifiers || []).slice(0),
 	__ = Imperator.Language.__;
 	if(window.console === undefined) {
 		window.console = {};
@@ -187,11 +188,11 @@ Imperator.API = (function($) {
 	}
 
 	function sendLongPolling($json) {
-		$.ajax({
+		$.ajax(modifyAjax({
 			method: 'POST',
 			url: $longPollingURL,
 			data: $json
-		}).done(function($msg) {
+		})).done(function($msg) {
 			onMessage($msg);
 			if($msg !== undefined && $msg.error !== undefined) {
 				onError($msg, $json);
@@ -229,6 +230,17 @@ Imperator.API = (function($) {
 		$onDisconnect.push($listener);
 	}
 
+	function addAjaxMod($listener) {
+		$ajaxModifiers.push($listener);
+	}
+
+	function modifyAjax($ajax) {
+		for(var $i = 0; $i < $ajaxModifiers.length; $i++) {
+			$ajaxModifiers[$i]($ajax);
+		}
+		return $ajax;
+	}
+
 	connect();
 
 	return {
@@ -239,6 +251,7 @@ Imperator.API = (function($) {
 		onDisconnect: addOnDisconnect,
 		incrementDisconnects: incrementDisconnects,
 		resetDisconnects: resetDisconnects,
+		modifyLongPolling: addAjaxMod,
 		MAX_CHAT_ERRORS: 5,
 		MAX_GAME_ERRORS: 5
 	};

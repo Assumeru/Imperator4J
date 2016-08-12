@@ -52,6 +52,7 @@ public abstract class ImperatorPage extends AbstractWebPage {
 			context.setVariable(var);
 		}
 		context.getLanguageProvider().addToPage(context);
+		context.getCsrfTokenBuilder().addToPage(context);
 	}
 
 	protected abstract void setVariables(PageContext context);

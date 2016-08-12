@@ -29,7 +29,7 @@ public class CachedGameState implements GameState {
 	}
 
 	public CachedGameState(GameState gameProvider, ImperatorApplicationContext context) {
-		this(gameProvider, context.getConfig().getLong(CachedGameState.class, "timeToKeep"));
+		this(gameProvider, context.getLongSetting(CachedGameState.class, "timeToKeep"));
 	}
 
 	private void cache(Game game) {

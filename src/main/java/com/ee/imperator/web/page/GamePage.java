@@ -154,8 +154,8 @@ public class GamePage extends AbstractVariablePage {
 	}
 
 	private Map<String, String> getColors(PageContext context, Game game) {
-		String[] keys = context.getConfig().getStrings(Player.class, "color.names");
-		String[] values = context.getConfig().getStrings(Player.class, "color.hex");
+		String[] keys = context.getStringsSetting(Player.class, "color.names");
+		String[] values = context.getStringsSetting(Player.class, "color.hex");
 		if(keys.length != values.length) {
 			throw new ConfigurationException("color.names.length != color.hex.length");
 		}

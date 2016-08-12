@@ -14,7 +14,6 @@ import org.ee.web.response.SimpleResponse;
 import org.json.JSONObject;
 
 import com.ee.imperator.api.handlers.Endpoint;
-import com.ee.imperator.exception.ConfigurationException;
 import com.ee.imperator.exception.RequestException;
 import com.ee.imperator.user.Member;
 
@@ -28,12 +27,8 @@ public class LongPolling extends ApiImplementation {
 
 	LongPolling(Api api) {
 		super(api);
-		try {
-			maxTries = api.getContext().getConfig().getInt(getClass(), "maxTries");
-			sleep = api.getContext().getConfig().getLong(getClass(), "sleep");
-		} catch(NullPointerException e) {
-			throw new ConfigurationException(e);
-		}
+		maxTries = api.getContext().getIntSetting(getClass(), "maxTries");
+		sleep = api.getContext().getLongSetting(getClass(), "sleep");
 	}
 
 	/**
@@ -46,7 +41,10 @@ public class LongPolling extends ApiImplementation {
 	public Response handle(Request request) {
 		Map<String, String> arguments = getArguments(request);
 		if(arguments != null) {
-			if(Endpoint.Mode.of(arguments.get("mode")) == Endpoint.Mode.UPDATE) {
+			Endpoint.Mode mode = Endpoint.Mode.of(arguments.get("mode"));
+			if(!api.getContext().getCsrfTokenBuilder().tokenIsValid(request)) {
+				return getResponse(Status.FORBIDDEN, Api.getErrorMessage("CSRF token mismatch", mode, arguments.get("type")));
+			} else if(mode == Endpoint.Mode.UPDATE) {
 				sleep(arguments);
 			}
 			Member user = api.getContext().getState().getMember(request);

@@ -1,11 +1,17 @@
 package org.ee.web.response;
 
+import java.util.Collection;
+import java.util.HashSet;
+
+import javax.servlet.http.Cookie;
+
 import org.ee.collection.ListHashMap;
 import org.ee.collection.ListMap;
 import org.ee.web.Status;
 
 public class SimpleResponse implements Response {
-	private final ListMap<String, String> headers = new ListHashMap<>();
+	private final ListMap<String, String> headers;
+	private final Collection<Cookie> cookies;
 	private Status status;
 	private Object output;
 
@@ -18,6 +24,8 @@ public class SimpleResponse implements Response {
 	}
 
 	public SimpleResponse(Status status, Object output) {
+		headers = new ListHashMap<>();
+		cookies = new HashSet<>();
 		this.status = status;
 		this.output = output;
 	}
@@ -50,5 +58,15 @@ public class SimpleResponse implements Response {
 	@Override
 	public Object getOutput() {
 		return output;
+	}
+
+	@Override
+	public void addCookie(Cookie cookie) {
+		cookies.add(cookie);
+	}
+
+	@Override
+	public Collection<Cookie> getCookies() {
+		return cookies;
 	}
 }

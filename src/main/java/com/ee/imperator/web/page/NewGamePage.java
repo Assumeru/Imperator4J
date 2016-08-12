@@ -4,17 +4,18 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.ee.config.Config;
 import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
 import org.ee.web.exception.ForbiddenException;
 import org.ee.web.request.Request.Method;
 
+import com.ee.imperator.ImperatorApplicationContext;
 import com.ee.imperator.exception.ConfigurationException;
 import com.ee.imperator.exception.FormException;
 import com.ee.imperator.exception.TransactionException;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.user.Player;
+import com.ee.imperator.web.ImperatorRequestHandler;
 import com.ee.imperator.web.NavigationPage;
 import com.ee.imperator.web.context.PageContext;
 import com.ee.imperator.web.page.form.NewGameForm;
@@ -22,6 +23,7 @@ import com.ee.imperator.web.page.form.NewGameForm;
 @NavigationPage(index = 2, name = "New Game")
 public class NewGamePage extends ImperatorPage {
 	private static final Logger LOG = LogManager.createLogger();
+	private Map<String, String> colors;
 
 	public NewGamePage() {
 		super("game/new", "newgame", "New Game");
@@ -46,7 +48,7 @@ public class NewGamePage extends ImperatorPage {
 		}
 		context.setVariable(PageContext.VARIABLE_CSS, Arrays.asList("newgame.css"));
 		context.setVariable("maps", context.getMapProvider().getMaps());
-		context.setVariable("colors", getColors(context.getConfig()));
+		context.setVariable("colors", colors);
 		context.setVariable("name", context.getUser().getLanguage().translate("%1$s's game", context.getUser().getName()));
 	}
 
@@ -61,9 +63,15 @@ public class NewGamePage extends ImperatorPage {
 		redirect(context.getUrlBuilder().game(game));
 	}
 
-	private Map<String, String> getColors(Config config) {
-		String[] keys = config.getStrings(Player.class, "color.names");
-		String[] values = config.getStrings(Player.class, "color.hex");
+	@Override
+	public void setRequestHandler(ImperatorRequestHandler handler) {
+		super.setRequestHandler(handler);
+		colors = getColors(handler.getContext());
+	}
+
+	private Map<String, String> getColors(ImperatorApplicationContext context) {
+		String[] keys = context.getStringsSetting(Player.class, "color.names");
+		String[] values = context.getStringsSetting(Player.class, "color.hex");
 		if(keys.length != values.length) {
 			throw new ConfigurationException("color.names.length != color.hex.length");
 		}

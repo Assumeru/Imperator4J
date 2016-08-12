@@ -6,7 +6,6 @@ import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
 
 import com.ee.imperator.ImperatorApplicationContext;
-import com.ee.imperator.exception.ConfigurationException;
 
 public class CleanUp implements Runnable {
 	private static final Logger LOG = LogManager.createLogger();
@@ -21,27 +20,11 @@ public class CleanUp implements Runnable {
 
 	public CleanUp(ImperatorApplicationContext context) {
 		this.context = context;
-		maxFinishedGameAge = getLongSetting("maxFinishedGameAge");
-		inactiveGameTime = getLongSetting("inactiveGameTime");
-		maxChatMessageAge = getLongSetting("maxChatMessageAge");
-		numberOfMessagesToKeep = getIntSetting("numberOfMessagesToKeep");
-		sleep = getLongSetting("sleep");
-	}
-
-	private long getLongSetting(String key) {
-		Long value = context.getConfig().getLong(CleanUp.class, key);
-		if(value == null) {
-			throw new ConfigurationException("Missing config value for " + key);
-		}
-		return value;
-	}
-
-	private int getIntSetting(String key) {
-		Integer value = context.getConfig().getInt(CleanUp.class, key);
-		if(value == null) {
-			throw new ConfigurationException("Missing config value for " + key);
-		}
-		return value;
+		maxFinishedGameAge = context.getLongSetting(getClass(), "maxFinishedGameAge");
+		inactiveGameTime = context.getLongSetting(getClass(), "inactiveGameTime");
+		maxChatMessageAge = context.getLongSetting(getClass(), "maxChatMessageAge");
+		numberOfMessagesToKeep = context.getIntSetting(getClass(), "numberOfMessagesToKeep");
+		sleep = context.getLongSetting(getClass(), "sleep");
 	}
 
 	@Override
