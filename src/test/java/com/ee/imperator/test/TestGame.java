@@ -15,7 +15,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.ee.imperator.Imperator;
-import com.ee.imperator.api.TestApi;
 import com.ee.imperator.exception.RequestException;
 import com.ee.imperator.exception.TransactionException;
 import com.ee.imperator.game.Cards;

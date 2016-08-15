@@ -1,10 +1,12 @@
-package com.ee.imperator.api;
+package com.ee.imperator.test;
 
 import java.util.Map;
 
 import org.ee.collection.MapBuilder;
 import org.json.JSONObject;
 
+import com.ee.imperator.api.Api;
+import com.ee.imperator.api.InternalApi;
 import com.ee.imperator.api.handlers.Endpoint;
 import com.ee.imperator.exception.RequestException;
 import com.ee.imperator.game.Cards.Card;
@@ -118,7 +120,7 @@ public class TestApi extends InternalApi {
 		super(api);
 	}
 
-	public String handle(com.ee.imperator.api.TestApi.Context input) {
+	public String handle(com.ee.imperator.test.TestApi.Context input) {
 		try {
 			JSONObject response = handleRequest(input.getVariables(), input.getMember());
 			return response == null ? null : response.toString();

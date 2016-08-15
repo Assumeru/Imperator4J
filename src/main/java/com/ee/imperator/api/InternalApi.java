@@ -12,7 +12,7 @@ import com.ee.imperator.user.Player;
  * Can interact with optimised handlers.
  */
 public class InternalApi extends ApiImplementation {
-	InternalApi(Api api) {
+	protected InternalApi(Api api) {
 		super(api);
 	}
 
