@@ -41,8 +41,8 @@ public class MemoryMemberState implements MemberState {
 	}
 
 	@Override
-	public Integer getId(Request request) {
-		return null;
+	public int getId(Request request) {
+		return 0;
 	}
 
 	@Override

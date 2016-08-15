@@ -3,16 +3,16 @@ package com.ee.imperator.web.page;
 import org.ee.web.request.Request;
 import org.ee.web.response.Response;
 
-import com.ee.imperator.ImperatorApplicationContext;
+import com.ee.imperator.api.LongPolling;
 import com.ee.imperator.web.ImperatorRequestHandler;
 import com.ee.imperator.web.WebPage;
 
 public class Ajax implements WebPage {
-	private ImperatorApplicationContext context;
+	private LongPolling api;
 
 	@Override
 	public Response handle(Request request) {
-		return context.getApi().getLongPolling().handle(request);
+		return api.handle(request);
 	}
 
 	@Override
@@ -22,7 +22,7 @@ public class Ajax implements WebPage {
 
 	@Override
 	public void setRequestHandler(ImperatorRequestHandler handler) {
-		context = handler.getContext();
+		api = handler.getContext().getApi().getLongPolling();
 	}
 
 	@Override

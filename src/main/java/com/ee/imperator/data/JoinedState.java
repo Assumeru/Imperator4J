@@ -78,7 +78,7 @@ public class JoinedState implements State {
 	}
 
 	@Override
-	public Integer getId(Request request) {
+	public int getId(Request request) {
 		return memberProvider.getId(request);
 	}
 

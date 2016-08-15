@@ -14,6 +14,7 @@ import javax.sql.DataSource;
 
 import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
+import org.ee.sql.CloseableDataSource;
 import org.ee.sql.PreparedStatementBuilder;
 
 import com.ee.imperator.ImperatorApplicationContext;

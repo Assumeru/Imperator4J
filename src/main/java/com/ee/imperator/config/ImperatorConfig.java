@@ -6,17 +6,16 @@ import java.io.IOException;
 import org.ee.config.properties.PropertiesConfig;
 import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
-
-import com.ee.imperator.ImperatorApplicationContext;
+import org.ee.web.ApplicationContext;
 
 public class ImperatorConfig extends PropertiesConfig {
 	private static final Logger LOG = LogManager.createLogger();
 
-	public ImperatorConfig(ImperatorApplicationContext context) throws IOException {
+	public ImperatorConfig(ApplicationContext context) throws IOException {
 		super(getConfigPath(context));
 	}
 
-	private static File getConfigPath(ImperatorApplicationContext context) {
+	private static File getConfigPath(ApplicationContext context) {
 		String path = System.getProperty(ImperatorConfig.class.getName() + ".file");
 		if(path != null) {
 			File file = new File(path);

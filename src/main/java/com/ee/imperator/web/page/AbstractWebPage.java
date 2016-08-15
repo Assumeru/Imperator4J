@@ -23,8 +23,9 @@ public abstract class AbstractWebPage implements WebPage {
 
 	@Override
 	public Response handle(Request request) {
-		final ByteArrayOutputStream output = getResponseOutput(request);
-		return new SimpleResponse(status, output);
+		Response response = new SimpleResponse(status, getResponseOutput(request));
+		response.setContentType("text/html");
+		return response;
 	}
 
 	protected abstract ByteArrayOutputStream getResponseOutput(Request request);

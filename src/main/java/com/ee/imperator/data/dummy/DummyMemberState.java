@@ -26,7 +26,7 @@ public class DummyMemberState extends CachedMemberState {
 			}
 
 			@Override
-			public Integer getId(Request request) {
+			public int getId(Request request) {
 				return Objects.hashCode(request.getHeaders().getFirst("User-Agent"));
 			}
 		}, context);

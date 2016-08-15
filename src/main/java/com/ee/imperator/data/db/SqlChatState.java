@@ -11,6 +11,7 @@ import javax.sql.DataSource;
 
 import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
+import org.ee.sql.CloseableDataSource;
 
 import com.ee.imperator.ImperatorApplicationContext;
 import com.ee.imperator.chat.ChatMessage;

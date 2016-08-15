@@ -29,9 +29,6 @@ public class CachedMemberState implements MemberState {
 		Member member = cache.get(id);
 		if(member == null) {
 			member = memberProvider.getMember(id);
-			if(member == null) {
-				return null;
-			}
 			cache(member);
 		}
 		return member;
@@ -39,11 +36,7 @@ public class CachedMemberState implements MemberState {
 
 	@Override
 	public Member getMember(Request request) {
-		Integer id = getId(request);
-		if(id == null) {
-			return null;
-		}
-		return getMember(id);
+		return getMember(getId(request));
 	}
 
 	private void cache(Member member) {
@@ -51,7 +44,7 @@ public class CachedMemberState implements MemberState {
 	}
 
 	@Override
-	public Integer getId(Request request) {
+	public int getId(Request request) {
 		return memberProvider.getId(request);
 	}
 

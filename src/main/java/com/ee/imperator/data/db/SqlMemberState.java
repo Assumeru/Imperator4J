@@ -12,6 +12,7 @@ import javax.sql.DataSource;
 
 import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
+import org.ee.sql.CloseableDataSource;
 import org.ee.web.request.Request;
 
 import com.ee.imperator.ImperatorApplicationContext;
@@ -51,7 +52,7 @@ public class SqlMemberState extends CloseableDataSource implements MemberState {
 	}
 
 	@Override
-	public Integer getId(Request request) {
+	public int getId(Request request) {
 		throw new UnsupportedOperationException();
 	}
 
