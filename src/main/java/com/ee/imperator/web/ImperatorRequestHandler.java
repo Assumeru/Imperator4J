@@ -15,6 +15,7 @@ import org.ee.web.request.Request;
 import org.ee.web.request.RequestHandler;
 import org.ee.web.request.filter.RequestFilter;
 import org.ee.web.request.filter.RequestFilterHandler;
+import org.ee.web.request.resource.ResourceHandler;
 import org.ee.web.response.Response;
 import org.reflections.Reflections;
 import org.reflections.util.ConfigurationBuilder;
@@ -84,7 +85,9 @@ public class ImperatorRequestHandler extends RequestFilterHandler {
 	}
 
 	private static Set<Class<? extends RequestFilter>> getHandlers() {
-		return new Reflections(new ConfigurationBuilder().forPackages(ImperatorRequestHandler.class.getPackage().getName())).getSubTypesOf(RequestFilter.class);
+		return new Reflections(new ConfigurationBuilder()
+				.forPackages(ImperatorRequestHandler.class.getPackage().getName(), ResourceHandler.class.getPackage().getName()))
+				.getSubTypesOf(RequestFilter.class);
 	}
 
 	@Override

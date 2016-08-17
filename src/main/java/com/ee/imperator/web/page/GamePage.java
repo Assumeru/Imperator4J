@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.ee.collection.ListMap;
+import org.ee.config.ConfigurationException;
 import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
 import org.ee.web.exception.ForbiddenException;
@@ -14,7 +15,6 @@ import org.ee.web.exception.NotFoundException;
 import org.ee.web.exception.WebException;
 import org.ee.web.request.Request.Method;
 
-import com.ee.imperator.exception.ConfigurationException;
 import com.ee.imperator.exception.FormException;
 import com.ee.imperator.exception.RequestException;
 import com.ee.imperator.game.Game;

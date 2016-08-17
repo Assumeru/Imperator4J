@@ -11,6 +11,7 @@ import javax.websocket.server.ServerContainer;
 import javax.websocket.server.ServerEndpointConfig;
 
 import org.ee.config.Config;
+import org.ee.config.ConfigurationException;
 import org.ee.logger.LogManager;
 import org.ee.logger.LogProvider;
 import org.ee.logger.Logger;
@@ -29,7 +30,6 @@ import com.ee.imperator.data.GameState;
 import com.ee.imperator.data.JoinedState;
 import com.ee.imperator.data.MemberState;
 import com.ee.imperator.data.State;
-import com.ee.imperator.exception.ConfigurationException;
 import com.ee.imperator.i18n.ClientSideLanguageProvider;
 import com.ee.imperator.map.MapProvider;
 import com.ee.imperator.task.CleanUp;
