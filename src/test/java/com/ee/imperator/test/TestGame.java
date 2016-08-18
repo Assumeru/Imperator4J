@@ -10,6 +10,7 @@ import javax.servlet.ServletException;
 
 import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
+import org.ee.web.ServletContextWrapper;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,7 +48,12 @@ public class TestGame {
 			
 			@Override
 			public ServletContext getServletContext() {
-				return null;
+				return new ServletContextWrapper(null) {
+					@Override
+					public Object getAttribute(String name) {
+						return null;
+					}
+				};
 			}
 			
 			@Override

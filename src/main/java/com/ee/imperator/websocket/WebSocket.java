@@ -53,7 +53,7 @@ public class WebSocket {
 	public void onMessage(String message, Session session) {
 		try {
 			JSONObject variables = new JSONObject(message);
-			Member member = (Member) session.getUserProperties().get(Member.class.getName());
+			Member member = Objects.requireNonNull((Member) session.getUserProperties().get(Member.class.getName()));
 			if((variables.has("mode") && Endpoint.Mode.of(variables.get("mode")) != Endpoint.Mode.UPDATE) || !session.getUserProperties().containsKey(Game.class.getName())) {
 				if(!session.getUserProperties().containsKey(Game.class.getName())) {
 					register(session, variables);

@@ -17,6 +17,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.ee.logger.LogManager;
 import org.ee.logger.Logger;
 import org.ee.reflection.Builder;
+import org.ee.reflection.ReflectionUtils;
 import org.ee.text.PrimitiveUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -262,7 +263,7 @@ public class MapParser {
 		List<Class<?>> types = new ArrayList<>();
 		values.add(id);
 		types.add(int.class);
-		Class<? extends Mission> missionClass = getMissionClass(getAttribute(item, "class"));
+		Class<? extends Mission> missionClass = getClass(getAttribute(item, "class"), Mission.class);
 		try {
 			return parseArguments(item, values, types).newInstance(missionClass);
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
@@ -294,13 +295,13 @@ public class MapParser {
 		return new Builder(types, values);
 	}
 
-	@SuppressWarnings("unchecked")
-	private <E> Class<? extends E> getMissionClass(String name) throws MapParseException {
+	private <E> Class<? extends E> getClass(String name, Class<E> type) throws MapParseException {
 		try {
+			ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 			if(name.contains(".")) {
-				return (Class<? extends E>) Class.forName(name);
+				return ReflectionUtils.getSubclass(name, classLoader, type);
 			}
-			return (Class<? extends E>) Class.forName(Mission.class.getPackage().getName() + "." + name);
+			return ReflectionUtils.getSubclass(Mission.class.getPackage().getName() + "." + name, classLoader, type);
 		} catch (ClassNotFoundException e) {
 			throw new MapParseException("Unknown mission class", e);
 		}
@@ -330,7 +331,7 @@ public class MapParser {
 	}
 
 	private VictoryCondition parseMissionCondition(Element item) throws MapParseException {
-		Class<? extends VictoryCondition> conditionClass = getMissionClass(getAttribute(item, "class"));
+		Class<? extends VictoryCondition> conditionClass = getClass(getAttribute(item, "class"), VictoryCondition.class);
 		try {
 			return parseArguments(item).newInstance(conditionClass);
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {

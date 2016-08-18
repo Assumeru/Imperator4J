@@ -21,6 +21,7 @@ import org.ee.web.request.RequestHandler;
 import org.ee.web.response.ResponseWriter;
 
 import com.ee.imperator.api.Api;
+import com.ee.imperator.config.ImperatorClassLoader;
 import com.ee.imperator.config.ImperatorConfig;
 import com.ee.imperator.crypt.PasswordHasher;
 import com.ee.imperator.crypt.bcrypt.BCryptHasher;
@@ -42,6 +43,7 @@ import com.ee.imperator.websocket.WebSocketConfigurator;
 public class Imperator extends WebApplication {
 	private static final long serialVersionUID = -6119169366807789039L;
 	private static final Logger LOG = LogManager.createLogger();
+	private final ImperatorClassLoader classLoader;
 	private ImperatorApplicationContext context;
 	private Config config;
 	private State state;
@@ -56,10 +58,16 @@ public class Imperator extends WebApplication {
 	private CleanUp cleanup;
 	private Api api;
 
+	public Imperator() {
+		classLoader = new ImperatorClassLoader();
+		Thread.currentThread().setContextClassLoader(classLoader);
+	}
+
 	@Override
 	public void init() throws ServletException {
 		context = new ImperatorContext(this);
 		config = initConfig();
+		LOG.d("CLASSLOADER " + config.getClass().getClassLoader());
 		LogManager.setLogProvider(getProviderInstance(LogProvider.class));
 		api = new Api(context);
 		state = initState();
@@ -101,7 +109,7 @@ public class Imperator extends WebApplication {
 				config = ImperatorConfig.class.getName();
 				LOG.w("Using default config, use jvm argument -Dcom.ee.imperator.Config=<class name> to define another config implementation.");
 			}
-			return getInstance(ReflectionUtils.getSubclass(config, Config.class));
+			return getInstance(ReflectionUtils.getSubclass(config, classLoader, Config.class));
 		} catch(Exception e) {
 			throw new ConfigurationException("Failed to init config", e);
 		}
@@ -127,6 +135,10 @@ public class Imperator extends WebApplication {
 
 	private void initWebSocket() {
 		ServerContainer serverContainer = (ServerContainer) getServletContext().getAttribute(ServerContainer.class.getName());
+		if(serverContainer == null) {
+			LOG.e("Failed to init websockets");
+			return;
+		}
 		ServerEndpointConfig endpoint = ServerEndpointConfig.Builder.create(WebSocket.class, com.ee.imperator.api.WebSocket.PATH).configurator(new WebSocketConfigurator(context)).build();
 		try {
 			serverContainer.addEndpoint(endpoint);
