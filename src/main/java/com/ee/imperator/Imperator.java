@@ -67,7 +67,6 @@ public class Imperator extends WebApplication {
 	public void init() throws ServletException {
 		context = new ImperatorContext(this);
 		config = initConfig();
-		LOG.d("CLASSLOADER " + config.getClass().getClassLoader());
 		LogManager.setLogProvider(getProviderInstance(LogProvider.class));
 		api = new Api(context);
 		state = initState();
