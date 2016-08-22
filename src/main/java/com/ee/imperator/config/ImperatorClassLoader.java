@@ -22,6 +22,9 @@ public class ImperatorClassLoader extends URLClassLoader {
 	private static URL[] getUrls() {
 		File directory = getDirectory();
 		File[] jars = directory.listFiles((dir, name) -> PATTERN.matcher(name).matches());
+		if(jars == null) {
+			return new URL[0];
+		}
 		try {
 			URL[] urls = new URL[jars.length];
 			for(int i = 0; i < jars.length; i++) {
