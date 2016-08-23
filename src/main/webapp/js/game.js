@@ -151,7 +151,7 @@
 				$deltaY = $touches.y - $e.touches[0].clientY;
 				$absX = Math.abs($deltaX);
 				if(Math.abs($deltaY) < $absX && $absX > 10) {
-					if($deltaX > 0) {
+					if($deltaX < 0) {
 						swipeToTab('prev');
 					} else {
 						swipeToTab('next');
