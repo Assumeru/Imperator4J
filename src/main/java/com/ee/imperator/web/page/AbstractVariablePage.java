@@ -16,32 +16,33 @@ import org.ee.web.Status;
 import org.ee.web.request.Request;
 
 import com.ee.imperator.exception.ParamPageException;
+import com.ee.imperator.web.ImperatorRequestHandler;
 import com.ee.imperator.web.PathParam;
 import com.ee.imperator.web.context.PageContext;
 
 public abstract class AbstractVariablePage extends ImperatorPage {
 	private static final Logger LOG = LogManager.createLogger();
-	private UriTemplate template;
+	private final UriTemplate template;
 	private Method method;
 	private String[] parameterOrder;
 
-	public AbstractVariablePage(String pattern, String path, String template, Status status, String title) {
-		super(path, template, status, title);
-		setTemplate(pattern);
+	public AbstractVariablePage(ImperatorRequestHandler handler, String pattern, String path, String template, Status status, String title) {
+		super(handler, path, template, status, title);
+		this.template = buildTemplate(pattern);
 	}
 
-	public AbstractVariablePage(String pattern, String path, String template, String title) {
-		super(path, template, title);
-		setTemplate(pattern);
+	public AbstractVariablePage(ImperatorRequestHandler handler, String pattern, String path, String template, String title) {
+		super(handler, path, template, title);
+		this.template = buildTemplate(pattern);
 	}
 
-	public AbstractVariablePage(String pattern, String path, String template) {
-		super(path, template);
-		setTemplate(pattern);
+	public AbstractVariablePage(ImperatorRequestHandler handler, String pattern, String path, String template) {
+		super(handler, path, template);
+		this.template = buildTemplate(pattern);
 	}
 
-	private void setTemplate(String pattern) {
-		template = new UriTemplate(pattern + "{___slash : [/]*}");
+	private UriTemplate buildTemplate(String pattern) {
+		UriTemplate template = new UriTemplate(pattern + "{___slash : [/]*}");
 		List<Method> methods = ReflectionUtils.getMethodsUntil(getClass(), AbstractVariablePage.class);
 		for(Method method : methods) {
 			if("setVariables".equals(method.getName()) && method.getParameterCount() > 0 && method.getParameterTypes()[0] == PageContext.class) {
@@ -49,6 +50,7 @@ public abstract class AbstractVariablePage extends ImperatorPage {
 				break;
 			}
 		}
+		return template;
 	}
 
 	private void setMethod(Method method) {

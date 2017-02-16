@@ -19,6 +19,7 @@ import com.ee.imperator.exception.FormException;
 import com.ee.imperator.exception.RequestException;
 import com.ee.imperator.game.Game;
 import com.ee.imperator.user.Player;
+import com.ee.imperator.web.ImperatorRequestHandler;
 import com.ee.imperator.web.PathParam;
 import com.ee.imperator.web.context.PageContext;
 import com.ee.imperator.web.page.form.JoinGameForm;
@@ -26,8 +27,8 @@ import com.ee.imperator.web.page.form.JoinGameForm;
 public class GamePage extends AbstractVariablePage {
 	private static final Logger LOG = LogManager.createLogger();
 
-	public GamePage() {
-		super("game/{id : [-]{0,1}[0-9]+}/{name : .*}", "game", null);
+	public GamePage(ImperatorRequestHandler handler) {
+		super(handler, "game/{id : [-]{0,1}[0-9]+}/{name : .*}", "game", null);
 	}
 
 	public void setVariables(PageContext context, @PathParam("id") int id) {

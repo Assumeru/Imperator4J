@@ -1,5 +1,7 @@
 package com.ee.imperator.web;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -29,18 +31,18 @@ public class ImperatorRequestHandler extends RequestFilterHandler {
 	private static final Logger LOG = LogManager.createLogger();
 	private final Map<Status, WebPage> statusPages;
 	private final ImperatorApplicationContext context;
+	private final Set<RequestFilter> filters;
 	private final List<RequestFilter> navigationPages;
 
 	public ImperatorRequestHandler(ImperatorApplicationContext context) {
-		super(initRequestHandlers());
 		this.context = context;
-		this.navigationPages = init();
+		this.filters = initRequestHandlers();
+		this.navigationPages = initNavigationPages();
 		statusPages = new MapBuilder<Status, WebPage>()
-				.put(Status.FORBIDDEN, new Http403())
-				.put(Status.NOT_FOUND, new Http404())
-				.put(Status.INTERNAL_SERVER_ERROR, new Http500())
+				.put(Status.FORBIDDEN, new Http403(this))
+				.put(Status.NOT_FOUND, new Http404(this))
+				.put(Status.INTERNAL_SERVER_ERROR, new Http500(this))
 				.build(true);
-		statusPages.values().forEach(p -> p.setRequestHandler(this));
 	}
 
 	@Override
@@ -52,15 +54,15 @@ public class ImperatorRequestHandler extends RequestFilterHandler {
 		return response;
 	}
 
-	private static Set<RequestFilter> initRequestHandlers() {
+	private Set<RequestFilter> initRequestHandlers() {
 		Set<RequestFilter> requestHandlers = new HashSet<>();
 		for(Class<? extends RequestFilter> handler : getHandlers()) {
 			if(!Modifier.isAbstract(handler.getModifiers()) && !handler.isAnnotationPresent(Ignore.class)) {
 				try {
-					RequestFilter instance = handler.newInstance();
+					RequestFilter instance = getInstance(handler);
 					requestHandlers.add(instance);
 					LOG.d("Loaded handler " + instance.getClass());
-				} catch (InstantiationException | IllegalAccessException e) {
+				} catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
 					LOG.e("Implementations of RequestHandler should provide a default constructor", e);
 				}
 			}
@@ -68,26 +70,33 @@ public class ImperatorRequestHandler extends RequestFilterHandler {
 		return requestHandlers;
 	}
 
-	private List<RequestFilter> init() {
+	private static Set<Class<? extends RequestFilter>> getHandlers() {
+		return new Reflections(new ConfigurationBuilder()
+				.forPackages(ImperatorRequestHandler.class.getPackage().getName(), ResourceHandler.class.getPackage().getName()))
+				.getSubTypesOf(RequestFilter.class);
+	}
+
+	private RequestFilter getInstance(Class<? extends RequestFilter> type) throws InstantiationException, IllegalAccessException, InvocationTargetException {
+		Class<? extends ImperatorRequestHandler> paramType = getClass();
+		for(Constructor<?> constructor : type.getConstructors()) {
+			if(constructor.getParameterCount() == 1 && constructor.getParameterTypes()[0].isAssignableFrom(paramType)) {
+				return (RequestFilter) constructor.newInstance(this);
+			}
+		}
+		return type.newInstance();
+	}
+
+	private List<RequestFilter> initNavigationPages() {
 		ArrayList<RequestFilter> navigation = new ArrayList<>();
 		for(RequestFilter filter : getFilters()) {
 			if(filter.getClass().isAnnotationPresent(NavigationPage.class)) {
 				navigation.add(filter);
-			}
-			if(filter instanceof WebPage) {
-				((WebPage) filter).setRequestHandler(this);
 			}
 		}
 		LOG.d("Loaded " + navigation.size() + " navigation pages");
 		navigation.trimToSize();
 		navigation.sort(new NavigationPage.NavigationSorter());
 		return navigation;
-	}
-
-	private static Set<Class<? extends RequestFilter>> getHandlers() {
-		return new Reflections(new ConfigurationBuilder()
-				.forPackages(ImperatorRequestHandler.class.getPackage().getName(), ResourceHandler.class.getPackage().getName()))
-				.getSubTypesOf(RequestFilter.class);
 	}
 
 	@Override
@@ -101,5 +110,10 @@ public class ImperatorRequestHandler extends RequestFilterHandler {
 
 	public List<RequestFilter> getNavigationPages() {
 		return navigationPages;
+	}
+
+	@Override
+	protected Set<RequestFilter> getFilters() {
+		return filters;
 	}
 }

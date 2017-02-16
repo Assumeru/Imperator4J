@@ -12,6 +12,7 @@ import org.ee.web.response.Response;
 import org.ee.web.response.SimpleResponse;
 
 import com.ee.imperator.api.WebSocket;
+import com.ee.imperator.web.ImperatorRequestHandler;
 import com.ee.imperator.web.context.DefaultPageContext;
 import com.ee.imperator.web.context.PageContext;
 import com.ee.imperator.web.context.Variable;
@@ -20,16 +21,16 @@ public abstract class ImperatorPage extends AbstractWebPage {
 	private final String template;
 	private final String title;
 
-	protected ImperatorPage(String path, String template) {
-		this(path, template, null);
+	protected ImperatorPage(ImperatorRequestHandler handler, String path, String template) {
+		this(handler, path, template, null);
 	}
 
-	protected ImperatorPage(String path, String template, String title) {
-		this(path, template, Status.OK, title);
+	protected ImperatorPage(ImperatorRequestHandler handler, String path, String template, String title) {
+		this(handler, path, template, Status.OK, title);
 	}
 
-	protected ImperatorPage(String path, String template, Status status, String title) {
-		super(path, status);
+	protected ImperatorPage(ImperatorRequestHandler handler, String path, String template, Status status, String title) {
+		super(handler, path, status);
 		this.template = template + "::fragment";
 		this.title = title;
 	}

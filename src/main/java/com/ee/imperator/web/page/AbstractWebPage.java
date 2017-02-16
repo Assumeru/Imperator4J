@@ -14,9 +14,10 @@ import com.ee.imperator.web.WebPage;
 public abstract class AbstractWebPage implements WebPage {
 	private final String path;
 	private final Status status;
-	protected ImperatorRequestHandler handler;
+	protected final ImperatorRequestHandler handler;
 
-	public AbstractWebPage(String path, Status status) {
+	public AbstractWebPage(ImperatorRequestHandler handler, String path, Status status) {
+		this.handler = handler;
 		this.path = path;
 		this.status = status;
 	}
@@ -51,10 +52,5 @@ public abstract class AbstractWebPage implements WebPage {
 			name = page.name();
 		}
 		return name == null ? "" : name;
-	}
-
-	@Override
-	public void setRequestHandler(ImperatorRequestHandler handler) {
-		this.handler = handler;
 	}
 }

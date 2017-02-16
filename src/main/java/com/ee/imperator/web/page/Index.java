@@ -1,12 +1,13 @@
 package com.ee.imperator.web.page;
 
+import com.ee.imperator.web.ImperatorRequestHandler;
 import com.ee.imperator.web.NavigationPage;
 import com.ee.imperator.web.context.PageContext;
 
 @NavigationPage(index = 0, name = "Home")
 public class Index extends ImperatorPage {
-	public Index() {
-		super("", null, "Home");
+	public Index(ImperatorRequestHandler handler) {
+		super(handler, "", null, "Home");
 	}
 
 	@Override

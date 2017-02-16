@@ -23,10 +23,11 @@ import com.ee.imperator.web.page.form.NewGameForm;
 @NavigationPage(index = 2, name = "New Game")
 public class NewGamePage extends ImperatorPage {
 	private static final Logger LOG = LogManager.createLogger();
-	private Map<String, String> colors;
+	private final Map<String, String> colors;
 
-	public NewGamePage() {
-		super("game/new", "newgame", "New Game");
+	public NewGamePage(ImperatorRequestHandler handler) {
+		super(handler, "game/new", "newgame", "New Game");
+		colors = getColors(handler.getContext());
 	}
 
 	@Override
@@ -61,12 +62,6 @@ public class NewGamePage extends ImperatorPage {
 		}
 		Game game = context.getState().createGame(owner, form.getMap(), form.getName(), password);
 		redirect(context.getUrlBuilder().game(game));
-	}
-
-	@Override
-	public void setRequestHandler(ImperatorRequestHandler handler) {
-		super.setRequestHandler(handler);
-		colors = getColors(handler.getContext());
 	}
 
 	private Map<String, String> getColors(ImperatorApplicationContext context) {

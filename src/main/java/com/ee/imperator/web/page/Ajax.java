@@ -8,7 +8,11 @@ import com.ee.imperator.web.ImperatorRequestHandler;
 import com.ee.imperator.web.WebPage;
 
 public class Ajax implements WebPage {
-	private LongPolling api;
+	private final LongPolling api;
+
+	public Ajax(ImperatorRequestHandler handler) {
+		api = handler.getContext().getApi().getLongPolling();
+	}
 
 	@Override
 	public Response handle(Request request) {
@@ -18,11 +22,6 @@ public class Ajax implements WebPage {
 	@Override
 	public boolean matches(Request request) {
 		return request.getMethod() == Request.Method.POST && "ajax".equals(request.getPath()) || "ajax/".equals(request.getPath());
-	}
-
-	@Override
-	public void setRequestHandler(ImperatorRequestHandler handler) {
-		api = handler.getContext().getApi().getLongPolling();
 	}
 
 	@Override

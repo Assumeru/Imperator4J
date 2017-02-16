@@ -2,13 +2,14 @@ package com.ee.imperator.web.page;
 
 import org.ee.web.exception.ForbiddenException;
 
+import com.ee.imperator.web.ImperatorRequestHandler;
 import com.ee.imperator.web.NavigationPage;
 import com.ee.imperator.web.context.PageContext;
 
 @NavigationPage(index = 1, name = "My Games")
 public class MyGames extends ImperatorPage {
-	public MyGames() {
-		super("my-games", "gamelist", "My Games");
+	public MyGames(ImperatorRequestHandler handler) {
+		super(handler, "my-games", "gamelist", "My Games");
 	}
 
 	@Override

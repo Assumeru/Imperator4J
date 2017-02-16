@@ -5,12 +5,13 @@ import java.util.Arrays;
 import org.ee.web.exception.NotFoundException;
 
 import com.ee.imperator.map.Map;
+import com.ee.imperator.web.ImperatorRequestHandler;
 import com.ee.imperator.web.PathParam;
 import com.ee.imperator.web.context.PageContext;
 
 public class MapPage extends AbstractVariablePage {
-	public MapPage() {
-		super("map/{id : [-]{0,1}[0-9]+}/{name : .*}", "map", "map");
+	public MapPage(ImperatorRequestHandler handler) {
+		super(handler, "map/{id : [-]{0,1}[0-9]+}/{name : .*}", "map", "map");
 	}
 
 	public void setVariables(PageContext context, @PathParam("id") int id) {
